@@ -1,19 +1,19 @@
-The Metakit Library 2.4.9.7                                           Jun 2007
+The MetaKit Library 2.3.3 final release candidate                November 2000
 ==============================================================================
 
 
-WHAT IT IS - Metakit is an embeddable database which runs on Unix, Windows,
+WHAT IT IS - MetaKit is an embeddable database which runs on Unix, Windows,
     Macintosh, and other platforms.  It lets you build applications which
     store their data efficiently, in a portable way, and which will not need a
-    complex runtime installation.  In terms of the data model, Metakit takes
+    complex runtime installation.  In terms of the data model, MetaKit takes
     the middle ground between RDBMS, OODBMS, and flat-file databases - yet it
     is quite different from each of them.
 
 TECHNOLOGY - Everything is stored variable-sized yet with efficient positional
     row access.  Changing an existing datafile structure is as simple as re-
-    opening it with that new structure.  All changes are transacted, including
-    restructuring.  You can mix and match software written in C++, Python,
-    and Tcl.  Things can't get much more flexible...
+    opening it with that new structure.  All changes are transacted.  You can
+    mix and match software written in C++, Python, and Tcl.  Things can't get
+    much more flexible...
 
 CORE - The Metakit core library is written in C++.  It has a code footprint of
     just over 100 Kb on Windows.  It can be used as DLL, or linked statically.
@@ -23,103 +23,49 @@ PYTHON - The binding for Python is called "Mk4py".  It uses SCXX by Gordon
     McMillan as C++ glue interface.  The source is in directory "python/".
 
 TCL/TK - The MK extension for Tcl is called "Mk4tcl".  It is being used in a
-    number of commercial projects.  The source is in directory "tcl/".
+    number of commercial projects, for in-house use as well as in commercially
+    distributed products.  The source is in directory "tcl/".
 
-LICENSE AND SUPPORT - Metakit is distributed as open source software (see the
-    X/MIT-style license at the end of this document).  Commercial support is
-    available through an Enterprise License, see the URL mentioned below.
+LICENSE AND SUPPORT - MetaKit is now distributed as open source software (the
+    X/MIT-style license is at the end of this document).  Commercial support
+    is available through an Enterprise License, see the URL mentioned below.
 
-DOCUMENTATION - All documentation uses HTML.  The main page is "Metakit.html",
+DOCUMENTATION - All documentation uses HTML.  The main page is "MetaKit.html",
     which leads to the rest of the documentation in the "doc/" directory.
     The C++ API Reference is extracted from the source code using Doxygen.
 
 WEBSITE URLS - The main pages on the world wide web, for news and downloads:
-    Homepage:       http://www.equi4.com/metakit.html
+    Homepage:       http://www.equi4.com/metakit/
     Python news:    http://www.equi4.com/metakit/python.html
     Tcl/Tk news:    http://www.equi4.com/metakit/tcl.html
     License info:   http://www.equi4.com/metakit/license.html
-    Contact info:   http://www.equi4.com/about/contact.html
+    Contact info:   http://www.equi4.com/contact.html
 
-ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend Metakit,
-    including Kyrill Denisenko, Mark Roseman, Gordon McMillan, Matt Newman,
-    Christian Tismer, John Bushakra, Steve Landers, Jacob Levy, John Barnard,
-    Nicholas Riley, Brian Kelley, and many more people who have reported bugs
-    and helped fix them.  Last but not least, many thanks to all enterprise
-    license customers and all my clients for funding Metakit work.
+ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend MetaKit,
+    i.e. Kyrill Denisenko, Gordon McMillan, Matt Newman, Christian Tismer,
+    John Bushakra, and many people who have reported bugs and helped fix them.
+    Many thanks to all enterprise license customers for funding MetaKit work.
 
 
 INSTALLATION
 ============
 
-All platform builds and language bindings are designed to work from a single
-common "builds/" directory.  Where possible, that is - it turns out to be
-impossible to keep build side-effects limited to *just* this directory
+Starting with this release, all platform builds and language bindings are now
+designed to work from a single common "builds/" directory.  It turns out to
+be impossible to keep build side-effects limited to *just* this directory
 (CodeWarrior can't be told where to place its temp data, and Visual C++ still
 alters a few files next to the project ".dsw" file, to name two offenders).
 
-PYTHON - Nov 2006
-
-    There is a --with-python option in unix/configure, but it does not always
-    seem to work.  One problem is python version numbers being hard-wired into
-    the configure/make files (2.5 right now).  This worked for me on Mac OS X:
-        cd builds
-        ../unix/configure \
-          --with-python=/Library/Frameworks/Python.framework/Versions/2.5
-        ln -s Mk4py.dylib Mk4py.so
-    Note that the arg to --with-python is the path *upto* include/python2.5
-    
-    There is also a python/setup.py script which should simplify building for
-    Python.  Unfortunately, it does things in a somewhat tricky way in that
-    it uses MK's .o files from the builds/ directory.  This in turn means 
-    that on Mac OS X, you'll need to hack things a bit to make these .o's end
-    up as "fat" (ppc+i386) binaries since setup.py needs them that way.
-    
-    Here's how a non-macosx build should work:
-        cd builds
-        sh ../unix/configure
-        make test
-        cd ../python
-        python setup.py clean build
-    The result will be left in ../builds/lib.*/{Mk4py.so,metakit.py}
-    
-    For Mac OS X, you need to hack ../builds/Makefile after running configure:
-        * change "CXXFLAGS = $(CXX_FLAGS)" to "CXXFLAGS = $(CXX_FLAGS) \
-            -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk"
-        * change "SHLIB_LD = g++" to "SHLIB_LD = g++ -dynamiclib \
-            -flat_namespace -undefined suppress -arch ppc -arch"
-    Then do the rest, using "make" i.s.o. "make test" because the changes to
-    the flags don't seem to create proper executables.  That's ok though, the
-    .o files are fat, which is all setup.py needs.
-
-TCL - Jun 2007
-
-    The Tcl build has been converted to use the TEA3-based configure script
-    in the tcl/ directory.  The way to build Mk4tcl is now as follows:
-
-        mkdir tbuild      # can be anywhere, really...
-        cd tbuild
-        CC=g++ sh ../tcl/configure
-        make
-        make test
-        make install
-
-    This build configuration has not yet been tested with non-gcc compilers.
-    There are no dependencies on the C++ build process, nor the builds/ dir.
-    
-    Note: for Windows CE, an older version of the tcl.configure script was
-    successfully used with MS EVC3.  One trick is that in tcl/configure.in,
-    "TEA_ADD_CFLAGS([])" has to be changed to "TEA_ADD_CFLAGS([-Dq4_WINCE])".
-    
-UNIX (ALSO MAC OS X)
+UNIX
 
     It is no longer advised to build the Unix code in the "unix/" directory.
     Instead, you should perform the following steps:
-        cd builds
-        sh ../unix/configure
-        make
-        make test
+        % cd builds
+        % ../unix/configure
+        % make
+        % make test
     And optionally (this only installs the core lib, not script extensions):
-        make install
+        % make install
 
     By switching to the "builds/" directory, you will keep the distribution
     directory tree 100% unaltered.  All changes are made in this subdir, and
@@ -128,20 +74,12 @@ UNIX (ALSO MAC OS X)
     To build with STL containers and strings, you can do the following:
         make CXXFLAGS='-Dq4_STD' test   # add -O3 etc, as needed
 
-    OLD: to build the Mk4tcl extension on Unix, change the configure to:
-        ../unix/configure --with-tcl=<dir-where-tcl.h-is>
-    OLD: to build the Mk4py extension on Unix, change the configure to:
-        ../unix/configure --with-python=<dir-where-include/-is>
-    E.g.
-        ../unix/configure --with-tcl=/usr/include --with-python=/usr
-
-    Use "../unix/configure --help" to find out about other variants, when the
-    include & lib dirs are completely different, and for other build options.
+    See below for some platform-specific build notes.
 
 WINDOWS
 
     There is a "win/" directory which contains subdirectories for a number of
-    compiler systems.  Metakit has been built with many different compilers
+    compiler systems.  MetaKit has been built with many different compilers
     in the past (Microsoft, Borland, Watcom, Symantec, Metrowerks, Optima),
     only a few are maintained (there are 12 configurations for MSVC6 alone!).
 
@@ -150,8 +88,6 @@ WINDOWS
     regression tests (mktest), as well as Tcl (mktcl) and Python (mkpython).
     It has been set up to place all intermediate files and final results in
     the "builds/" subdirectory, even though you'll launch it from "win/".
-
-    An MSVC 7.0 project by David Van Maren is in win/msvc70/mksrc.sln.
 
     To build with STL containers and strings under MSVC, define "q4_STD".
     To build with MFC containers and strings under MSVC, define "q4_MFC".
@@ -174,11 +110,76 @@ WINDOWS
     efficiency on x86 hardware: "-O2 -m486 -malign-loops=2 -malign-jumps=2".
     I have not yet tried this myself, but am passing on the tip.
 
+MACINTOSH
+
+    The Mac version requires Metrowerks CodeWarrior 5.  See the info above
+    in the Windows section (MWCW is multi-platform).  The projects are all
+    located in the "mac/" folder, which is also where MWCW will place its own
+    "... Data" folders with intermediate results.  As with all other setups,
+    final results are made to end up in the "builds/" directory.
+
+
+PLATFORM-SPECIFIC NOTES
+=======================
+
+* Linux / gcc 2.95.2
+
+    Builds with gcc 2.95.2 work out of the box.  The Python extension ends up
+    as Mk4py.so (ignore libmk4py.*), the Tcl extension is called Mk4tcl.so
+    (ignore libmk4tcl.*).
+
+    The core MK libs end up as ".libs/libmk4.a" and ".libs/libmk4.so.0.0.0".
+    The .0.0.0 stuff comes from libtool, I usually rename it to "libmk4.so".
+
+* Solaris 2.6 / gcc 2.8.1
+
+    The gcc 2.8.1 optimizer appears to be buggy, I have had to turn off the
+    default "-O3" flag to prevent compiler crashes (several files).
+    This problems appears to be resolved with gcc 2.95.
+
+* Other Unix systems
+
+    No further notes, most systems should build just fine.
+
+* Windows
+
+    MSVC 6 builds MK as static lib and as DLL (universal config, I have not
+    yet created build versions with MFC or STL, mainly because MK can now be
+    used in all contexts regardless of how it was built).  The Python and Tcl
+    extensions build as dynamic extensions (a static build is easy to add).
+
+    MWCW 5 builds MK as static lib and as DLL (interestingly enough, the DLL
+    is slightly smaller than MSVC 6 - 102 vs 108 Kb - when their runtimes are
+    linked in dynamically as well).  I have not added Win builds for Tcl or
+    Python, since MSVC 6 has those already.
+
+    Cygwin B20.1, with gcc 2.95.2 ugrade, also builds MK as static lib and as
+    DLL.  Both "pure" Cygwin (i.e. requiring cygwin1.dll) and mingw32 (using
+    the -mno-cygwin flag) build, but there are some hairy include issues when
+    it comes to choosing the right locking model for Tcl and Python.  These
+    issues have not been resolved fully.
+
+* Macintosh
+
+    MWCW 5 builds 4 libs: PPC and 68K, static and shared.
+
+    Regression tests and demo apps are built from the cw5app project.
+    Two additional projects can be used to build Python and Tcl extensions.
+
+* BeOS
+
+    John Bushakra has ported MK to BeOS, apparently just minor #define tweaks.
+    His changes will be incorporated in the 2.3 release, see the beos/ subdir.
+
+* VMS, ...
+
+    No news yet, please report your findings with any other platform builds.
+
 
 LICENSE AND COPYRIGHT STATEMENT
 ===============================
 
-Copyright (c) 1996-2007 Jean-Claude Wippler
+Copyright (c) 1996-2000 Jean-Claude Wippler
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),
