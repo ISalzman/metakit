@@ -1,22 +1,22 @@
 <html><head>
-	<title>MetaKit sample code - MyIO</title>
+	<title>Metakit sample code - MyIO</title>
 </head><body bgcolor=white>
 
 <font face=Helvetica size=3>
 
 <!--begin-->
 <h2><img src="e4app.gif" alt="App Icon" border=0 align=left>
-MetaKit sample code - MyIO</h2><br clear=left>
+Metakit sample code - MyIO</h2><br clear=left>
 
-<p>This example demonstrates how to setup low-level datafile encryption with MetaKit.</p>
+<p>This example demonstrates how to setup low-level datafile encryption with Metakit.</p>
 
 <p><b>What it does</b>: MyIO creates a simple view on disk, and then loads it back in.
 The data on disk is stored in a simple encrypted format.
 </p>
 
-<p><b>What it illustrates</b>: This sample program shows how to customize MetaKit
+<p><b>What it illustrates</b>: This sample program shows how to customize Metakit
 via its "Strategy" object. <p>Just to show it can be done, MyIO also disables all
-flush calls issued by MetaKit.  This slightly reduces the fail-safe properties but
+flush calls issued by Metakit.  This slightly reduces the fail-safe properties but
 improves performance with frequent commits on systems which implement caching using
  "lazy writes" (such as Windows).<p>The source code of this
 application can be compiled for 32-bit Windows (as console application)
@@ -26,7 +26,7 @@ as well as for 16-bit DOS targets. MyIO has no practical use, but it contains a
 <p><b>How to use it</b>: When you launch MYIO.EXE, it creates a datafile called "secret.dat",
 saves some string data to it, then reads that back and displays these strings.
 <p>Note that due to the encrypted
-storage format you can NOT use the MetaKit dump utility to examine the contents of the data file.
+storage format you can NOT use the Metakit dump utility to examine the contents of the data file.
 You can of course build your own version of it, since all the necessary source code is included.
 
 <p><b>Known problems</b>: None.</p>

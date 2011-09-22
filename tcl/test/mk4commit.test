@@ -232,7 +232,7 @@ T 5 {missing/empty file} {
   C [file size $f] 0
 
   catch {mk::file end $f} err
-  C $err {not a MetaKit datafile}
+  C $err {not a Metakit datafile}
   
   mk::file open db $f
   mk::file close db

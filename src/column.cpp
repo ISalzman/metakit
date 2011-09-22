@@ -1,6 +1,6 @@
 // column.cpp --
-// $Id: column.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: column.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Implements c4_Column, c4_ColOfInts, and c4_ColIter
@@ -109,6 +109,7 @@ bool c4_Column::UsesMap(const t4_byte* ptr_) const
 {
     // the most common falsifying case is checked first
   return _persist != 0 && ptr_ >= Strategy()._mapStart &&
+        Strategy()._dataSize != 0 && // added  2003-05-08, thx V DeMarco
         ptr_ - Strategy()._mapStart < Strategy()._dataSize;
 }
 

@@ -1,6 +1,6 @@
 """
 Some demo code to show find performance and some of the new indexing
-features in MetaKit 2.3.  Sample output (SuSE Linux 6.4, PIII/650):
+features in Metakit 2.3.  Sample output (SuSE Linux 6.4, PIII/650):
 
   find.py - Mk4py 2.3.2 - linux2
   filldb 100 rows: 0.015092 sec
@@ -41,7 +41,7 @@ efficient but O(N), ordered views will switch to binary search, and
 if a hash mapping is used then you get the usual O(1) of hashing.
 
 The statement "vwo = vw.ordered(1)" sets up a view layer around vw,
-which allows MetaKit to take advantage of sort order.  The numeric
+which allows Metakit to take advantage of sort order.  The numeric
 argument specifies how many of the first property define the key.
 The vwo view is modifiable, it will maintains order on insertions.
 
@@ -54,7 +54,7 @@ faster than setting up vwh first, and inserting into new data in vwh.
 The underlying vw and map views may *not* be altered directly once
 a hash is in use, unless you clear map and redefine the hash layer.
 
-MetaKit 2.01 only supports find_raw (linear scanning).
+Metakit 2.01 only supports find_raw (linear scanning).
 """
 
 import sys; sys.path.append('../builds'); import Mk4py; mk = Mk4py

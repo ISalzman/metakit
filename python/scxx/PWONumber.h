@@ -8,6 +8,10 @@
 #include "PWOBase.h"
 #include "PWOSequence.h"
 
+#if defined(PY_LONG_LONG) && !defined(LONG_LONG)
+#define LONG_LONG PY_LONG_LONG
+#endif
+
 class PWONumber : public PWOBase
 {
 public:
@@ -96,8 +100,8 @@ public:
     PyObject* Int = PyNumber_Int(_obj);
     if (Int == NULL)
       Fail(PyExc_TypeError, "can't convert to int");
-    long r = PyInt_AS_LONG(Int);
-    Py_DECREF(Int);
+    long r = PyInt_AsLong(_obj);
+    if (r == -1) FailIfPyErr();
     return r;
   };
   operator int () const {

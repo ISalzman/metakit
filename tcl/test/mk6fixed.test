@@ -115,4 +115,14 @@ T 7 {relaxed layout list input} {
   mk::view layout db.v { README#2 README#3 }
 }
 
-Q 8
+  # crashed until 2004-01-22, MK 2.4.9.2
+
+T 8 {row create} {
+  for {set i 0} {$i < 10} {incr i} {
+    mk::row create
+    lappend keep [mk::row create]
+  }
+  unset keep
+}
+
+Q 9

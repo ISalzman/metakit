@@ -1,6 +1,6 @@
 // format.cpp --
-// $Id: format.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: format.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Format handlers deal with the representation of data
@@ -1184,6 +1184,7 @@ void c4_FormatV::Insert(int index_, const c4_Bytes& buf_, int count_)
     SetupAllSubviews();
 
   _subSeqs.InsertAt(index_, 0, count_);
+  _data.SetBuffer(0); // 2004-01-18 force dirty
 }
 
 void c4_FormatV::Remove(int index_, int count_)
@@ -1197,6 +1198,7 @@ void c4_FormatV::Remove(int index_, int count_)
     ForgetSubview(index_ + i);
 
   _subSeqs.RemoveAt(index_, count_);
+  _data.SetBuffer(0); // 2004-01-18 force dirty
 }
 
 void c4_FormatV::Unmapped()
@@ -1294,7 +1296,8 @@ c4_Handler* f4_CreateFormat(const c4_Property& prop_, c4_HandlerSeq& seq_)
   }
 
   d4_assert(0);
-  return 0;
+  // 2004-01-16 turn bad definition type into an int property to avoid crash
+  return d4_new c4_FormatX (c4_IntProp (prop_.Name()), seq_);
 }
 
 /////////////////////////////////////////////////////////////////////////////

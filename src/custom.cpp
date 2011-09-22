@@ -1,6 +1,6 @@
 // custom.cpp --
-// $Id: custom.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: custom.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
  * Implementation of many custom viewer classes

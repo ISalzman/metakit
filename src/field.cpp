@@ -1,6 +1,6 @@
 // field.cpp --
-// $Id: field.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: field.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Implementation of the field structure tree
@@ -54,9 +54,19 @@ c4_Field::c4_Field (const char*& description_, c4_Field* parent_)
     if (*description_ == ']')
       ++description_;
     else
-      do
-	_subFields.Add(d4_new c4_Field (description_, this));
-      while (*description_++ == ',');
+      do {
+	  // 2004-01-20 ignore duplicate property names
+	  // (since there is no good way to report errors at this point)
+	c4_Field* sf = d4_new c4_Field (description_, this);
+	for (int i = 0; i < NumSubFields(); ++i)
+	  if (SubField(i).Name().CompareNoCase(sf->Name()) == 0) {
+	    delete sf;
+	    sf = 0;
+	    break;
+	  }
+	if (sf != 0)
+	  _subFields.Add(sf);
+      } while (*description_++ == ',');
   }
 }
 

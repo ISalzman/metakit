@@ -1,9 +1,7 @@
 // PyProperty.cpp --
-// $Id: PyProperty.cpp 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyProperty.cpp 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  Property class implementation
 
@@ -44,6 +42,24 @@ static PyObject* PyProperty_getattr(PyProperty *o, char *nm) {
   catch (...) { return 0; }
 }
 
+static int PyProperty_compare(PyProperty *o, PyObject *ob) {
+    PyProperty *other;
+    int myid, hisid;
+    try {
+        if (!PyProperty_Check(ob))
+            return -1;
+        other = (PyProperty *)ob;
+        myid = o->GetId();
+        hisid = other->GetId();
+        if (myid < hisid)
+            return -1;
+        else if (myid == hisid)
+            return 0;
+        return 1;
+    }
+    catch (...) { return -1; }
+}
+
 PyTypeObject PyPropertytype = {
   PyObject_HEAD_INIT(&PyType_Type)
   0,
@@ -54,7 +70,7 @@ PyTypeObject PyPropertytype = {
   (printfunc)PyProperty_print, /*tp_print*/
   (getattrfunc)PyProperty_getattr, /*tp_getattr*/
   0,              /*tp_setattr*/
-  0, /*tp_compare*/
+  (cmpfunc)PyProperty_compare, /*tp_compare*/
   0, /*tp_repr*/
   0,              /*tp_as_number*/
   0,      /*tp_as_sequence*/

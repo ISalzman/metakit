@@ -1,11 +1,11 @@
-//  An example using the MetaKit C++ persistence library
+//  An example using the Metakit C++ persistence library
 
 /////////////////////////////////////////////////////////////////////////////
 //
 //  This code demonstrates:
 //
 //    - Creating a persistent view and adding two data rows to it.
-//    - Adding a third data row using MetaKit's operator shorthands.
+//    - Adding a third data row using Metakit's operator shorthands.
 //    - Adding an additional property without losing the existing data.
 //    - Storing an additional view in the data file later on.
 //    - Inserting a new record into one of the views in the datafile.

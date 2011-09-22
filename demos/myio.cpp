@@ -2,7 +2,7 @@
 //
 //  - A class derived from c4_Strategy to implement encrypted storage.
 //  - Disabling the Flush calls issued during Commit() for speed.
-//  - Using c4_Strategy objects as the basis of all file I/O in MetaKit.
+//  - Using c4_Strategy objects as the basis of all file I/O in Metakit.
 
 #include "mk4.h"
 #include "mk4io.h"
@@ -93,7 +93,7 @@ int main()
   
     static const char* message[] = {
       "This is a small message which will be encrypted on file.",
-      "As a result, none of the other MetaKit utilities can read it.",
+      "As a result, none of the other Metakit utilities can read it.",
       "Furthermore, a hex dump of this file will produce gibberish.",
       "The encryption used here is ridiculously simple, however.",
       "Beware of naive encryption schemes, cracking them is a sport.",

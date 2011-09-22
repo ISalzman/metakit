@@ -846,7 +846,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib</PATH>
+                    <PATH>Metakit.PPC.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
@@ -906,7 +906,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib</PATH>
+                    <PATH>Metakit.PPC.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
                 <FILEREF>
@@ -1751,7 +1751,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68KCFM.lib</PATH>
+                    <PATH>Metakit.68KCFM.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS></FILEFLAGS>
@@ -1766,7 +1766,7 @@
             </FILELIST>
             <SEGMENTLIST>
                 <SEGMENT>
-                    <NAME>MetaKit</NAME>
+                    <NAME>Metakit</NAME>
                     <ATTRIBUTES>Preloaded, Protected, Locked</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
@@ -1820,7 +1820,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68KCFM.lib</PATH>
+                        <PATH>Metakit.68KCFM.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                     <FILEREF>
@@ -4109,7 +4109,7 @@
             </FILELIST>
             <SEGMENTLIST>
                 <SEGMENT>
-                    <NAME>MetaKit</NAME>
+                    <NAME>Metakit</NAME>
                     <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
@@ -4876,7 +4876,7 @@
             </FILELIST>
             <SEGMENTLIST>
                 <SEGMENT>
-                    <NAME>MetaKit</NAME>
+                    <NAME>Metakit</NAME>
                     <ATTRIBUTES>Protected, Purgeable</ATTRIBUTES>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
@@ -4906,13 +4906,13 @@
         <FILEREF>
             <TARGETNAME>Mk4tcl PPC Shared</TARGETNAME>
             <PATHTYPE>Name</PATHTYPE>
-            <PATH>MetaKit.PPC.lib</PATH>
+            <PATH>Metakit.PPC.lib</PATH>
             <PATHFORMAT>MacOS</PATHFORMAT>
         </FILEREF>
         <FILEREF>
             <TARGETNAME>Mk4tcl 68K CFM</TARGETNAME>
             <PATHTYPE>Name</PATHTYPE>
-            <PATH>MetaKit.68KCFM.lib</PATH>
+            <PATH>Metakit.68KCFM.lib</PATH>
             <PATHFORMAT>MacOS</PATHFORMAT>
         </FILEREF>
         <GROUP><NAME>Sources</NAME>

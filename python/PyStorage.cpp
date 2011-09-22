@@ -1,9 +1,7 @@
 // PyStorage.cpp --
-// $Id: PyStorage.cpp 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyStorage.cpp 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  Storage class implementation and main entry point
 
@@ -188,10 +186,15 @@ static PyObject* PyStorage_Description(PyStorage *o, PyObject* _args) {
     PWOString nm ("");
     if (args.len() > 0)
       nm = args[0];
-    PWOString rslt(o->Description(nm));
-    return rslt.disOwn();
+    const char *descr = o->Description(nm);
+    if (descr) {
+        PWOString rslt(descr);
+        return rslt.disOwn();
+    }
+    Fail(PyExc_KeyError, nm);
   }
-  catch (...) { return 0; }
+  catch (...) { }
+  return 0; /* satisfy compiler */
 }
 
 static char* commit__doc = 
@@ -364,7 +367,11 @@ static PyObject* PyStorage_new(PyObject* o, PyObject* _args) {
         ps = new PyStorage;
 	break;
       case 1:
-        if (!PyFile_Check((PyObject* )args[0])) {
+        if (!PyFile_Check((PyObject *)args[0])) {
+	  if (PyString_Check((PyObject *)args[0]))
+	    Fail(PyExc_TypeError, "rw parameter missing");
+	  else
+	    Fail(PyExc_TypeError, "argument not an open file");
           break;
         }
         ps = new PyStorage(*new c4_FileStrategy (PyFile_AsFile(args[0])), true);
@@ -401,7 +408,7 @@ static PyObject* PyStorage_new(PyObject* o, PyObject* _args) {
 	  break;
 	}
       default:
-	Fail(PyExc_ValueError, "not a file, or r/w parameter missing");
+	Fail(PyExc_ValueError, "storage() takes at most 4 arguments");
     }
     return ps;
   }
@@ -462,6 +469,10 @@ bool PyViewer::GetItem(int row_, int col_, c4_Bytes& buf_)
   if (PyDict_Check(item)) {
       PyObject* attr = PyDict_GetItemString(item, (char *)prop.Name());
       PyRowRef::setFromPython(_tempRow, prop, attr);
+      return prop (_tempRow).GetData(buf_);
+  }
+  if (_template.NumProperties() == 1) {
+      PyRowRef::setFromPython(_tempRow, prop, _data[row_]);
       return prop (_tempRow).GetData(buf_);
   }
   Fail(PyExc_ValueError, "Object has no usable attributes");
@@ -535,7 +546,7 @@ __declspec(dllexport)
 void initMk4py() {
   PyObject *m = Py_InitModule4("Mk4py", Mk4Methods, mk4py_module_documentation,
           0,PYTHON_API_VERSION);
-  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.2"));
+  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.3"));
   PyObject_SetAttrString(m, "ViewType", (PyObject*)&PyViewtype);
   PyObject_SetAttrString(m, "ViewerType", (PyObject*)&PyViewertype);
   PyObject_SetAttrString(m, "ROViewerType", (PyObject*)&PyROViewertype);
@@ -546,7 +557,7 @@ void initMk4py() {
 void initMk4py() {
   PyObject* m = Py_InitModule4("Mk4py", Mk4Methods,
             mk4py_module_documentation, 0, PYTHON_API_VERSION);
-  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.2"));
+  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.3"));
   PyObject_SetAttrString(m, "ViewType", (PyObject*)&PyViewtype);
   PyObject_SetAttrString(m, "ViewerType", (PyObject*)&PyViewertype);
   PyObject_SetAttrString(m, "ROViewerType", (PyObject*)&PyROViewertype);

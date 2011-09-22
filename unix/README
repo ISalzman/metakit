@@ -1,4 +1,4 @@
-To keep the unix/ directory as is, please build MetaKit using:
+To keep the unix/ directory as is, please build Metakit using:
 
 	cd ../builds
 	../unix/configure

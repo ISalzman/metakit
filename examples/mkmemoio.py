@@ -1,5 +1,5 @@
 # class MkMemoIO implements  file-like objects that read/write a
-# memo field in a MetaKit database (either on file, or in memory).
+# memo field in a Metakit database (either on file, or in memory).
 #
 # A simple adaptation of the StringIO.py module, by Jean-Claude Wippler.
 #

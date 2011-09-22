@@ -1,11 +1,11 @@
-The MetaKit Library 2.4.9.2                                           Mar 2003
+The Metakit Library 2.4.9.3                                           Jan 2004
 ==============================================================================
 
 
-WHAT IT IS - MetaKit is an embeddable database which runs on Unix, Windows,
+WHAT IT IS - Metakit is an embeddable database which runs on Unix, Windows,
     Macintosh, and other platforms.  It lets you build applications which
     store their data efficiently, in a portable way, and which will not need a
-    complex runtime installation.  In terms of the data model, MetaKit takes
+    complex runtime installation.  In terms of the data model, Metakit takes
     the middle ground between RDBMS, OODBMS, and flat-file databases - yet it
     is quite different from each of them.
 
@@ -25,35 +25,37 @@ PYTHON - The binding for Python is called "Mk4py".  It uses SCXX by Gordon
 TCL/TK - The MK extension for Tcl is called "Mk4tcl".  It is being used in a
     number of commercial projects.  The source is in directory "tcl/".
 
-LICENSE AND SUPPORT - MetaKit is now distributed as open source software (the
+LICENSE AND SUPPORT - Metakit is now distributed as open source software (the
     X/MIT-style license is at the end of this document).  Commercial support
     is available through an Enterprise License, see the URL mentioned below.
 
-DOCUMENTATION - All documentation uses HTML.  The main page is "MetaKit.html",
+DOCUMENTATION - All documentation uses HTML.  The main page is "Metakit.html",
     which leads to the rest of the documentation in the "doc/" directory.
     The C++ API Reference is extracted from the source code using Doxygen.
 
 WEBSITE URLS - The main pages on the world wide web, for news and downloads:
-    Homepage:       http://www.equi4.com/metakit/
+    Homepage:       http://www.equi4.com/metakit.html
     Python news:    http://www.equi4.com/metakit/python.html
     Tcl/Tk news:    http://www.equi4.com/metakit/tcl.html
-    License info:   http://www.equi4.com/metakit/license.html
+    License info:   http://www.equi4.com/mklicense.html
     Contact info:   http://www.equi4.com/contact.html
 
-ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend MetaKit,
+ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend Metakit,
     including Kyrill Denisenko, Mark Roseman, Gordon McMillan, Matt Newman,
     Christian Tismer, John Bushakra, Steve Landers, Jacob Levy, John Barnard,
-    and many more people who have reported bugs and helped fix them.  Last
-    but not least, many thanks to all enterprise license customers and all
-    my clients for funding MetaKit work.
+    Nicholas Riley, Brian Kelley, and many more people who have reported bugs
+    and helped fix them.  Last but not least, many thanks to all enterprise
+    license customers and all my clients for funding Metakit work.
 
 
 INSTALLATION
 ============
 
-Starting with this release, all platform builds and language bindings are now
-designed to work from a single common "builds/" directory.  It turns out to
-be impossible to keep build side-effects limited to *just* this directory
+(NOTE to Python users: ignore this and do "cd python; python setup.py ...")
+
+All platform builds and language bindings are designed to work from a single
+common "builds/" directory.  Where possible, that is - it turns out to be
+impossible to keep build side-effects limited to *just* this directory
 (CodeWarrior can't be told where to place its temp data, and Visual C++ still
 alters a few files next to the project ".dsw" file, to name two offenders).
 
@@ -75,16 +77,15 @@ UNIX
     To build with STL containers and strings, you can do the following:
         make CXXFLAGS='-Dq4_STD' test   # add -O3 etc, as needed
 
-    To build the Mk4py extension on Unix, change the configure to:
-        % ../unix/configure --enable-python
-
     To build the Mk4tcl extension on Unix, change the configure to:
         % ../unix/configure --with-tcl=<dir-where-tclConfig.sh-is>
+
+    Use "../unix/configure --help" to find out about all the other settings.
 
 WINDOWS
 
     There is a "win/" directory which contains subdirectories for a number of
-    compiler systems.  MetaKit has been built with many different compilers
+    compiler systems.  Metakit has been built with many different compilers
     in the past (Microsoft, Borland, Watcom, Symantec, Metrowerks, Optima),
     only a few are maintained (there are 12 configurations for MSVC6 alone!).
 
@@ -115,7 +116,7 @@ WINDOWS
     efficiency on x86 hardware: "-O2 -m486 -malign-loops=2 -malign-jumps=2".
     I have not yet tried this myself, but am passing on the tip.
 
-MACINTOSH
+MACINTOSH CLASSIC
 
     The Mac version requires Metrowerks CodeWarrior 6.  See the info above
     in the Windows section (MWCW is multi-platform).  The projects are all
@@ -127,7 +128,7 @@ MACINTOSH
 LICENSE AND COPYRIGHT STATEMENT
 ===============================
 
-Copyright (c) 1996-2003 Jean-Claude Wippler
+Copyright (c) 1996-2004 Jean-Claude Wippler
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

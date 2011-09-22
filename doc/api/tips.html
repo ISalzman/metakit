@@ -1,6 +1,6 @@
 <html>
 <head>
-<title>MetaKit Tips and Tricks</title>
+<title>Metakit Tips and Tricks</title>
 <meta name="generator" content="Frontier 5.0.1 Win95"></head>
 <body  bgcolor="#FFFFFF" alink="#008000" vlink="#800080" link="#0000FF" text="#000000">
 
@@ -8,14 +8,14 @@
 	<td width=100><a href="http://www.equi4.com/">
 		<img src=e4w.gif alt="E q u i 4" align=left width=97 height=35 hspace=0 border=0></a>
 	</td><td align=center>
-	<font size=+2>MetaKit Tips and Tricks</font><br>
+	<font size=+2>Metakit Tips and Tricks</font><br>
 	<i>December 1999</i>
 	</td><td width=100></td></tr></table>
 <p>
 
 
 <i>This page list some ideas and background information
-related to the use of MetaKit.
+related to the use of Metakit.
 If you have suggestions, please send them to <a href="mailto:jcw@equi4.com">jcw@equi4.com</a> ...</i>
 <br><br>
 
@@ -43,7 +43,7 @@ If you have suggestions, please send them to <a href="mailto:jcw@equi4.com">jcw@
 <dt><br><hr size=1><br><a name=streaming></a><b>Streaming</b> - 
 Some details about streaming and on-demand loading<p><dd><font face=Times>
 
-When saving data, MetaKit uses different formats, depending on whether
+When saving data, Metakit uses different formats, depending on whether
 the data was saved with c4_Storage::Commit or with c4_Storage::SaveToStream.
 This has a number of consequences on how and when data is loaded back in:
 
@@ -89,7 +89,7 @@ those changes.  Streaming does not interfere with the commit/rollback mechanism.
 <dt><br><hr size=1><br><a name=faster></a><b>Faster</b> - 
 What to do and what to avoid for maximum speed<p><dd><font face=Times>
 
-The data structures used in MetaKit can have surprising effects on performance,
+The data structures used in Metakit can have surprising effects on performance,
 both positively and negatively.
 Here are a few suggestions which should help in most cases:
 <p>
@@ -145,11 +145,11 @@ Note that "prop1 [value1] + prop2 [value2]" also creates several temporary
 c4_Row objects, and should be avoided when top performance is critical.
 <p>
 <li><b>Remove views before storage objects are destroyed</b> - If a view
-still exists when its underlying storage object is destroyed, MetaKit has to 
+still exists when its underlying storage object is destroyed, Metakit has to 
 create a full copy of the data in memory before releasing the storage object,
 to avoid even more confusing side-effects.
 
-The following example illustrates a common source of suprises in MetaKit:
+The following example illustrates a common source of suprises in Metakit:
 
 <blockquote><table cellpadding=5 cellspacing=0 border=1>
 	<tr>
@@ -184,7 +184,7 @@ act merely as (reference-counted) pointers: just set "view = c4_View ();"
 <dt><br><hr size=1><br><a name=smaller></a><b>Smaller</b> - 
 How to manage data in the most compact format<p><dd><font face=Times>
 
-MetaKit implements automatic "adaptive integer sizing" and will often create
+Metakit implements automatic "adaptive integer sizing" and will often create
 very compact data files as a result.  Strings and binary properties also use a
 variable format, and require no "field width" setting.  Some tips to
 allow you to make optimal use of these features:

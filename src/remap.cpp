@@ -1,6 +1,6 @@
 // remap.cpp --
-// $Id: remap.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: remap.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
 * Mapping and remapping custom viewers
@@ -539,7 +539,7 @@ public:
       c4_View bv = _pBlock (_base[i]);
       d4_assert(bv.GetSize() > 0 || i == 0);
       total += bv.GetSize();
-      d4_assert(_offsets.GetAt(i) == total++);
+      d4_assert((int) _offsets.GetAt(i) == total++);
     }
 
     c4_View be = _pBlock (_base[n]);
@@ -581,7 +581,7 @@ c4_BlockedViewer::~c4_BlockedViewer ()
 int c4_BlockedViewer::Slot(int& pos_)
 {
   d4_assert(_offsets.GetSize() > 0);
-  d4_assert(pos_ <= _offsets.GetAt(_offsets.GetSize() - 1));
+  d4_assert(pos_ <= (int) _offsets.GetAt(_offsets.GetSize() - 1));
 
 #if 0
   const int n = _offsets.GetSize();

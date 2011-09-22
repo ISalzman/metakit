@@ -2,7 +2,7 @@
 %define ver 2.0
 %define extension tar.gz
 
-Summary: The MetaKit Library 2.0
+Summary: The Metakit Library 2.0
 Name: %{name}
 Version: %{ver}
 Release: 1
@@ -15,36 +15,36 @@ Buildroot: /tmp/%{name}-%{ver}-root
 Packager: Sean Summers <rpm-metakit@GeneralProtectionfault.com>
 
 %description
-MetaKit is an embeddable database which runs on Unix, Windows,
+Metakit is an embeddable database which runs on Unix, Windows,
 Macintosh, and other platforms.  It lets you build applications which
 store their data efficiently, in a portable way, and which will not need a
-complex runtime installation.  In terms of the data model, MetaKit takes
+complex runtime installation.  In terms of the data model, Metakit takes
 the middle ground between RDBMS, OODBMS, and flat-file databases - yet it
 is quite different from each of them.
 
-WHAT IT ISN'T - MetaKit is not: 1) an SQL database, 2) multi-user/-threading,
+WHAT IT ISN'T - Metakit is not: 1) an SQL database, 2) multi-user/-threading,
 3) scalable to gigabytes, 4) proprietary software, 5) a toy.
 
 %package devel
-Summary: Development Libraries for The MetaKit Library 2.0
+Summary: Development Libraries for The Metakit Library 2.0
 Group: Development/Libraries
 %description devel
 The %{name}-devel package contains the libraries and header files necessary
-for writing programs that make use of the MetaKit library.
+for writing programs that make use of the Metakit library.
 
 %package python
 Group: Development/Libraries
-Summary: Python module for The MetaKit Library 2.0
+Summary: Python module for The Metakit Library 2.0
 %description python
 The %{name}-python package contains the libraries necessary
-for using the MetaKit as a python module.
+for using the Metakit as a python module.
 
 #%package tcl
 #Group: Development/Libraries
-#Summary: TCL module for The MetaKit Library 2.0
+#Summary: TCL module for The Metakit Library 2.0
 #%description tcl
 #The %{name}-tcl package contains the libraries necessary
-#for using the MetaKit as a tcl module.
+#for using the Metakit as a tcl module.
 
 %prep
 %setup
@@ -52,8 +52,8 @@ for using the MetaKit as a python module.
 
 %build
 cd builds
-../unix/configure --prefix=/usr --enable-python
-#--enable-tcl ## maybe TCL_DECLARE_MUTEX is too new for RH6.1.92?
+../unix/configure --prefix=/usr --with-python
+#--with-tcl ## maybe TCL_DECLARE_MUTEX is too new for RH6.1.92?
 make ${RPM_BUILD_OPTS}
 
 # Testing takes a while
@@ -76,7 +76,7 @@ install -Ds Mk4py.so ${RPM_BUILD_ROOT}/usr/lib/python1.5/site-packages/Mk4pymodu
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%doc CHANGES README MetaKit.html
+%doc CHANGES README Metakit.html
 %doc doc/e4s.gif doc/format.html
 /usr/lib/libmk4.so
 /usr/lib/libmk4.so.0

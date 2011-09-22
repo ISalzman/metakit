@@ -1,6 +1,6 @@
 // table.cpp --
-// $Id: table.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: table.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Loose ends, these should be moved
@@ -29,7 +29,7 @@
  *  clean-up.  They know whether the bytes need to be de-allocated when these
  *  objects go out of scope.  Small amounts of data are stored in the object.
  *
- *  Objects of this class are used a lot within MetaKit to manipulate its own
+ *  Objects of this class are used a lot within Metakit to manipulate its own
  *  data items generically.  The c4_BytesProp class allows storing binary
  *  data explicitly in a file.  If such data files must be portable, then the 
  *  application itself must define a generic format to deal with byte order.

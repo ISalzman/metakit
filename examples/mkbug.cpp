@@ -31,5 +31,5 @@ void QuickTest(int pos_, int len_)
 
 int main(int argc, char** argv)
 {
-QuickTest(999, 1200);
+  QuickTest(999, 1200);
 }

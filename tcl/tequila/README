@@ -1,7 +1,7 @@
 Tequila  -  Sharing and storing global Tcl arrays over the network
 
-            This is now part of the MetaKit open source distribution.
-            See the MetaKit homepage at http://www.equi4.com/metakit/
+            This is now part of the Metakit open source distribution.
+            See the Metakit homepage at http://www.equi4.com/metakit/
 
 
 
@@ -36,12 +36,12 @@ What you need to use Tequila
 ============================
 
 Tequila consists of a server script and a client package, both written
-in Tcl.  The server stores all data using MetaKit, a powerful database
+in Tcl.  The server stores all data using Metakit, a powerful database
 library which is available for Tcl (through the "Mk4tcl" extension).
 
 There are two ways to run the server:
 
-    - Grab a version of "TclKit", which combines Tcl, Tk, and MetaKit
+    - Grab a version of "TclKit", which combines Tcl, Tk, and Metakit
       in a single installation-less runtime.  There are ready-to-run
       builds of TclKit for Windows, Solaris, Linux, and more.
 
@@ -49,7 +49,7 @@ There are two ways to run the server:
       of Tcl/Tk.  This may be needed if there is no suitable version of
       TclKit, or if you wish to use this with your own build of Tcl/Tk.
       
-The client side of Tequila does not require MetaKit, and should work
+The client side of Tequila does not require Metakit, and should work
 with every installation of Tcl/Tk (version 8.0 or newer).
 
 
@@ -95,7 +95,7 @@ The Proxy demo
 ==============
 
 The latest version of Tequila supports proxy support for Mk4tcl, which
-means that the client can be set up to pass all its MetaKit requests
+means that the client can be set up to pass all its Metakit requests
 down to the server.  By calling "tequila::proxy", clients will be set
 up so all "mk::*" calls are passed on to the server, and results are
 passed back - a basic client/server system (without locking facilities

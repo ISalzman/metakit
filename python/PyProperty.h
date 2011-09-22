@@ -1,9 +1,7 @@
 // PyProperty.h --
-// $Id: PyProperty.h 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyProperty.h 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  Property class header
 

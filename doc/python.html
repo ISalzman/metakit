@@ -1,11 +1,11 @@
 <HTML><HEAD>
-<TITLE>MetaKit for Python</TITLE>
+<TITLE>Metakit for Python</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF"><A NAME="top"></A>
 <A HREF="http://www.python.org/"><IMG SRC="python.gif" WIDTH="87" HEIGHT="24" BORDER=0 align=left></A>
 <A HREF="http://www.equi4.com/"><IMG SRC="e4s.gif" vspace=3 WIDTH="97" HEIGHT="35" BORDER=0 align=right></A>
 <CENTER>
-<H2>MetaKit for Python</H2>
+<H2>Metakit for Python</H2>
 <I>The structured database which fits in the palm of your hand</I>
 <P>
 [ <A HREF="#Terminology">Terminology</A> 
@@ -14,27 +14,16 @@
 | <A HREF="#ref">Mk4py Reference</A> ]
 </CENTER>
 <P>
-<B>Buzzwords</B> - <A HREF=".">MetaKit</A> is an embeddable database which runs on Unix, Windows, Macintosh, and other platforms.  It lets you build applications which store their data efficiently, in a portable way, and which will not need a complex runtime installation.  In terms of the data model, MetaKit takes the middle ground between RDBMS, OODBMS, and flat-file databases - yet it is quite different from each of them.
+<B>Buzzwords</B> - <A HREF=".">Metakit</A> is an embeddable database which runs on Unix, Windows, Macintosh, and other platforms.  It lets you build applications which store their data efficiently, in a portable way, and which will not need a complex runtime installation.  In terms of the data model, Metakit takes the middle ground between RDBMS, OODBMS, and flat-file databases - yet it is quite different from each of them.
 <P>
 <B>Technology</B> - Everything is stored variable-sized yet with efficient positional row access.  Changing an existing datafile structure is as simple as re-opening it with that new structure.  All changes are transacted.  You can mix and match software written in C++, Python, and Tcl.  Things can't get much more flexible...
 <P>
 <B>Python</B> - The extension for <A HREF="http://www.python.org/">Python</A> is called "Mk4py".  It provides a lower-level API for the Metakit C++ core extension than an earlier version of this interface, and uses <A HREF="http://starship.python.net/crew/gmcm/scxx.html">SCXX</A> by Gordon McMillan as C++ glue interface.
 <P>
-<B>Mk4py 2.4.9.2</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using MetaKit memo fields, and a few more goodies.
+<B>Mk4py 2.4.9.3</B> - is a final/production release.  The <A HREF="http://www.equi4.com/metakit.html">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The Metakit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using Metakit memo fields, and a few more goodies.
 <P>
-<B>Changes since 2.01</B> - the MK core has changed substantially:
-<UL>
-<li>New commit-aside and commit-extend modes (see storage objects below)
-<li>Performance improvements, mostly due to a much more scalable file format
-<li>The "M" (memo) datatype is gone, use "B" instead, it now handles huge items
-<li>Internal changes to take advantage of the hash/ordered/blocked viewers
-<li>Mk4py members storage, view, and property are now lower-case
-<li>Added Mk4py.version as attribute, containing the "2.x.y" string
-<li>Added "metakit.py" as new main wrapper, use as "import metakit"
-</UL>
-<P>
-<B>License and support</B> - MetaKit 2 and up are distributed under the liberal
-X/MIT-style open source license. Commercial support is available through an Enterprise License.  See the <A HREF="license.html">license</A> page for details.
+<B>License and support</B> - Metakit 2 and up are distributed under the liberal
+X/MIT-style open source license. Commercial support is available through an Enterprise License.  See the <A HREF="http://www.equi4.com/mklicense.html">license</A> page for details.
 <P>
 <B>Credits</B> - Are due to Gordon McMillan for not stopping at the original Mk4py and coming up with a more Pythonic interface, and to Christian Tismer for pushing Mk4py way beyond its design goals.  Also to GvR and the Python community for taking scripting to such fascinating heights...
 <P>
@@ -46,10 +35,10 @@ X/MIT-style open source license. Commercial support is available through an Ente
     coming from.  For example, the terms <I>table</I>, <I>list</I>, <I>collection</I>,
     <I>array</I>, <I>sequence</I>, and <I>vector</I> all
     denote a more or less similar concept.
-    To help avoid confusion, MetaKit uses a simple
+    To help avoid confusion, Metakit uses a simple
     (but hopefully precise) terminology.
 <P>
-    The terms adopted by MetaKit can be summarized as follows:
+    The terms adopted by Metakit can be summarized as follows:
 <P>
     <UL>
         <LI>A <B>view</B> is an indexable collection of <B>rows</B>
@@ -58,7 +47,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
             (the first row is at index zero).
         <LI>Each view has an ordered
             set of <B>properties</B>, used to refer to the data values of each row.
-        <LI>In MetaKit, each (<I>view</I>, <I>index</I>, <I>property</I>) combination denotes
+        <LI>In Metakit, each (<I>view</I>, <I>index</I>, <I>property</I>) combination denotes
             a single data value.
         <LI>A different way to describe this combination would be:
             (<I>matrix</I>, <I>row-index</I>, <I>column-id</I>).
@@ -66,7 +55,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
             or a nested view, called a <B>subview</B>.
     </UL>
 <P>
-    A few more comments about the semantics of MetaKit:
+    A few more comments about the semantics of Metakit:
 <P>
     <UL>
         <LI>Views are <I>homogenous</I>: each row in a view contains the same type of
@@ -80,7 +69,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
 <A NAME="inst"><HR size=1></A><H2>Installation</H2>
 
 <OL>
-<LI>Download the latest version from <A HREF="http://www.equi4.com/pub/download.html">http://www.equi4.com/pub/download.html</A>
+<LI>Download the latest version from <A HREF="http://www.equi4.com/pub/mk/">http://www.equi4.com/pub/mk/</A>
 <LI>On Unix, rename the appropriate compiled extension to "Mk4py.so" (on Win/Mac, use the corresponding file)
 <LI>Place the Mk4py extension as well as the "metakit.py" wrapper somewhere on Python's module search path, <br> such as in the site-packages directory (or just leave it in ".")
 <LI>Do a small test, by running "demo.py".  If all is well, you should get some self-explanatory output
@@ -90,9 +79,9 @@ X/MIT-style open source license. Commercial support is available through an Ente
 Create a database:
 <BLOCKQUOTE><PRE>import metakit
 db = metakit.storage("datafile.mk",1)</PRE></BLOCKQUOTE>
-Create a view (this is the MetaKit term for "table"):
+Create a view (this is the Metakit term for "table"):
 <BLOCKQUOTE><PRE>vw = db.getas("people[first:S,last:S,shoesize:I]")</PRE></BLOCKQUOTE>
-Add two rows (this is the MetaKit term for "record"):
+Add two rows (this is the Metakit term for "record"):
 <BLOCKQUOTE><PRE>vw.append(first='John',last='Lennon',shoesize=44)
 vw.append(first='Flash',last='Gordon',shoesize=42)</PRE></BLOCKQUOTE>
 Commit the changes to file:
@@ -161,7 +150,15 @@ write to the main storage.
 	<TR><TD WIDTH=40></TD><TD>D</TD><TD WIDTH=20></TD><TD>C double (is a Python float)</TD></TR>
 	<TR><TD WIDTH=40></TD><TD>S</TD><TD WIDTH=20></TD><TD>C null terminated string (becomes Python string)</TD></TR>
 	<TR><TD WIDTH=40></TD><TD>B</TD><TD WIDTH=20></TD><TD>C array of bytes (becomes Python string)</TD></TR>
-	</TABLE>Careful: do not include white space in the decription string.<BR><BR></DL></BLOCKQUOTE>
+	</TABLE>Careful: do not include white space in the decription string.<BR><P>
+	In the Python binding, the difference between S and B types is not as
+	important as in C/C++, where S is used for zero-terminated text
+	strings.  In Python, the main distinctions are that B properties must
+	be used if the data can contain zero bytes, and that sort order of S
+	(stricmp) and B (memcmp) differ.  At some point, Unicode/UTF-8 will
+	also play a role for S properties, so it's best to use S for text.
+	<BR>
+	</DL></BLOCKQUOTE>
 <H3><A NAME="3"></A><A HREF="#0">3.</A> View objects</H3>View implements sequence (list) methods, including slicing, 
             concatentation etc.  They behave as a sequence of &quot;rows&quot;,
             which in turn have &quot;properties&quot;.
@@ -253,7 +250,7 @@ write to the main storage.
 	    a fast find on the key.  The key is defined to consist of the
 	    first numKeys_ properties of the underlying view.
 	<BR>The mapview must be empty the first time this hash view is used,
-	    so that MetaKit can fill it based on whatever rows are already
+	    so that Metakit can fill it based on whatever rows are already
 	    present in the underlying view.  After that, neither the underlying
 	    view nor the map view may be modified other than through this
 	    hash mapping layer.  The defined structure of the map view must be
@@ -263,7 +260,7 @@ write to the main storage.
 	    uniqueness.  Careful: when a row is changed in such a way that its
 	    key is the same as in another row, that other row will be deleted
 	    from the view.
-	<BR><BR><FONT COLOR="#990000"><B>ordered</B></FONT> - This is an identity view, which has as only use to inform MetaKit
+	<BR><BR><FONT COLOR="#990000"><B>ordered</B></FONT> - This is an identity view, which has as only use to inform Metakit
 	    that the underlying view can be considered to be sorted on its
 	    first numKeys properties.  The effect is that view.find() will
 	    try to use binary search when the search includes key properties
@@ -291,6 +288,6 @@ write to the main storage.
 <!--END-->
 <P>
 <HR size=1>
-&copy; 2000 Jean-Claude Wippler &lt;<A HREF="mailto:jcw@equi4.com">jcw@equi4.com</A>&gt;
+&copy; 2003 Jean-Claude Wippler &lt;<A HREF="mailto:jcw@equi4.com">jcw@equi4.com</A>&gt;
 </BODY>
 </HTML>

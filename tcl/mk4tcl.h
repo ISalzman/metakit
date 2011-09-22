@@ -1,6 +1,6 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: mk4tcl.h 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
 #include "mk4str.h"
@@ -42,7 +42,7 @@
     class MkTcl;
 
 /////////////////////////////////////////////////////////////////////////////
-// This code is part of the private classes of MetaKit, unfortunately. 
+// This code is part of the private classes of Metakit, unfortunately. 
 // It is not needed on Windows since we can use the MFC classes directly.
 // The proper solution would be to use either public MK stuff or rewrite it.
 
@@ -180,12 +180,12 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Utility code: get a MetaKit item and convert it to a Tcl object
+// Utility code: get a Metakit item and convert it to a Tcl object
 
 Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_ =0);
 
 ///////////////////////////////////////////////////////////////////////////////
-// Utility code: set a MetaKit item and convert it from a Tcl object
+// Utility code: set a Metakit item and convert it from a Tcl object
 
 int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
                   const c4_Property& prop_, Tcl_Obj* obj_);
@@ -356,7 +356,7 @@ public:
   void list2desc(Tcl_Obj* in, Tcl_Obj* out);
 };
 
-// The MkTcl class adds MetaKit-specific utilities and all the command procs.
+// The MkTcl class adds Metakit-specific utilities and all the command procs.
 
 class MkTcl : public Tcl
 {

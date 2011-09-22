@@ -1,7 +1,7 @@
-// mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
-// Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
+// mk4too.cpp -- Tcl object command interface to Metakit
+// $Id: mk4too.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
+// Copyright (C) 2000-2004 by Matt Newman and Jean-Claude Wippler.
 
 #include "mk4tcl.h"
 #include <string.h>
@@ -12,7 +12,7 @@
 class MkView;
 
 ///////////////////////////////////////////////////////////////////////////////
-// The MkView class adds MetaKit-specific utilities and all the command procs.
+// The MkView class adds Metakit-specific utilities and all the command procs.
 
 int MkView::Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov)
 {

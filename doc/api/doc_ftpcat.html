@@ -1,14 +1,14 @@
 <html><head>
-	<title>MetaKit sample code - FtpCat</title>
+	<title>Metakit sample code - FtpCat</title>
 </head><body bgcolor=white>
 
 <font face=Helvetica size=3>
 
 <!--begin-->
 <h2><img src="e4app.gif" alt="App Icon" border=0 align=left>
-MetaKit sample code - FtpCat</h2><br clear=left>
+Metakit sample code - FtpCat</h2><br clear=left>
 
-<p>This tiny application does not illustrate any new aspects fo MetaKit,
+<p>This tiny application does not illustrate any new aspects fo Metakit,
 but it may be useful in its own right, especially with the CatFish application
 described hereafter. </p>
 
@@ -19,9 +19,9 @@ facility, you will have to use CatSend &amp; CatrRecv (or Dump) to examine
 the contents of the resulting catalog. </p>
 
 <p><b>What it illustrates</b>: FtpCat is a 32-bit console application,
-which is dynamically linked to both MetaKit and MFC. FtpCat is a bit peculiar,
+which is dynamically linked to both Metakit and MFC. FtpCat is a bit peculiar,
 in that it uses the FTP.EXE application which is part of Windows 95 to
-take care of all networking (after all, MetaKit is not an introduction
+take care of all networking (after all, Metakit is not an introduction
 on how to build ftp clients). There are no ftp-related routines, nor even
 any Winsock calls, in FtpCat. There is a fair amount of tricky code in
 here to juggle two pipes which are used to control the child process (ftp.exe).
@@ -35,7 +35,7 @@ called &quot;ftpcat.dat&quot;. As with DisCat, you can then use CatSend
 &amp; CatRecv to examine the catalog contents. </p>
 
 <p>If you're connected to Internet, you could try &quot;ftpcat ftp://ftp.winsite.com/pub/pc/win3/programr&quot;
-(this is one the areas where new distributions of the MetaKit library are
+(this is one the areas where new distributions of the Metakit library are
 posted). The &quot;ftp://&quot; prefix is optional, and you may add a &quot;user:password@&quot;
 prefix to the site to login under a specific name. This allows you to produce
 a catalog of protected areas, for example with &quot;ftpcat user:passwd@mysite.org/mydir&quot;.

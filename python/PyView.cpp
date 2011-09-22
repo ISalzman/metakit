@@ -1,9 +1,7 @@
 // PyView.cpp --
-// $Id: PyView.cpp 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyView.cpp 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  View class implementation
 //  setsize method added by J. Barnard
@@ -25,6 +23,8 @@ static char *setsize__doc =
 static PyObject *PyView_setsize(PyView *o, PyObject *_args) {
   try {
     PWOSequence args(_args);
+    if (args.len() != 1)
+      Fail(PyExc_TypeError, "setsize() takes exactly one argument");
     PWONumber nrows = PWONumber(args[0]);
     o->SetSize((int) nrows);
     return nrows.disOwn();
@@ -59,19 +59,34 @@ static PyObject* PyView_properties(PyView *o, PyObject* _args) {
 }
 
 static char* insert__doc = 
-"insert(position, obj) -- coerce obj (or keyword args) to row and insert";
+"insert(position, obj) -- coerce obj (or keyword args) to row and insert before position";
 
 static PyObject* PyView_insert(PyView *o, PyObject* _args, PyObject* kwargs) {
   try {
     PWOSequence args(_args);
-    if (args.len() == 1)
-      o->insertAt(PWONumber(args[0]), kwargs);
-    else
-      o->insertAt(PWONumber (args[0]), args[1]);
-    Py_INCREF(Py_None);
-    return Py_None;
+    int argcount = args.len();
+    if (argcount == 0 || argcount > 2) {
+      Fail(PyExc_TypeError, "insert() takes exactly two arguments, or one argument and keyword arguments");
+    } else {
+      int size = PWONumber(o->GetSize()), ndx = PWONumber(args[0]);
+      if (ndx < 0) {
+	ndx += size;
+	if (ndx < 0) {
+	  ndx = 0;
+	}
+      } else if (ndx > size) {
+	ndx = size;
+      }
+      if (argcount == 1)
+	o->insertAt(ndx, kwargs);
+      else if (argcount == 2)
+	o->insertAt(ndx, args[1]);
+      Py_INCREF(Py_None);
+      return Py_None;
+    }
   }
-  catch (...) { return 0; }
+  catch (...) { }
+  return 0; /* satisfy compiler */
 }
 
 static char* append__doc = 
@@ -845,7 +860,7 @@ static PyMethodDef ViewerMethods[] = {
   {"access", (PyCFunction)PyView_access, METH_VARARGS, access__doc},
   {"modify", (PyCFunction)PyView_modify, METH_VARARGS, modify__doc},
   {"itemsize", (PyCFunction)PyView_itemsize, METH_VARARGS, itemsize__doc},
-  {"map", (PyCFunction)PyView_map, METH_VARARGS, map__doc},
+  //{"map", (PyCFunction)PyView_map, METH_VARARGS, map__doc},
   {"filter", (PyCFunction)PyView_filter, METH_VARARGS, filter__doc},
   {"reduce", (PyCFunction)PyView_reduce, METH_VARARGS, reduce__doc},
   {"indices", (PyCFunction)PyView_indices, METH_VARARGS, indices__doc},
@@ -867,7 +882,7 @@ static int PyView_length(PyView *o) {
 
 static PyObject* PyView_concat(PyView *o, PyView *other) {
   try {
-    if (other->ob_type != &PyViewtype && other->ob_type != &PyViewertype)
+    if (!PyGenericView_Check(other))
       Fail(PyExc_TypeError, "Not a PyView(er)");
     return new PyView(o->Concat(*other), 0, o->computeState(RWVIEWER));
   }
@@ -876,8 +891,8 @@ static PyObject* PyView_concat(PyView *o, PyView *other) {
 
 static PyObject* PyView_repeat(PyView *o, int n) {
   try {
-    PyView* tmp = new PyView;
-    while (--n >= 0) 
+    PyView* tmp = new PyView(*o, 0, o->computeState(RWVIEWER));
+    while (--n > 0) 
       tmp = new PyView(tmp->Concat(*o), 0, o->computeState(RWVIEWER)); //!! a huge stack of views?
     return tmp;
   }
@@ -888,7 +903,7 @@ static PyObject* PyView_getitem(PyView *o, int n) {
   try {
     PyObject *rslt = o->getItem(n);
     if (rslt == 0)
-      PyErr_SetString(PyExc_IndexError, "Index out of range");
+      PyErr_SetString(PyExc_IndexError, "row index out of range");
     return rslt;
   }
   catch (...) { return 0; }
@@ -981,6 +996,7 @@ static PyObject* PyView_getattr(PyView *o, char *nm) {
       Fail(PyExc_AttributeError, nm);
   }
   catch (...) { return 0; }
+  return 0;
 }
 static PyObject* PyViewer_getattr(PyView *o, char *nm) {
   PyObject *rslt;
@@ -995,6 +1011,7 @@ static PyObject* PyViewer_getattr(PyView *o, char *nm) {
       Fail(PyExc_AttributeError, nm);
   }
   catch (...) { return 0; }
+  return 0;
 }
 
 
@@ -1084,42 +1101,73 @@ PyView::PyView(const c4_View& o, PyView *owner, int state)
   if (owner && owner->_base)
     _base = owner->_base;
 }
-
+/* For dicts, use the Python names so MK's case insensitivity works */
+void PyView::makeRowFromDict(c4_Row& tmp, PyObject* o, bool useDefaults) {
+    PWOMapping dict(o);
+    PWOList keys = dict.keys();
+    for (int i=0; i<dict.len(); ++i) {
+        PWOString key = keys[i];
+        int ndx = FindPropIndexByName(key);
+        if (ndx > -1) {
+            const c4_Property& prop = NthProperty(ndx);
+            PyRowRef::setFromPython(tmp, prop, dict[(const char*)key]);
+        }
+    }
+}
 void PyView::makeRow(c4_Row& tmp, PyObject* o, bool useDefaults) {
-  for (int i=0; i < NumProperties(); i++) {
-    const c4_Property& prop = NthProperty(i);
-    PyObject* attr = 0;
-    if (o) {
-      if (PyDict_Check(o))
-      {
-        attr = PyDict_GetItemString(o, (char *)prop.Name());
-        Py_XINCREF(attr);
+  /* can't just check if mapping type; strings are mappings in Python 2.3
+  (but not in 2.2 or earlier) */
+  if ( o && PyDict_Check(o))
+    makeRowFromDict(tmp, o, useDefaults);
+  else {
+    enum { instance, sequence, none } pyobject_type = none;
+    int n = NumProperties();
+
+    if (!o) {
+      pyobject_type = none;
+    } else if (PyInstance_Check(o)) {
+      /* instances of new-style classes (Python 2.2+) do not return true */
+      pyobject_type = instance;
+    } else if (PySequence_Check(o)) {
+      int seq_length = PyObject_Length(o);
+      if (seq_length > n) {
+	PyErr_Format(PyExc_IndexError, "Sequence has %d elements; view has %d properties", seq_length, n);
+	throw PWDPyException;
       }
-      else if (PySequence_Check(o))
-      {
-        attr = PySequence_GetItem(o, i);
+      n = seq_length;
+      pyobject_type = sequence;
+    } else {
+      /* new-style class, not a number */
+      if (PyObject_HasAttrString(o, "__class__") && !PyNumber_Check(o)) {
+	pyobject_type = instance;
+      } else {
+	Fail(PyExc_TypeError, "Argument is not an instance, sequence or dictionary: cannot be coerced to row");
       }
-      else
-      {
-        attr = PyObject_GetAttrString(o, (char *)prop.Name());
-	if (attr == 0 && i == 0 && NumProperties() == 1) 
-	{
+    }
+
+    for (int i=0; i < n; i++) {
+      const c4_Property& prop = NthProperty(i);
+      PyObject* attr = 0;
+      if (pyobject_type == instance) {
+	attr = PyObject_GetAttrString(o, (char *)prop.Name());
+	if (attr == 0 && i == 0 && NumProperties() == 1)  {
 	  PyErr_Clear();
 	  attr = o;
 	  Py_XINCREF(attr);
 	}
+      } else if (pyobject_type == sequence) {
+	attr = PySequence_GetItem(o, i);
       }
-    }
-    if (attr)
-    {
-      try { PyRowRef::setFromPython(tmp, prop, attr); }
-      catch (...) { Py_DECREF(attr); throw; }
-      Py_DECREF(attr);
-    }
-    else {
-      PyErr_Clear();
-      if (useDefaults)
-        PyRowRef::setDefault(tmp, prop);
+      if (attr) {
+	try { PyRowRef::setFromPython(tmp, prop, attr); }
+	catch (...) { Py_DECREF(attr); throw; }
+	Py_DECREF(attr);
+      }
+      else {
+	PyErr_Clear();
+	if (useDefaults)
+	  PyRowRef::setDefault(tmp, prop);
+      }
     }
   }
   if (!useDefaults)

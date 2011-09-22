@@ -18,7 +18,7 @@ v2 = db.getas('hi[hello:S]')
 # surprise: this prints two mixed-case names
 print v1.HeLLo, v2.hello
 
-# this shows that the MetaKit property is the same for both
+# this shows that the Metakit property is the same for both
 # reason: there is a single global case-insensitive symbol table
 print metakit.property('S','HeLLo').id
 print metakit.property('S','hello').id

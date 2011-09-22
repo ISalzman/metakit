@@ -1,6 +1,6 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: mk4tcl.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
 #include "mk4io.h"
@@ -96,7 +96,7 @@
 
 c4_String f4_GetToken(const char*& str_)
 {
-  d4_assert(str_ && *str_ >= '0');
+  d4_assert(str_);
 
   const char* p = str_;
   while (*p >= '0')
@@ -138,7 +138,7 @@ bool MatchOneKeyword(const char* value_, const c4_String& crit_)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// A "storage in a storage" strategy class for MetaKit
+// A "storage in a storage" strategy class for Metakit
 // Adapted from MkWrap, the Python interface
 
 class SiasStrategy : public c4_Strategy
@@ -378,7 +378,7 @@ static Tcl_ChannelType mkChannelType = {
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Utility code: get a MetaKit item and convert it to a Tcl object
+// Utility code: get a Metakit item and convert it to a Tcl object
 
 Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_)
 {
@@ -438,7 +438,7 @@ Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Utility code: set a MetaKit item and convert it from a Tcl object
+// Utility code: set a Metakit item and convert it from a Tcl object
 
 int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
                   const c4_Property& prop_, Tcl_Obj* obj_)
@@ -646,7 +646,7 @@ int MkPath::AttachView(Tcl_Interp* /*interp*/)
         return q - base; // return partial number of chars processed
 
         //  A future version could parse derived view expressions here.
-        //  Perhaps this could be done as MetaKit property expressions.
+        //  Perhaps this could be done as Metakit property expressions.
 
       int n = _view.FindPropIndexByName(f4_GetToken(p));
       if (n < 0)
@@ -725,7 +725,8 @@ MkWorkspace::Item::~Item ()
   for (int i = 0; i < _paths.GetSize(); ++i)
   {
     MkPath* path = (MkPath*) _paths.GetAt(i);
-    path->_view = c4_View ();
+    if (_index > 0)
+      path->_view = c4_View ();
     path->_path = "?"; // make sure it never matches
     path->_currGen = -1; // make sure lookup is retried on next use
     // 24-01-2003: paths should not clean up workspaces once exiting
@@ -775,7 +776,7 @@ MkWorkspace::MkWorkspace (Tcl_Interp* ip_)
   new Item ("", "", 0, _items, 0);
   
     // never uses entry zero (so atoi failure in ForgetPath is harmless)
-  //!_usedRows = _usedBuffer.SetBufferClear(16); // no realloc for first 16 temp rows
+  _usedRows = _usedBuffer.SetBufferClear(16); // no realloc for first 16 temp rows
 }
 
 MkWorkspace::~MkWorkspace ()
@@ -823,7 +824,7 @@ MkWorkspace::Item* MkWorkspace::Find(const char* name_) const
   for (int i = 0; i < _items.GetSize(); ++i)
   {
     Item* ip = Nth(i);
-    if (ip && ip->_name == name_)
+    if (ip && ip->_name.Compare(name_) == 0)
       return ip;
   }
 
@@ -890,16 +891,16 @@ c4_String MkWorkspace::AllocTempRow()
       break;
 
     // allocate new vec if old one is too small, doubling it in size
-  if (i + 1 >= _usedBuffer.Size())
+  if (i >= _usedBuffer.Size())
   {
     c4_Bytes temp;
-    t4_byte* tempPtr = temp.SetBufferClear(_usedBuffer.Size() * 2);
+    t4_byte* tempPtr = temp.SetBufferClear(2*i+1);
     memcpy(tempPtr, _usedRows, _usedBuffer.Size());
 
     _usedBuffer.Swap(temp);
     _usedRows = tempPtr;
 
-    c4_View v = Nth(0)->_storage.View("_");
+    c4_View v = Nth(0)->_storage.View("");
     v.SetSize(_usedBuffer.Size());
   }
 
@@ -908,7 +909,7 @@ c4_String MkWorkspace::AllocTempRow()
 
     // temporary rows have special names
   char buf[20];
-  sprintf(buf, "_._!%d._", i);
+  sprintf(buf, "._!%d._", i);
 
   return buf;
 }
@@ -957,7 +958,7 @@ void MkWorkspace::Invalidate(const MkPath& path_)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Translate between the MetaKit and Tcl-style datafile structure descriptions
+// Translate between the Metakit and Tcl-style datafile structure descriptions
 
 static c4_String KitToTclDesc(const char* desc_)
 {
@@ -1291,12 +1292,12 @@ bool TclSelector::Match(const c4_RowRef& row_)
     {
       const c4_Property& prop = cond._view.NthProperty(j);
 
-      if (cond._id < 2) // use typed comparison as defined by MetaKit
+      if (cond._id < 2) // use typed comparison as defined by Metakit
       {
           // set up a Tcl object, using the criterium string value
         Tcl_SetStringObj(_temp, (char*) (const char*) cond._crit, -1);
         
-        c4_Row data; // this is *very* slow in MetaKit 1.8
+        c4_Row data; // this is *very* slow in Metakit 1.8
         if (SetAsObj(_interp, data, prop, _temp) != TCL_OK)
           return false;
         
@@ -1377,8 +1378,8 @@ int TclSelector::DoSelect(Tcl_Obj* list_, c4_View* result_)
 
   result.SetSize(n);
 
-    // set up sorting, this references/loads a lot of extra MetaKit code
-  const bool sorted = n > 1 && _sortProps.NumProperties() > 0;
+    // set up sorting, this references/loads a lot of extra Metakit code
+  const bool sorted = n > 0 && _sortProps.NumProperties() > 0;
 
   c4_View mapView;
   c4_View sortResult;
@@ -1542,7 +1543,7 @@ void Tcl::list2desc(Tcl_Obj* in_, Tcl_Obj* out_)
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// The MkTcl class adds MetaKit-specific utilities and all the command procs.
+// The MkTcl class adds Metakit-specific utilities and all the command procs.
 
 int MkTcl::Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov)
 {
@@ -1920,7 +1921,7 @@ int MkTcl::FileCmd()
           return Fail("no such file");
         t4_i32 end = strat.EndOfData();
         if (end < 0)
-          return Fail("not a MetaKit datafile");
+          return Fail("not a Metakit datafile");
 
         Tcl_SetIntObj(tcl_GetObjResult(), end);
         return _error;
@@ -2749,7 +2750,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.2");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.3");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

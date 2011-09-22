@@ -1,9 +1,7 @@
 // PyView.h --
-// $Id: PyView.h 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyView.h 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  View class header
 
@@ -59,6 +57,7 @@ public:
   int setSlice(int s, int e, const PWOSequence& lst);
   PyObject* structure();
   void makeRow(c4_Row& temp, PyObject* o, bool useDefaults=true);
+  void makeRowFromDict(c4_Row& temp, PyObject* o, bool useDefaults=true);
   void map(const PWOCallable& func);
   void map(const PWOCallable& func, const PyView& subset);
   PyView *filter(const PWOCallable& func);

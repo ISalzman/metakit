@@ -132,7 +132,7 @@ BEGIN
     CTEXT           "Copyright \251 1996-2000 Equi4 Software. All rights reserved.",
                     IDC_STATIC,6,119,205,8
     LTEXT           "A fast Disk Catalog browser.",IDC_STATIC,40,13,102,8
-    CTEXT           "Built with ""MetaKit"", a small and fast C++ storage library.",
+    CTEXT           "Built with ""Metakit"", a small and fast C++ storage library.",
                     IDC_STATIC,15,68,186,8
     CTEXT           "Track all your files: locally, on CD-ROMs, and on removables.",
                     IDC_STATIC,7,34,205,8

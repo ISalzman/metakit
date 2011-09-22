@@ -1,5 +1,5 @@
 //  This command-line utility displays the data structure of a datafile
-//  created with the MetaKit library as a one-line description.
+//  created with the Metakit library as a one-line description.
 
 #include "mk4.h"
 

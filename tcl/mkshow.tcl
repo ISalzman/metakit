@@ -1,6 +1,6 @@
-# mkshow.tcl -- MetaKit file show utility
-# $Id: mkshow.tcl 1261 2007-03-09 16:50:28Z jcw $
-# This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+# mkshow.tcl -- Metakit file show utility
+# $Id: mkshow.tcl 1260 2007-03-09 16:49:54Z jcw $
+# This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 package require Mk4tcl
 
@@ -108,7 +108,7 @@ proc hexDump {s} {
 
 set USAGE "  Usage: mkshow file view ?prop ...?
 
-  file  is the name of the MetaKit datafile
+  file  is the name of the Metakit datafile
   view  is a view or subview description (e.g. 'view/123.subview')
   prop  lists of properties (all if omitted, from file if '-file')
   

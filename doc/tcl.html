@@ -1,11 +1,11 @@
 <HTML><HEAD>
-<TITLE>MetaKit for Tcl</TITLE>
+<TITLE>Metakit for Tcl</TITLE>
 </HEAD>
 <BODY BGCOLOR="#FFFFFF"><A NAME="top"></A>
 <A HREF="http://www.scriptics.com/"><IMG SRC="tcl.gif" WIDTH="51" HEIGHT="75" BORDER=0 align=left></A>
 <A HREF="http://www.equi4.com/"><IMG SRC="e4s.gif" vspace=3 WIDTH="97" HEIGHT="35" BORDER=0 align=right></A>
 <CENTER>
-<H2>&nbsp; &nbsp; &nbsp; MetaKit for Tcl</H2>
+<H2>&nbsp; &nbsp; &nbsp; Metakit for Tcl</H2>
 <I>The structured database which fits in the palm of your hand &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; </I>
 <P>
 [ <A href="#Overview">Overview</A> 
@@ -16,34 +16,25 @@
 ]
 </CENTER>
 <P>
-<B>Buzzwords</B> - <A HREF=".">MetaKit</A> is an embeddable database which runs on Unix, Windows, Macintosh, and other platforms.  It lets you build applications which store their data efficiently, in a portable way, and which will not need a complex runtime installation.  In terms of the data model, MetaKit takes the middle ground between RDBMS, OODBMS, and flat-file databases - yet it is quite different from each of them.
+<B>Buzzwords</B> - <A HREF=".">Metakit</A> is an embeddable database which runs on Unix, Windows, Macintosh, and other platforms.  It lets you build applications which store their data efficiently, in a portable way, and which will not need a complex runtime installation.  In terms of the data model, Metakit takes the middle ground between RDBMS, OODBMS, and flat-file databases - yet it is quite different from each of them.
 <P>
 <B>Technology</B> - Everything is stored variable-sized yet with efficient positional row access.  Changing an existing datafile structure is as simple as re-opening it with that new structure.  All changes are transacted.  You can mix and match software written in C++, Python, and Tcl.  Things can't get much more flexible...
 <P>
-<B>Tcl/Tk</B> - The extension for <A HREF="http://www.scriptics.com/">Tcl</A> is called "Mk4tcl".  It is being used in a number of commercial projects, for in-house use as well as in commercially distributed products.
+<B>Tcl/Tk</B> - The extension for <A HREF="http://www.tcl.tk/">Tcl</A> is called "Mk4tcl".  It is being used in a number of commercial projects, for in-house use as well as in commercially distributed products.
 <P>
-<B>Mk4tcl 2.4.9.2</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any MetaKit datafile from the command line, and a few more goodies.
+<B>Mk4tcl 2.4.9.3</B> - is a final/production release.  The <A HREF="http://www.equi4.com/metakit.html">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The Metakit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any Metakit datafile from the command line, and a few more goodies.
 <P>
-<B>Changes since 2.01</B> - the MK core has changed substantially:
-<UL>
-<li>New commit-aside and commit-extend modes (see the mk::file command)
-<li>Performance improvements, mostly due to a much more scalable file format
-<li>The "M" (memo) datatype is gone, use "B" instead, it now handles huge items
-<li>Internal changes to take advantage of the new hash custom viewer
-<li>Added "mk::file autocommit db" to force a commit on a subsequent close.
-</UL>
-<P>
-<B>License and support</B> - MetaKit 2 and up are distributed under the liberal
-X/MIT-style open source license. Commercial support is available through an Enterprise License.  See the <A HREF="license.html">license</A> page for details.
+<B>License and support</B> - Metakit 2 and up are distributed under the liberal
+X/MIT-style open source license. Commercial support is available through an Enterprise License.  See the <A HREF="http://www.equi4.com/mklicense.html">license</A> page for details.
 <P>
 <B>Credits</B> - Are due to Mark Roseman for providing the initial incentive and feedback, and to Matt Newman for a range of suggestions and ideas.  Evidently, Mk4tcl could not exist without the Tcl/Tk scripting platform and its superb extensibility.
 <P>
 <B>Updates</B> - The latest version of this document is at
 <a href="http://www.equi4.com/metakit/tcl.html">http://www.equi4.com/metakit/tcl.html</a>.
 <A name="Overview"><HR size=1></A><H2>Overview</H2>
-    MetaKit is a machine- and language-independent toolkit for storing and managing
+    Metakit is a machine- and language-independent toolkit for storing and managing
     structured data.    This is a description of the <I>Mk4tcl</I> extension, which 
-    allows you to create, access, and manipulate MetaKit datafiles using Tcl.
+    allows you to create, access, and manipulate Metakit datafiles using Tcl.
     Here is a Tcl script which selects, sorts,
      and displays some previously stored results:
     <PRE>
@@ -57,11 +48,11 @@ X/MIT-style open source license. Commercial support is available through an Ente
     datastructures, that the structure of datafiles can be adjusted at any time,
     and that all modifications use the commit / rollback transaction model.
 <P>
-    In actual use, MetaKit resembles more an array manipulation
+    In actual use, Metakit resembles more an array manipulation
     package than a database - with the main access mechanism being
     <I>'by position'</I>, not by primary key.
     The  Tcl interface does not yet cover
-    all operations provided by the complete C++ interface of MetaKit,
+    all operations provided by the complete C++ interface of Metakit,
     but as the <I>mk::select</I> command illsutrates, it
     does include quite flexible forms of searching and sorting.
 <P>
@@ -70,10 +61,10 @@ X/MIT-style open source license. Commercial support is available through an Ente
     coming from.  For example, the terms <I>table</I>, <I>list</I>, <I>collection</I>,
     <I>array</I>, <I>sequence</I>, and <I>vector</I> all
     denote a more or less similar concept.
-    To help avoid confusion, MetaKit uses a simple
+    To help avoid confusion, Metakit uses a simple
     (but hopefully precise) terminology.
 <P>
-    The terms adopted by MetaKit can be summarized as follows:
+    The terms adopted by Metakit can be summarized as follows:
 <P>
     <UL>
         <LI>A <B>view</B> is an indexable collection of <B>rows</B>
@@ -82,7 +73,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
             (the first row is at index zero).
         <LI>Each view has an ordered
             set of <B>properties</B>, used to refer to the data values of each row.
-        <LI>In MetaKit, each (<I>view</I>, <I>index</I>, <I>property</I>) combination denotes
+        <LI>In Metakit, each (<I>view</I>, <I>index</I>, <I>property</I>) combination denotes
             a single data value.
         <LI>A different way to describe this combination would be:
             (<I>matrix</I>, <I>row-index</I>, <I>column-id</I>).
@@ -107,7 +98,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
         <LI>As a result, cursors are allowed (and frequently used) as path arguments.
     </UL>
 <P>
-    A few more comments about the semantics of MetaKit:
+    A few more comments about the semantics of Metakit:
 <P>
     <UL>
         <LI>Views are <I>homogenous</I>: each row in a view contains the same type of
@@ -123,7 +114,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
 <A NAME="inst"><HR size=1></A><H2>Installation</H2>
 
 <OL>
-<LI>Download the latest version from <A HREF="http://www.equi4.com/pub/download.html">http://www.equi4.com/pub/download.html</A>
+<LI>Download the latest version from <A HREF="http://www.equi4.com/pub/mk/">http://www.equi4.com/pub/mk/</A>
 <LI>On Unix, rename the appropriate compiled extension to "Mk4tcl.so" (on Win/Mac, use the corresponding file)
 <LI>Do a small test, by running "demo.tcl".  If all is well, you should get some self-explanatory output
 <LI>Place the extension somewhere on Tcl's package search path (or just leave it in ".")
@@ -133,9 +124,9 @@ X/MIT-style open source license. Commercial support is available through an Ente
 Create a datafile:
 <BLOCKQUOTE><PRE>package require Mk4tcl
 mk::file open db datafile.mk</PRE></BLOCKQUOTE>
-Create a view (this is the MetaKit term for "table"):
+Create a view (this is the Metakit term for "table"):
 <BLOCKQUOTE><PRE>set vw [mk::view layout db.people {first last shoesize:I}]</PRE></BLOCKQUOTE>
-Add two rows (this is the MetaKit term for "record"):
+Add two rows (this is the Metakit term for "record"):
 <BLOCKQUOTE><PRE>mk::row append $vw first "John" last "Lennon" shoesize 44
 mk::row append $vw first "Flash" last "Gordon" shoesize 42</PRE></BLOCKQUOTE>
 Commit the changes to file:
@@ -172,7 +163,7 @@ Show a list of all people with first name 'John':
 <B>mk::file</B> &nbsp;<B>aside</B> &nbsp;<I>tag</I> &nbsp;<I>tag2</I> &nbsp;<BR>
 <B>mk::file</B> &nbsp;<B>autocommit</B> &nbsp;<I>tag</I> &nbsp;<BR>
 <P><DT>DESCRIPTION<DD>
-    The <I>mk::file</I> command is used to open and close MetaKit datafiles.
+    The <I>mk::file</I> command is used to open and close Metakit datafiles.
     It is also used to force pending changes to disk (<I>commit</I>),
     to cancel the last changes (<I>rollback</I>), and to send/receive the entire
     contents of a datafile over a Tcl <I>channel</I>, including sockets
@@ -256,6 +247,17 @@ Show a list of all people with first name 'John':
     set chan [socket 127.0.0.1 12345]
     mk::file save db $chan
     close $chan</PRE>
+
+    The trick to open a datafile stored inside another MK file (e.g. in VFS)
+    is to load/save data via an in-memory database - replace this:
+    <PRE>
+    mk::file open db test.dat -readonly</PRE>
+    by this:
+    <PRE>
+    mk::file open db
+    set fd [open test.dat]
+    mk::file load db $fd
+    close $fd</PRE>
 <P>
 <P><DT><A name="mk_view"><HR size=1></A><H2>mk::view</H2><DD><H3>View structure and size operations</H3>
 <P><DT>SYNOPSIS<DD><B>mk::view</B> &nbsp;<B>layout</B> &nbsp;<I>tag.view</I> &nbsp;<BR>
@@ -639,6 +641,6 @@ Note that you cannot easily use a loop to insert or delete rows, since changes t
 <!--END-->
 <P>
 <HR size=1>
-&copy; 2000 Jean-Claude Wippler &lt;<A HREF="mailto:jcw@equi4.com">jcw@equi4.com</A>&gt;
+&copy; 2003 Jean-Claude Wippler &lt;<A HREF="mailto:jcw@equi4.com">jcw@equi4.com</A>&gt;
 </BODY>
 </HTML>

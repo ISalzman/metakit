@@ -48,7 +48,7 @@ proc tqsDisplay {str len} {
     return $str
 }
 
-    # remote execution of any MetaKit command, added 20-02-2000
+    # remote execution of any Metakit command, added 20-02-2000
 proc TqsRemote {cmd args} {
 	eval mk::$cmd $args
 }
@@ -67,7 +67,7 @@ proc TqsVerbose {{level ""}} {
     return $tqs_info(verbose)
 }
 
-    # define a view (MetaKit's equivalent concept for a Tcl array)
+    # define a view (Metakit's equivalent concept for a Tcl array)
     # if the second argument is true, all existing data is removed
     # the third arg is used to specify a binary (B) of memo format (M)
     # if the third arg is "X", use a directory with files for storage

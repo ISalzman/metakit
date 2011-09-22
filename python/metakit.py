@@ -1,14 +1,24 @@
-# metakit.py -- Utility code for the Python interface to MetaKit
-# $Id: metakit.py 1261 2007-03-09 16:50:28Z jcw $
-# This is part of MetaKit, see http://www.equi4.com/metakit/
-# 
-# This wraps the raw Mk4py compiled extension interface.
-# To use MetaKit through this interface, simply do:
-#   import metakit
-# After that, things like metakit.storage(...) are available,
-# as well as utilities defined below.  This assumes that both
-# both mk.py and Mk4py.{dll,so} can be found by Python.
+"""
+metakit.py -- Utility code for the Python interface to Metakit
+$Id: metakit.py 1260 2007-03-09 16:49:54Z jcw $
+This is part of Metakit, see http://www.equi4.com/metakit/
 
+This wraps the raw Mk4py compiled extension interface.
+To use Metakit through this interface, simply do:
+  import metakit
+After that, things like metakit.storage(...) are available,
+as well as utilities defined below.  This assumes that both
+both metakit.py and Mk4py.{dll,so} can be found by Python.
+"""
+
+_oldname = __name__
+__name__ = "metakit"
+__version__ = "2.4.9.3"
+__description__ = "Python bindings to the Metakit database library"
+__author__ = "Gordon McMillan / Jean-Claude Wippler"
+__email__ = "jcw@equi4.com"
+__url__ = "http://www.equi4.com/metakit/python.html"
+__license__ = "X/MIT style, see: http://www.equi4.com/mklicense.html"
 from Mk4py import *
 import string
 
@@ -55,7 +65,7 @@ def dump(view, title=None):
 
   print " Total: %d rows" % len(view)
 
-if __name__ == '__main__':
+if _oldname == '__main__':
   db = storage()
   f = db.getas('frequents[drinker,bar,perweek:I]')
   s = db.getas('serves[bar,beer,quantity:I]')

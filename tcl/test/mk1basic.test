@@ -13,7 +13,9 @@ T 1 {no databases} {
 
 T 2 {temp database} {
   mk::file open db
-  C [mk::file open] {db {}}
+  # 2003-10-01: this was wrong when run from tclkit, which has "exe" open
+  #C [mk::file open] {db {}}
+  C [string match "*db {}*" [mk::file open]] 1
 }
 
 T 3 {temp data} {
@@ -41,7 +43,9 @@ T 4 {use same tag twice} {
 T 5 {open file} {
   set f [F].dat
   mk::file open db $f
-  C [mk::file open] [list db $f]
+  # 2003-10-01: this was wrong when run from tclkit, which has "exe" open
+  #C [mk::file open] [list db $f]
+  C [string match "*[list db $f]*" [mk::file open]] 1
   C [file exists $f] 1
   mk::file commit db
     # the file size remains zero, because commit detects no change

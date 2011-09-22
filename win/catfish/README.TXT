@@ -3,7 +3,7 @@ CatFish 1.9                                                      December 1999
 
 
 This is the source code release of CatFish, a fast and compact disk cataloger
-based on the MetaKit embedded database engine.
+based on the Metakit embedded database engine.
 
 There are two directories in this archive: catfish and msvc152.
 
@@ -13,12 +13,12 @@ with some serious trickery to make it use long filenames on Windows 96/98/NT.
 To that end, CatFish has been created with MSVC 1.52 - this archive includes
 the three project files required to rebuild it:
 
-	msvc152\mk4wvms.mak	static MFC-based 16-bit version of MetaKit
+	msvc152\mk4wvms.mak	static MFC-based 16-bit version of Metakit
 	msvc152\mk4wvmsd.mak	similar, but this is a debug build
 	catfish\catfish.mak	the CatFish project, debug and release modes
 
 The projects ought to build as is, if placed *inside* the "win" directory of
-the MetaKit 2.0 source distribution, see http://www.equi4.com/metakit/ for
+the Metakit 2.0 source distribution, see http://www.equi4.com/metakit/ for
 full details on where to download this open source portable database library.
 
 There are many interesting ways to take this popular utility (there have been
@@ -30,13 +30,13 @@ many tens of thousands of downloads of the original CatFish 1.8 release):
       
   2)  Write a new version, perhaps in the Tcl/Tk scripting language and GUI.
       This could take full advantage of the multi-platform capability of
-      MetaKit, and make all CatFish catalog files useable on any platform.
+      Metakit, and make all CatFish catalog files useable on any platform.
       
   3)  You tell me...
   
 If you are a software developer and are considering any of these steps, then
 please get in touch - either by email to me, or by posting a note on one of
-the MetaKit discussion groups or on the MetaKit Wiki (see the website).
+the Metakit discussion groups or on the Metakit Wiki (see the website).
 
 Though I'm involved in other projects, I will definitely support anyone who
 wishes to contribute - from all the feedback I have received, it is clear
@@ -45,7 +45,7 @@ Extending the functionality further would be great news for many, I'm sure.
 
 If you make changes to CatFish, you must remove the Equi4 Software logo, and
 you must leave an acknowledgement with my name in the About box - please...
-Details about the amazing qualities of MetaKit are ok, but not required :)
+Details about the amazing qualities of Metakit are ok, but not required :)
 
 
 LAST-MINUTE UPDATE, 20-12-1999

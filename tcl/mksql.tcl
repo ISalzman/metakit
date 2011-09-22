@@ -1,7 +1,7 @@
 # mksql.tcl --
-# $Id: mksql.tcl 1261 2007-03-09 16:50:28Z jcw $
-# This is part of MetaKit, see http://www.equi4.com/metakit/
-# Copyright (C) 2000 by Matt Newman and Jean-Claude Wippler.
+# $Id: mksql.tcl 1260 2007-03-09 16:49:54Z jcw $
+# This is part of Metakit, see http://www.equi4.com/metakit/
+# Copyright (C) 2000-2003 by Matt Newman and Jean-Claude Wippler.
 #
 # This is an experimental wrapper around the new MkSQL engine.
 # It tries to conform to the Tclodbc API.

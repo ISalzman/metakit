@@ -1,49 +1,28 @@
 // doxy.h --
-// $Id: doxy.h 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: doxy.h 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
-/** @mainpage MetaKit API Reference
+/** @mainpage Metakit API Reference
 
-  The is the reference documentation for the public C++ API of MetaKit.
+  The is the reference documentation for the public C++ API of Metakit.
 
-  - For a quick intro to MetaKit, see @ref intro.
-  - To use MetaKit from Python, see the @ref mk4py page.
-  - To use MetaKit from Tcl, see the @ref mk4tcl page.
+  - For the documentation of Metakit, see http://www.equi4.com/mkdocs.html
+  - To use Metakit from Python, see http://www.equi4.com/metakit/python.html
+  - To use Metakit from Tcl, see http://www.equi4.com/metakit/tcl.html
 
 @section install Installation
 
-  - TO BE DEFINED
+  - Windows: open "win/msvc60/mksrc.dsw" with Microsoft Visual C++ 6.0
+  - Unix: "cd builds; ../unix/configure; make; make test; make install"
 
 @section using Using the library
 
-  - TO BE DEFINED
-
-@section design Design overview
-
-  - TO BE DEFINED
+  - There are some examples in the "demo/" and "examples/" directories.
+  - The "tests/" directory contains a test suite with 140+ small samples.
 
 @section news News, releases, discussions
 
-  See the MetaKit homepage at http://www.equi4.com/metakit/
-*/
-
-/** @page intro Introduction to MetaKit
-
-  - TO BE DEFINED
-*/
-
-/** @page mk4py MetaKit for Python
-
-  Python is a high-level scripting language (see http://www.python.org/).
-
-  - TO BE DEFINED
-*/
-
-/** @page mk4tcl MetaKit for Tcl
-
-  Tcl is a high-level scripting language (see http://dev.scriptics.com/).
-
-  - TO BE DEFINED
+  - See the Metakit homepage at http://www.equi4.com/metakit.html
 */
 
 // vim:wm=5

@@ -1,6 +1,6 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: tstore5.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
 
@@ -217,4 +217,70 @@ void TestStores5()
       s2.Commit();
     }
   } D(s46a); R(s46a); E;
+
+    // 2004-01-16 bad property type crashes MK 2.4.9.2 and before
+    // this hits an assertion in debug mode, so then it has to be disabled
+  B(s47, Defining bad property type, 0)
+  {
+    c4_IntProp p1 ("p2");
+  
+    c4_Storage s1;
+#if defined(NDEBUG)
+    c4_View v1 = s1.GetAs("v1[p1:A]");
+#else
+    // assertions are enabled, turn this into a dummy test instead
+    c4_View v1 = s1.GetAs("v1[p1:I]");
+#endif
+    v1.Add(p1 [123]);
+
+      A(v1.GetSize() == 1);
+      A(p1 (v1 [0]) == 123);
+  } E;
+
+    // 2004-01-18 file damaging bug, when resizing a comitted subview
+    // to empty, committing, and then resizing back to containing data.
+    // Fortunately this usage pattern never happened in blocked views!
+  B(s48, Resize subview to zero and back, 0) W(s48a); W(s48b);
+  {
+    {
+      c4_Storage s1 ("s48a", true);
+      c4_View v1 = s1.GetAs("v1[v2[p1:I]]");
+      v1.SetSize(1);
+      s1.Commit();
+    }
+    {
+      c4_Storage s1 ("s48a", true);
+      c4_View v1 = s1.View("v1");
+      v1.SetSize(0);
+      s1.Commit();
+      // the problem is that the in-memory copy has forgotten that it
+      // has nothing left on disk, and a comparison is done later on to
+      // avoid saving unmodified data - the bad decision is that data has
+      // not changed, but actually it has and must be reallocated!
+      // (fixes are in c4_FormatV::Insert and c4_FormatV::Remove)
+      v1.SetSize(1);
+      s1.Commit();
+      // at this point, the 2.4.9.2 file is corrupt!
+      c4_FileStream fs1 (fopen("s48b", "wb"), true);
+      s1.SaveTo(fs1);
+    }
+    {
+      // using this damaged datafile will then crash
+      c4_Storage s1 ("s48a", false);
+      c4_View v1 = s1.View("v1");
+      v1.SetSize(2);
+    }
+  } D(s48a); D(s48b); R(s48a); R(s48b); E;
+
+    // 2004-01-20 better handling of bad input: ignore repeated props
+  B(s49, Specify conflicting properties, 0) W(s49a);
+  {
+    c4_Storage s1 ("s49a", true);
+    c4_View v1 = s1.GetAs("v1[p1:I,p1:S]");
+    c4_View v2 = s1.GetAs("v2[p1:I,P1:S]");
+    c4_View v3 = s1.GetAs("v3[v3[^]]");
+      c4_String x1 = s1.Description();
+      A(x1 == "v1[p1:I],v2[p1:I],v3[v3[^]]");
+    s1.Commit();
+  } D(s49a); E;
 }

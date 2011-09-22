@@ -1,4 +1,4 @@
-# preamble, included by all MetaKit tests
+# preamble, included by all Metakit tests
 
 source defs.tcl
 
@@ -22,6 +22,8 @@ S {
 } {
   # do this after each test
   foreach {db path} [mk::file open] {
-    mk::file close $db
+    if {[string match db* $db]} {
+      mk::file close $db
+    }
   }
 }

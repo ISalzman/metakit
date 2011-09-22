@@ -151,11 +151,14 @@ public:
   virtual void _violentTypeCheck() {
     if (!PyString_Check(_obj)) {
       GrabRef(0);
-      Fail(PyExc_TypeError, "Not a Python String");
+      Fail(PyExc_TypeError, "not a Python string");
     }
   };
   operator const char* () const {
     return PyString_AsString(_obj);
+  };
+  int size() const {
+    return PyString_GET_SIZE(_obj);
   };
   static PWOString format(const PWOString& fmt, PWOTuple& args){
     PyObject * rslt =PyString_Format(fmt, args);

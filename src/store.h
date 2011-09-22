@@ -1,6 +1,6 @@
 // store.h --
-// $Id: store.h 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: store.h 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
  * Definition of auxiliary storage management classes

@@ -1,4 +1,4 @@
-# Wrapping Python data as MetaKit views
+# Wrapping Python data as Metakit views
 #
 # Expected output (3 times):
 #    a      b      c

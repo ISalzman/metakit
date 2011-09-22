@@ -4,7 +4,7 @@
 
 SHELL = /bin/sh
 
-LIBOBJS = column.o custom.o derived.o fileio.o field.o format.o \
+LOBJS = column.o custom.o derived.o fileio.o field.o format.o \
           handler.o persist.o remap.o std.o store.o string.o table.o \
 	  univ.o view.o viewx.o
 
@@ -120,7 +120,7 @@ install-mk: libmk4.la
 install-tcl: Mk4tcl@SHLIB_SUFFIX@
 	mkdir -p $(DESTDIR)$(tcllibdir)/Mk4tcl
 	$(INSTALL_PROGRAM) Mk4tcl@SHLIB_SUFFIX@ $(DESTDIR)$(tcllibdir)/Mk4tcl
-	echo 'package ifneeded Mk4tcl 2.4.8 [list load [file join $$dir Mk4tcl@SHLIB_SUFFIX@] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
+	echo 'package ifneeded Mk4tcl 2.4.9.3 [list load [file join $$dir Mk4tcl@SHLIB_SUFFIX@] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
 
 install-python: Mk4py@MODULE_SUFFIX@
 	$(INSTALL_PROGRAM) Mk4py@MODULE_SUFFIX@ $(DESTDIR)$(pylibdir)
@@ -145,25 +145,27 @@ config.status: $(srcdir)/configure
 $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && autoconf
 
-libmk4.la: $(LIBOBJS) $(LINK_SPECIAL_FILES)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) -avoid-version \
-		-rpath $(libdir) $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
+libmk4.la: $(LOBJS) $(LINK_SPECIAL_FILES)
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) \
+		-avoid-version $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
 
 Mk4tcl@SHLIB_SUFFIX@: libmk4tcl.la
 	cp .libs/libmk4tcl@SHLIB_SUFFIX@ $@
 	-strip $(STRIP_FLAGS) $@ 2>/dev/null
 
-libmk4tcl.la: mk4tcl.o mk4too.o $(LIBOBJS) $(LINK_SPECIAL_FILES)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) -avoid-version \
-		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
+libmk4tcl.la: mk4tcl.o mk4too.o $(LOBJS) $(LINK_SPECIAL_FILES)
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) \
+		-avoid-version -rpath $(libdir) \
+		mk4tcl.lo mk4too.lo $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
 
 Mk4py@MODULE_SUFFIX@: libmk4py.la
 	cp .libs/libmk4py@MODULE_SUFFIX@ $@
 	-strip $(STRIP_FLAGS) $@ 2>/dev/null
 
-libmk4py.la: $(PYOBJS) $(LIBOBJS)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_MODULE_FLAGS) -avoid-version \
-		-rpath $(libdir) $(SPYOBJS) $(SHLOBJS)
+libmk4py.la: $(PYOBJS) $(LOBJS)
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_MODULE_FLAGS) \
+		-avoid-version -rpath $(libdir) \
+		$(SPYOBJS) $(SHLOBJS)
 
 Mk4lua@SHLIB_SUFFIX@: mk4lua.o libmk4.la
 	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4lua.lo $(SHLOBJS) \

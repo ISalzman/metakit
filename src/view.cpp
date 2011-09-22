@@ -1,6 +1,6 @@
 // view.cpp --
-// $Id: view.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: view.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Implementation of main classes not involved in persistence
@@ -149,7 +149,7 @@ void f4_DoLogProp(const c4_Handler* hp_, int id_, const char* fmt_, int arg_)
 /** @class c4_View
  *
  *  A collection of data rows.  This is the central public data structure of
- *  MetaKit (often called "table", "array", or "relation" in other systems).
+ *  Metakit (often called "table", "array", or "relation" in other systems).
  *
  *  Views are smart pointers to the actual collections, setting a view to a new
  *  value does not alter the collection to which this view pointed previously.
@@ -619,7 +619,7 @@ c4_View c4_View::Rename(const c4_Property& old_, const c4_Property& new_) const
 /** Create view with a subview, grouped by the specified properties
  *
  * This operation is similar to the SQL 'GROUP BY', but it takes
- * advantage of the fact that MetaKit supports nested views.  The
+ * advantage of the fact that Metakit supports nested views.  The
  * view returned from this member has one row per distinct group,
  * with an extra view property holding the remaining properties.
  * If there are N rows in the original view matching key X, then
@@ -767,7 +767,7 @@ c4_View c4_View::ReadOnly() const
  * numKeys_ properties of the underlying view.
  *
  * The map_ view must be empty the first time this hash view is used, so
- * that MetaKit can fill it based on whatever rows are already present in
+ * that Metakit can fill it based on whatever rows are already present in
  * the underlying view.  After that, neither the underlying view nor the
  * map view may be modified other than through this hash mapping layer.
  * The defined structure of the map view must be "_H:I,_R:I".
@@ -780,7 +780,7 @@ c4_View c4_View::ReadOnly() const
  * Example of use:
  * @code
  *  c4_View data = storage.GetAs("people[name:S,age:I]");
- *  c4_View datah = storage.GetAs("people_H1[name:S,age:I]");
+ *  c4_View datah = storage.GetAs("people_H[_H:I,_R:I]");
  *  c4_View hash = raw.Hash(datah, 1);
  *  ... hash.GetSize() ...
  *  hash.Add(...)
@@ -816,7 +816,7 @@ c4_View c4_View::Blocked() const
 
 /** Create mapped view which keeps its rows ordered
  *
- * This is an identity view, which has as only use to inform MetaKit that
+ * This is an identity view, which has as only use to inform Metakit that
  * the underlying view can be considered to be sorted on its first numKeys_
  * properties.  The effect is that c4_View::Find will try to use binary
  * search when the search includes key properties (results will be identical

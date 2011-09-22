@@ -817,7 +817,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -856,7 +856,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -873,7 +873,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.shlb</PATH>
+                                <PATH>Metakit.PPC.shlb</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -1747,7 +1747,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib</PATH>
+                    <PATH>Metakit.PPC.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -1856,7 +1856,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib</PATH>
+                    <PATH>Metakit.PPC.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -1873,7 +1873,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.lib</PATH>
+                                <PATH>Metakit.PPC.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -2754,7 +2754,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.lib</PATH>
+                    <PATH>Metakit.68K.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -2871,7 +2871,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.lib</PATH>
+                        <PATH>Metakit.68K.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -2889,7 +2889,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.lib</PATH>
+                                <PATH>Metakit.68K.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -3672,7 +3672,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.lib</PATH>
+                    <PATH>Metakit.68K.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -3719,7 +3719,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.lib</PATH>
+                        <PATH>Metakit.68K.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -3737,7 +3737,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.lib</PATH>
+                                <PATH>Metakit.68K.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -4520,7 +4520,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.lib</PATH>
+                    <PATH>Metakit.68K.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -4567,7 +4567,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.lib</PATH>
+                        <PATH>Metakit.68K.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -4585,7 +4585,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.lib</PATH>
+                                <PATH>Metakit.68K.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -5361,7 +5361,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -5400,7 +5400,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -5417,7 +5417,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.shlb</PATH>
+                                <PATH>Metakit.PPC.shlb</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -6200,7 +6200,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.lib</PATH>
+                    <PATH>Metakit.68K.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -6247,7 +6247,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.lib</PATH>
+                        <PATH>Metakit.68K.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -6265,7 +6265,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.lib</PATH>
+                                <PATH>Metakit.68K.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -7041,7 +7041,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -7080,7 +7080,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -7097,7 +7097,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.shlb</PATH>
+                                <PATH>Metakit.PPC.shlb</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -7880,7 +7880,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.lib</PATH>
+                    <PATH>Metakit.68K.lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -7927,7 +7927,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.lib</PATH>
+                        <PATH>Metakit.68K.lib</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -7945,7 +7945,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.lib</PATH>
+                                <PATH>Metakit.68K.lib</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -8721,7 +8721,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -8760,7 +8760,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.shlb</PATH>
+                    <PATH>Metakit.PPC.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -8777,7 +8777,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.shlb</PATH>
+                                <PATH>Metakit.PPC.shlb</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -10062,7 +10062,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.68K.shlb</PATH>
+                    <PATH>Metakit.68K.shlb</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -10109,7 +10109,7 @@
                     </FILEREF>
                     <FILEREF>
                         <PATHTYPE>Name</PATHTYPE>
-                        <PATH>MetaKit.68K.shlb</PATH>
+                        <PATH>Metakit.68K.shlb</PATH>
                         <PATHFORMAT>MacOS</PATHFORMAT>
                     </FILEREF>
                 </SEGMENT>
@@ -10127,7 +10127,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.68K.shlb</PATH>
+                                <PATH>Metakit.68K.shlb</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -11915,7 +11915,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib.Debug</PATH>
+                    <PATH>Metakit.PPC.lib.Debug</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>Debug, TargetOutputFile</FILEFLAGS>
@@ -12024,7 +12024,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib.Debug</PATH>
+                    <PATH>Metakit.PPC.lib.Debug</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -12041,7 +12041,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.lib.Debug</PATH>
+                                <PATH>Metakit.PPC.lib.Debug</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -12931,7 +12931,7 @@
                 </FILE>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib.Profiled</PATH>
+                    <PATH>Metakit.PPC.lib.Profiled</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>TargetOutputFile</FILEFLAGS>
@@ -13045,7 +13045,7 @@
                 </FILEREF>
                 <FILEREF>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MetaKit.PPC.lib.Profiled</PATH>
+                    <PATH>Metakit.PPC.lib.Profiled</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -13062,7 +13062,7 @@
                             <ATTRIBUTES>LinkAgainst</ATTRIBUTES>
                             <FILEREF>
                                 <PATHTYPE>Name</PATHTYPE>
-                                <PATH>MetaKit.PPC.lib.Profiled</PATH>
+                                <PATH>Metakit.PPC.lib.Profiled</PATH>
                                 <PATHFORMAT>MacOS</PATHFORMAT>
                             </FILEREF>
                         </SUBPROJECTTARGET>
@@ -13208,7 +13208,7 @@
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>
-        <GROUP><NAME>MetaKit Libraries</NAME>
+        <GROUP><NAME>Metakit Libraries</NAME>
             <FILEREF>
                 <TARGETNAME>Demo PPC</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
@@ -13218,37 +13218,37 @@
             <FILEREF>
                 <TARGETNAME>Regress 68K</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.68K.lib</PATH>
+                <PATH>Metakit.68K.lib</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
                 <TARGETNAME>Demo 68K CFM</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.68K.shlb</PATH>
+                <PATH>Metakit.68K.shlb</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
                 <TARGETNAME>Regress PPC</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.PPC.lib</PATH>
+                <PATH>Metakit.PPC.lib</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
                 <TARGETNAME>Regress PPC Debug</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.PPC.lib.Debug</PATH>
+                <PATH>Metakit.PPC.lib.Debug</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
                 <TARGETNAME>Regress PPC Profiled</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.PPC.lib.Profiled</PATH>
+                <PATH>Metakit.PPC.lib.Profiled</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
             <FILEREF>
                 <TARGETNAME>Demo PPC</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MetaKit.PPC.shlb</PATH>
+                <PATH>Metakit.PPC.shlb</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>

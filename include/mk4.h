@@ -1,9 +1,9 @@
 // mk4.h --
-// $Id: mk4.h 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: mk4.h 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
- * Main MetaKit library include file
+ * Main Metakit library include file
  */
 
 #ifndef __MK4_H__
@@ -13,7 +13,7 @@
 //
 //  TITLE
 //                                
-//      The MetaKit Library, by Jean-Claude Wippler, Equi4 Software, NL.
+//      The Metakit Library, by Jean-Claude Wippler, Equi4 Software, NL.
 //      
 //  DESCRIPTION
 //                                
@@ -43,7 +43,8 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 249    // 2.4.9.2 release, Mar 17, 2003
+#define d4_MetakitLibraryVersion 249    // 2.4.9.3 release, Jan 26, 2004
+#define d4_MetaKitLibraryVersion d4_MetakitLibraryVersion // compat, yuck
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -115,7 +116,7 @@
 
     // Borland C++ and C++ Builder
 #if defined (__BORLANDC__)
-    // by default, if runtime is linked as a DLL, then so is MetaKit
+    // by default, if runtime is linked as a DLL, then so is Metakit
 #if defined (_RTLDLL) && !defined (q4_KITDLL)
 #define q4_KITDLL 1
 #endif
@@ -178,7 +179,7 @@
 #endif // _MSC_VER
 
 //---------------------------------------------------------------------------
-// Other definitions needed by the public MetaKit library header files
+// Other definitions needed by the public Metakit library header files
 
 #if !q4_BOOL && !q4_STD         // define a bool datatype
 #define false 0

@@ -1,7 +1,7 @@
-MetaKit 2.3.4 - last release candidate
+Metakit 2.3.4 - last release candidate
 March, 2001
 
-Welcome to the latest release of the MetaKit embedded database library.
+Welcome to the latest release of the Metakit embedded database library.
 This is a near-final release, it is functionally 100% done, but a few
 minor problems/bugs still remain.  Release MK 2.3.4 is essentialy ready
 for production use, with one extremely important disclaimer:
@@ -23,7 +23,7 @@ This document describes the main changes since 2.01 in some detail:
  - better error checking to avoid disk full errors from being missed
  - documentation and current status
 
-Most of these changes are intended to make MetaKit more scalable and to
+Most of these changes are intended to make Metakit more scalable and to
 improve performance in various ways.  This process is not complete, as
 several new bottlenecks have been intoduced in the new code.  The main
 goal of the 2.3 release is to make sure the file format is correct and
@@ -70,7 +70,7 @@ during open, and will save the new format on commit.  This means that
 moving to the new release is relatively painless, but once changes are
 committed with 2.3, you can not go back to 2.01 or earlier.
 
-The "random" versus "serial" file format differences of pre-2.3 MetaKit is
+The "random" versus "serial" file format differences of pre-2.3 Metakit is
 now gone.  When serializing data out with "SaveTo", MK will now figure out
 how to save the file in an optimally compact form, suitable for loading on
 demand.  That means that the best way to reorganize a MK datafile to get

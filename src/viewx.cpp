@@ -1,6 +1,6 @@
 // viewx.cpp --
-// $Id: viewx.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: viewx.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
  * Implements c4_Sequence, c4_Reference, and c4_...Ref

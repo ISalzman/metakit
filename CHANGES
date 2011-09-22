@@ -1,3 +1,168 @@
+2004-01-26    ############################################    MK 2.4.9.3
+
+    Maintenance release, consolidates past 9 months of changes/tweaks.
+
+    Fixed test for "__name__" in python/metakit.py to run a quick test.
+
+2004-01-22    Fixed refcount problem with temp rows in Mk4tcl
+
+    This was a long-standing bug: "mk::row create" did not work right
+    because the tracking of temporary rows was completely messed up.
+    Added test case for Tcl (mk6.8), fixes FB14, BTS#78, and BTS#29.
+
+2004-01-21    Documentation updates
+
+    Updated copyright notices to 2004, and udated to Doxygen 1.3.5 for
+    a new set of C++ documentation.  In anticipation of next release.
+
+2004-01-20    Don't trip over duplicate property names
+
+    Added code in c4_Field constructor to avoid crashing when there is a
+    duplicate property name in the format description string.  Duplicate
+    names are now ignored (there is no good way to report errors at this
+    point).  Avoids an even bigger problem: conflicting property types.
+
+    Added test s49 to detect this case (FB20, reported by Brian Kelley).
+
+2004-01-18    Fixed rare but very serious subview resizing bug
+
+    Fixed rare but serious file damaging bug, when resizing a comitted
+    subview to empty, committing, and then resizing back to containing
+    data.  Added new s48 test to force this bug to the surface.
+
+    Fortunately this usage pattern *never* happens in blocked views!
+    Fixes are at the end of c4_FormatV::Insert and c4_FormatV::Remove.
+
+2004-01-16    Gracefully deal with bad property type specifiers
+
+    When GetAs is a called with a bad description, such as for example
+    "myview[name:A]", the release code would crash on a null pointer
+    dereference at some point.  Changed so the code now treats any type
+    it does not know about as "I" (works a bit better than using "S").
+   
+    The debug build still hits an assertion, as before.  Added s47 test.
+
+2004-01-03    Fixed typo in PyView.cpp
+
+    Forgot to fix closing brace after the 2003-12-11 mods.
+
+2003-12-21    Fixed Mk4too sorting on subview of length 1
+
+    There was a silly bug when sorting on subviews in the new Mk4too
+    interface (not in Mk4tcl), which returns a view, instead of a list
+    of integers.  In the case of 1 row, optimization was done wrongly,
+    omitting the sort as well as the remapping.  Fixed.
+    
+    Oomk needs to be patched to work around this (don't sort if n=1).
+
+2003-12-13    Tweak to avoid two unisgned/signed compiler warnings
+
+    In remap.cpp, compiled in debug mode on Win32 (DWORD vs. t4_i32).
+
+2003-12-11    Checked in numerous changes to Mk4py by Nicholas Riley
+
+    All changes are local to the python/directory - for details, see
+      http://www.equi4.com/pipermail/metakit/2003-September/001407.html
+    With a big thank you to Nicholas for contributing these improvements.
+
+2003-11-23    Bumped to Python 2.3, doc tweaks, lots of name fixes
+
+    Adjusted makefile to now look for Python 2.3 by default.
+    Regenerated config files.  Fixed obsolete links in the doc files.
+
+    Got rid of tons of Metakit "interCap" cases, should be Metakit.
+    This affects a huge number of source files and one #define (which
+    has been defined twice for compatibility: d4_MetakitLibraryVersion).
+    Use "cvs diff -i" to see real changes, other than case swapping.
+
+2003-10-28    Get rid of --enable-python, check in c22.txt
+
+    It's not valid, but some files mentioned it.  Use --with-python.
+    Forgot to check in the new c22.txt file added earlier this month.
+
+2003-10-16    Added note to Tcl docs
+
+    Added a note to doc/tcl.html on how to load a MK datafiles stored in
+    another one, as needed when using VFS for example.
+
+2003-10-10    Added c22 test
+
+    Added test to make sure groubpy/select bug is not present in the C++
+    core (bts #75 reports the bug found for Mk4tcl/Mk4too).
+
+2003-10-01    Fixed bugs in Tcl test suite
+
+    The tests in tcl/test/ were incorrectly closing non-test datafiles,
+    such as the "exe" one open while tclkit runs, and needed when a
+    slave is created which needs to re-run init.tcl etc from VFS.
+    
+2003-09-30    Python 2.3.1 & cleanup
+
+    Tweaked PWONumber.h and PyRowRef.cpp and MSVC6 project so it can
+    compile Mk4py for Python 2.3.1 again.  Windows binary uploaded.
+
+    Removed the win/msvc60/tests/ directory, it's no longer needed.
+
+2003-09-20    Autoconf and libtool rebuilds
+
+    In an attempt to stay ahead of version trouble and other nonsense,
+    the autoconf / configure and libtool files have been regenerated.
+    Autoconf is at 2.57 and libtoolize is at 1.4.3 on this dev system.
+
+2003-08-26    Documentation fix
+
+    Fixed install comments for Mk4py, as reported in bts #59.
+
+2003-07-17    Fixes to Mk4py (Gordon)
+
+    Fix crash when db.description(nm) is called for missing view "nm".
+    Fix wrap - for the special case of wrapping a list of primitives
+    (eg, ints, floats, strings) in a single property "view".
+
+2003-07-11    Fix for Linux not finding .lai file
+
+    Posted for RH 8.0 on MK mailing list by Jeff Web on July 3rd.
+
+2003-07-01    Fixed "Metakit" (preferred) vs "Metakit" (obsolete)
+
+    Get rid of InterCappedWords.  Time to grow up, d00d...
+
+2003-06-06    Fix to Mk4py for case (in)sensitivity.
+
+    When using a dict (or keyword args), makeRow now gets the
+    names from the dict's keys and gets the properties by name.
+    This allows case insensitive matching. Note that using an
+    instance still requires that the instance attributes have
+    names that match (case sensitive) with the view.
+
+2003-05-15    Add distutils setup.py script (Gordon).
+
+    Tested on Linux & Windows (MSVC).
+    You can now do a plain configure / make (without python)
+    then cd python; python setup.py build | install
+
+2003-05-08    Fixed array bound bug when not using mmap-ed files
+
+    There was an incorrect test, when dealing with a new file and
+    memory mapping is not enabled (which is uncommon, these days).
+    Thanks to V Demarco for catching and resolving this bug.
+
+2003-04-28    Sourceforge
+
+    Synced to SF's CVS, see http://sourceforge.net/projects/metakit
+
+2003-04-25    Autoconf/libtool update
+
+    Did "autoreconf -force" with autoconf 2.5.7 and libtool 1.4.3, as
+    suggested by Gerfried Fuchs/Ryan Murray.  Some Makefile.in tweaks.
+
+2003-04-22    Fixes to Mk4py (Gordon).
+
+    Make view.append(instance) work again.
+    Fix recursively adding subview data.
+    Make properties compare properly.
+    Initial (incomplete) unittest based test script.
+
 2003-03-16    ############################################    MK 2.4.9.2
 
     Also allow passing pairs to "mk::row append" as a list (Mk4tcl).
@@ -684,7 +849,7 @@
 
 2001-11-03    Removed tcl/kit/ and copyright notices
 
-   Removed the entire tcl/kit/ tree, TclKit will be distributed as
+   Removed the entire tcl/kit/ tree, Tclkit will be distributed as
    separate package from now on (the 2.4.1 release still builds ok).
 
    Also replaced all copyright notices by version Id's and an URL.
@@ -730,10 +895,10 @@
 
 2001-10-14    ##############################################    MK 2.4.1
 
-   Custom-extended TclKit, and threading
+   Custom-extended Tclkit, and threading
 
    Minor kitInit.c change allows wrapping apps as a "custom-extended"
-   version of TclKit.  Enable threaded Tcl build on Unix.
+   version of Tclkit.  Enable threaded Tcl build on Unix.
 
    This release consolidates the most recent fixes and code tweaks.
 
@@ -801,7 +966,7 @@
 
     A long-standing bug, in TclSelector::ExactKeyProps.
 
-2001-05-28    Security fix in TclKit
+2001-05-28    Security fix in Tclkit
 
     See end of the tcl/kit/README file for deatils.
 
@@ -825,7 +990,7 @@
     switched to "sizeof" in a couple of places.  This error was
     introduced by the double-fix of 3/27.
 
-2001-03-28    Allow builds of TclKit with Sun CC
+2001-03-28    Allow builds of Tclkit with Sun CC
 
     Integrated a few changes provided by D.J. Hagberg.  Note: the
     M-solaris.sh and M-dyn.sh scripts need to be manually edited when
@@ -844,10 +1009,10 @@
     (i.e. created on a machine using different endian-ness from the one
     doing commit).
 
-2001-02-14    Removed file events from TclKit
+2001-02-14    Removed file events from Tclkit
 
     Changed kit/rechan.cpp to not generate file events.  This avoids a
-    bug in TclKit whereby an open file can generate a continuous stream
+    bug in Tclkit whereby an open file can generate a continuous stream
     of file events as long as the file is open - the console will seem
     to be frozen, though "close $file" does work and fixes it.
 
@@ -862,7 +1027,7 @@
     trying to convert an old-format file with empty subviews in it.  Bug
     introduced on 14 Nov.
 
-2000-12-02    Fixes in TclKit code
+2000-12-02    Fixes in Tclkit code
 
     Fixed a Tcl-level bug causing memory leaks for all compressed files
     stored with MK opened for reading.
@@ -886,9 +1051,9 @@
 
     Remove FlipBytes members, they are no longer needed.
 
-2000-11-08    TclKit now in the distribution
+2000-11-08    Tclkit now in the distribution
 
-    The "TclKit" project has been merged into MetaKit.  Details and
+    The "Tclkit" project has been merged into Metakit.  Details and
     updated build info at "tcl/kit/README".  The SourceForge CVS
     repository is up to date again.
 
@@ -914,7 +1079,7 @@
 2000-10-26    Changes to compile with Borland C++
 
     Minor tweaks to compile with Borland C++ Builder 4.0, which does not
-    support "long long".  A new KitViewer has been built (new code to
+    support "long long".  A new Kitviewer has been built (new code to
     replace c4_View::Describe).
 
 2000-10-03    Fixes for Alpha Unix
@@ -982,7 +1147,7 @@
 
     Added "metakit.py" script to wrap Mk4py, including a new
     metakit.dump() to pretty-print views.  More utility code will be
-    added over time.  The preferred way to use MetaKit from Python is
+    added over time.  The preferred way to use Metakit from Python is
     now "import metakit".
 
 2000-07-06    Conversion fix, warning cleanup
@@ -1116,7 +1281,7 @@
 2000-05-28    Better file mark scanning
 
     Added c4_Strategy::EndOfData, to determine the logical end of a
-    MetaKit datafile.  This call can be used to check whether a file
+    Metakit datafile.  This call can be used to check whether a file
     contains any data, and whether a commit-extend has been performed.
     Old-style scripted documents (with preamble) can now be opened.
     Changed strategy class, DataSeek has been merged with read/write.
@@ -1137,9 +1302,9 @@
 
     First alpha release
 
-    Officially, this is "MetaKit 2.3.1 alpha" (ignore "2.3.0" in mk4.h).
+    Officially, this is "Metakit 2.3.1 alpha" (ignore "2.3.0" in mk4.h).
     All alpha's are 2.3.1 (beta's will be 2.3.2, finals start at 2.3.5).
-    Builds on Linux/Mac/Win appear ok - as do Mk4py, Mk4tcl, and TclKit.
+    Builds on Linux/Mac/Win appear ok - as do Mk4py, Mk4tcl, and Tclkit.
 
 2000-05-06    Massive changes to the core
 
@@ -1296,12 +1461,12 @@
 
     Reordered GetId in "mk4.inl" to avoid (harmless) inline warning.
 
-1999-12-21    Checked-in CatFish and KitViewer sources
+1999-12-21    Checked-in Catfish and Kitviewer sources
 
-    Added win/catfish and win/kitviewer areas.  CatFish was built with
+    Added win/catfish and win/kitviewer areas.  Catfish was built with
     MSVC 1.52, so the win/msvc152 area has also been added.
 
-    KitViewer requires Borland C++ Builder 4.0 to build (using VCL), it
+    Kitviewer requires Borland C++ Builder 4.0 to build (using VCL), it
     has been adjusted to now also recognize scripted documents.
 
 1999-12-20    Bug fix in set-after-get situations
@@ -1329,7 +1494,7 @@
 1999-12-14    Documentation added
 
     The C++ API documentation has been added to the distribution, as
-    well as a document describing the file format details of MetaKit.
+    well as a document describing the file format details of Metakit.
 
 1999-12-13    Bug fix affecting c4_View::Description
 
@@ -1338,7 +1503,7 @@
 
 1999-12-12  MK 1.99     New release, as open source software
 
-    The major change is that MetaKit has been released as open source
+    The major change is that Metakit has been released as open source
     software, based on the liberal X/MIT-style license.  Commercial
     support remains unchanged for all recent commercial customers, and
     for those who purchase the Enterprise License.  The Universal Source

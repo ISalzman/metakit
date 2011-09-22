@@ -1,8 +1,8 @@
 // mk4lua.cpp --
-// $Id: mk4lua.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: mk4lua.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 //
-//  This is the Lua-specific code to turn MetaKit into a Lua extension.
+//  This is the Lua-specific code to turn Metakit into a Lua extension.
 
 #include "luna2.h"
 

@@ -2,14 +2,14 @@
 <head>
    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
    <meta name="Author" content="Jean-Claude Wippler">
-   <title>An overview of the MetaKit data format</title>
+   <title>An overview of the Metakit data format</title>
 </head>
 <body>
 
 <A HREF="http://www.equi4.com/"><IMG SRC="e4s.gif" vspace=3 WIDTH="97" HEIGHT="35" BORDER=0 align=right></A>
 <br clear=both><center>
 <h2>
-An overview of the MetaKit data format</h2></center>
+An overview of the Metakit data format</h2></center>
 
 <center><i>Jean-Claude Wippler</i>
 <br><i>Equi4 Software</i>
@@ -18,18 +18,18 @@ An overview of the MetaKit data format</h2></center>
 <br>&nbsp;</center>
 
 <b>INTRODUCTION</b>
-<p>MetaKit is an efficient, small-footprint, robust, and platform-independent
-database library.&nbsp; The name "MetaKit" is used as name for the file
+<p>Metakit is an efficient, small-footprint, robust, and platform-independent
+database library.&nbsp; The name "Metakit" is used as name for the file
 format, as well as for the implementation (coded in C++, with interfaces
-to Python and Tcl).&nbsp; MetaKit 2.0 is freely available as open source, 
+to Python and Tcl).&nbsp; Metakit 2.0 is freely available as open source, 
 with optional commercial support through my company, Equi4 Software.
 <p>This document describes some of the main elements of the design of the
-file format used in release 2.0 of MetaKit - which
+file format used in release 2.0 of Metakit - which
 reads all prior formats back to the 1.0 release of March 1996.
-<p>For general information about MetaKit, you are kindly referred to information
-on the world wide web - the MetaKit home page is at <a href="http://www.equi4.com/metakit/">http://www.equi4.com/metakit/</a>.
+<p>For general information about Metakit, you are kindly referred to information
+on the world wide web - the Metakit home page is at <a href="http://www.equi4.com/metakit/">http://www.equi4.com/metakit/</a>.
 For the purpose of this document, here is a summary with the capabilities
-of MetaKit which most affect the design of the file format.
+of Metakit which most affect the design of the file format.
 <ul>
 <li>
 Data is stored in native format, reversed endian-ness is detected and dealt
@@ -57,13 +57,13 @@ be stored in a single file</li>
 
 <li>
 Datafiles are self-descriptive, generic utilities can be used to inspect
-and manipulate any MetaKit datafile</li>
+and manipulate any Metakit datafile</li>
 
 <li>
-MetaKit supports instant on-the-fly datafile restructuring, with full commit/rollback
+Metakit supports instant on-the-fly datafile restructuring, with full commit/rollback
 capability</li>
 </ul>
-MetaKit is being used by hundreds of developers, in products ranging from
+Metakit is being used by hundreds of developers, in products ranging from
 custom-made client-server applications, software utilities, website databases,
 numerical/statistical data-storage, groupware, development tools, to financial
 applications such as POS and home banking.  It can be embedded into the
@@ -71,7 +71,7 @@ application, requiring no installation - or used as a shared library (DLL).
 <br>&nbsp;
 <p><b>BASIC DATA STRUCTURE</b>
 <p>To describe the format used for the datafiles, it is necessary to introduce
-some terminology and to describe how data is organized.&nbsp; What MetaKit
+some terminology and to describe how data is organized.&nbsp; What Metakit
 does, is present a more or less relational perspective on data storage.
 <ul>
 <li>
@@ -93,7 +93,7 @@ The first three of these are equivalent to the relational <i>table, record,
 <i>attribute</i>.&nbsp;
 The fourth makes it possible to store hierarchically structured data (subviews
 are an advanced feature and will not be further described here).
-<p>But the fundamental concept of MetaKit, is that all data is stored <i>column-wise</i>.&nbsp;
+<p>But the fundamental concept of Metakit, is that all data is stored <i>column-wise</i>.&nbsp;
 A <i>view</i> (table) with 10,000 <i>rows</i> (records), consisting of
 25 <i>properties</i> (attributes), is stored on file as a data structure
 pointing to 25 <i>columns</i> of bytes.&nbsp; Each of these columns may
@@ -109,7 +109,7 @@ a range of techniques has been implemented to offer high performance.
 <br>&nbsp;
 <p><b>FILE FORMAT OVERVIEW</b>
 <p>Once you switch your mind to this column-wise approach, the format of
-MetaKit datafiles becomes quite simple to describe:
+Metakit datafiles becomes quite simple to describe:
 <ul>
 <li>
 An 8-byte header</li>
@@ -131,7 +131,7 @@ N row definitions would in a traditional row-by-row database.
 <p>Note that the amount of information needed to define all views and columns
 can remain <i>very</i> small.&nbsp; The number of rows in each view affects
 only the size of each column, not the number of them.&nbsp; This effect
-is used while opening a datafile: MetaKit quickly reads the header, description,
+is used while opening a datafile: Metakit quickly reads the header, description,
 and all column position/size information.&nbsp; From then on, access to
 data is basically instant - with seeks doing the rest (actually, most of
 it is memory-mapped file access).&nbsp; To use the previous example: a
@@ -255,7 +255,7 @@ way structural information is stored, to make it possible to open
 datafiles more lazily and perform efficient partial commits.</i>
 <br>&nbsp;
 <p><b>FREE SPACE MANAGEMENT AND RECOVERY</b>
-<p>The datafile format of MetaKit contains no other information than what
+<p>The datafile format of Metakit contains no other information than what
 has been described so far.&nbsp; Specifically, there is no "free space"
 pool.&nbsp; This is possible, because free space can be deduced from what
 is present in the file - it consists of those areas of the file which are
@@ -276,13 +276,13 @@ Once the commit is complete, free space in the file is redefined to include
 old and now obsolete areas of the file, and to exclude the newly allocated
 data.
 <p>To date, with thousands of users known to be using software based on
-MetaKit in production-grade commercial products, no case has ever been
-reported of a corrupted data file.&nbsp; MetaKit does not contain any recovery/repair
+Metakit in production-grade commercial products, no case has ever been
+reported of a corrupted data file.&nbsp; Metakit does not contain any recovery/repair
 code - there is no need.
 <p>The trade-off is that datafiles which get modified can grow to roughly
-twice their optimum size.&nbsp; Despite this, MetaKit datafile sizes are
+twice their optimum size.&nbsp; Despite this, Metakit datafile sizes are
 often <i>smaller</i> than with other approaches.&nbsp; The
-reasons for this are that MetaKit supports variable-sized data with no
+reasons for this are that Metakit supports variable-sized data with no
 overhead, that integers tend to be packed very densely, that there is <i>no</i>
 overhead per row, and that techniques such as B-trees with partially-filled
 nodes are not used.
@@ -345,11 +345,11 @@ and paging is used.</li>
 Many repetitive loops over data tend to process a large number or rows,
 but to access only a few columns.</li>
 </ul>
-It turns out that MetaKit performance varies widely, depending on the design
+It turns out that Metakit performance varies widely, depending on the design
 and use of the data structures.&nbsp; Note that there are virtually no
 <i>database
 indexes. </i>This is not a lack of functionality, but a deliberate design
-choice.&nbsp; Experience shows that MetaKit frequently outperforms other
+choice.&nbsp; Experience shows that Metakit frequently outperforms other
 approaches by mere brute-force.&nbsp; A recent test on a modern Pentium
 II / 400 MHz CPU, shows that search speeds exceed 500,000 string scans
 per second and 1,000,000 integer scans per second.&nbsp; There is a definite
@@ -357,7 +357,7 @@ trade-off between indexing (with techniques such as B-trees and extensible
 hashing) and the overhead it imposes for updates - and mere scanning.
 <p>Evidently, at some point, it will be better to index by key values than
 to scan millions of strings for a match.&nbsp; This is where subviews in
-MetaKit come in handy.&nbsp; By structuring data in a "slightly hierarchical"
+Metakit come in handy.&nbsp; By structuring data in a "slightly hierarchical"
 manner, searches again often end up being over just thousands or tens of
 thousands of entries.&nbsp; Also, keeping data sorted (in some sense) and then
 doing binary search can often be an effective option (this is part of the Metakit
@@ -366,7 +366,7 @@ API).
 pattern-matching, and by its very nature well suited for <i>ad-hoc</i>
 queries: all properties are searchable without the need to decide what
 key indexes to define up front.
-<p>Some further explanations why performance is high in MetaKit:
+<p>Some further explanations why performance is high in Metakit:
 <ul>
 <li>
 No indexes means smaller datafiles, this increases memory residence and
@@ -391,7 +391,7 @@ not only end up being completely memory-resident, the column-wise structure
 for each property also makes CPU caches perform at their very best.
 <br>&nbsp;
 <p><b>LIMITATIONS</b>
-<p>There are some limitations in the current MetaKit implementation,
+<p>There are some limitations in the current Metakit implementation,
 these are currently being addressed:
 <ul>
 <li>
@@ -421,7 +421,7 @@ Additional safeguards are sometimes needed to detect currupted datafiles
 (such as file-transfer errors).
 </ul>
 Work is currently under way to address each of these issues.&nbsp; This
-will allow the efficient use of MetaKit datafiles when they are in the Gb
+will allow the efficient use of Metakit datafiles when they are in the Gb
 range.&nbsp; The changes will be made in such a way that backward compatibility
 can be maintained (i.e. new releases will retain the ability to read 2.0
 format datafiles, and will transparently perform adjustments when writing
@@ -429,14 +429,14 @@ to them).
 <br>&nbsp;
 <p><b>CONCLUSION</b>
 <p>In the end, <i>the proof is in the pudding</i>.&nbsp; As it turns out,
-three years of MetaKit use and evolution have shown that a lot of performance
+three years of Metakit use and evolution have shown that a lot of performance
 can be achieved as a result of reducing file format and implementation
 complexity.&nbsp; Robustness is achieved through minimizing redundancy,
 while fail-safety is achieved through a form of controlled duplication.
 <p>Both of these have led to a format which is very simple, flexible enough
 to evolve (half of the datatypes were added after the fact), and which
 has the capability of being instantly restructured to adapt to new data
-structures.&nbsp; This latter property of the MetaKit datafile format is
+structures.&nbsp; This latter property of the Metakit datafile format is
 what makes it <i>future-proof</i> for application developers - in a very
 practical sense.
 <p>There are some drawbacks to using column-wise storage, but the current

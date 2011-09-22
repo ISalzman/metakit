@@ -33,7 +33,7 @@ resource 'vers' (2) {
 	SCRIPT_MAJOR_VERSION, MINOR_VERSION,
 	RELEASE_LEVEL, 0x00, verUS,
 	SCRIPT_PATCH_LEVEL,
-	"MetaKit for Tcl " SCRIPT_VERSION
+	"Metakit for Tcl " SCRIPT_VERSION
 };
 
 /*
@@ -44,8 +44,8 @@ resource 'vers' (2) {
  * A similar string should be placed in all shared libraries.
  */
 resource 'STR ' (-16397, purgeable) {
-	"MetaKit for Tcl\n\n"
-	"This library implements the MetaKit database for Tcl/Tk programs."
+	"Metakit for Tcl\n\n"
+	"This library implements the Metakit database for Tcl/Tk programs."
 	"To work properly, it should be placed in the ‘Tool Command Language’ "
 	"folder within the Extensions folder."
 };

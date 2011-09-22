@@ -1,6 +1,6 @@
 // mwcw.h --
-// $Id: mwcw.h 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: mwcw.h 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
  * Configuration header for Metrowerks CodeWarrior
@@ -12,7 +12,7 @@
 
 #if q4_68K
 #if !__option(IEEEdoubles)
-#error Cannot build MetaKit with 10-byte doubles
+#error Cannot build Metakit with 10-byte doubles
 #endif
 #endif
 

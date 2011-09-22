@@ -1,9 +1,7 @@
 // PyRowRef.cpp --
-// $Id: PyRowRef.cpp 1261 2007-03-09 16:50:28Z jcw $
+// $Id: PyRowRef.cpp 1260 2007-03-09 16:49:54Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
-//
-//  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
+// Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  RowRef class implementation
 
@@ -11,6 +9,10 @@
 #include <PWONumber.h>
 #include "PyRowRef.h"
 #include "PyView.h"
+
+#if defined(PY_LONG_LONG) && !defined(LONG_LONG)
+#define LONG_LONG PY_LONG_LONG
+#endif
 
 static PyMethodDef RowRefMethods[] = {
   {0, 0, 0, 0}
@@ -35,20 +37,20 @@ static PyObject* PyRowRef_getattr(PyRowRef *o, char *nm) {
   try {
     if (nm[0] == '_' && nm[1] == '_') {
       if (strcmp(nm, "__attrs__") == 0) {
-	c4_View parent = o->Container();
-	int nprops = parent.NumProperties();
-	PyObject *out = PyList_New(nprops);
-	for(int i=0; i < nprops; i++) {
-	  PyList_SetItem(out, i, 
-			 new PyProperty(parent.NthProperty(i)));
-	}
-	return out;
+        c4_View parent = o->Container();
+        int nprops = parent.NumProperties();
+        PyObject *out = PyList_New(nprops);
+        for(int i=0; i < nprops; i++) {
+          PyList_SetItem(out, i, 
+                 new PyProperty(parent.NthProperty(i)));
+        }
+        return out;
       }
       else if (strcmp(nm, "__view__") == 0) {
-	return new PyView(o->Container());
+        return new PyView(o->Container());
       }
       else if (strcmp(nm, "__index__") == 0) {
-	return PyInt_FromLong((&(*o))._index);
+        return PyInt_FromLong((&(*o))._index);
       }
     }
 
@@ -123,28 +125,31 @@ PyRowRef::PyRowRef(const c4_RowRef& o, int immutable)
 void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyObject* attr) {
   switch (prop.Type()) {
     case 'I':
-      if (PyInt_Check(attr))
-        ((const c4_IntProp&) prop) (row) = PyInt_AS_LONG(attr);
-      else if (attr != Py_None)
-      {
-	PWONumber number (attr);
-	((const c4_IntProp&) prop) (row) = (long) number;
+      if (PyInt_Check(attr)) {
+	long number = PyInt_AsLong(attr);
+        if (number == -1 && PyErr_Occurred() != NULL)
+          Fail(PyExc_ValueError, "int too large to convert to C long");
+        ((const c4_IntProp&) prop) (row) = number;
+      } else if (attr != Py_None) {
+        PWONumber number (attr);
+        ((const c4_IntProp&) prop) (row) = (long) number;
       }
       break;
 #ifdef HAVE_LONG_LONG
     case 'L':
-      if (PyInt_Check(attr))
-	((const c4_LongProp&) prop) (row) = PyInt_AS_LONG(attr);
-      else if (PyLong_Check(attr)) {
-	LONG_LONG number = PyLong_AsLongLong(attr);
-	if (number == -1 && PyErr_Occurred() != NULL)
-	  Fail(PyExc_ValueError, "long int too large to convert to C long long");
-	((const c4_LongProp&) prop) (row) = number;
-      }
-      else if (attr != Py_None)
-      {
-	PWONumber number (attr);
-	((const c4_LongProp&) prop) (row) = (LONG_LONG) number;
+      if (PyLong_Check(attr)) {
+        LONG_LONG number = PyLong_AsLongLong(attr);
+        if (number == -1 && PyErr_Occurred() != NULL)
+          Fail(PyExc_ValueError, "long int too large to convert to C long long");
+        ((const c4_LongProp&) prop) (row) = number;
+      } else if (PyInt_Check(attr)) {
+	long number = PyInt_AsLong(attr);
+        if (number == -1 && PyErr_Occurred() != NULL)
+          Fail(PyExc_ValueError, "int too large to convert to C long");
+        ((const c4_LongProp&) prop) (row) = number;
+      } else if (attr != Py_None) {
+        PWONumber number (attr);
+        ((const c4_LongProp&) prop) (row) = (LONG_LONG) number;
       }
       break;
 #endif
@@ -153,8 +158,8 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         ((const c4_FloatProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
       else if (attr != Py_None)
       {
-	PWONumber number (attr);
-	((const c4_FloatProp&) prop) (row) = (double) number;
+        PWONumber number (attr);
+        ((const c4_FloatProp&) prop) (row) = (double) number;
       }
       break;
     case 'D': 
@@ -162,8 +167,8 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         ((const c4_DoubleProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
       else if (attr != Py_None)
       {
-	PWONumber number (attr);
-	((const c4_DoubleProp&) prop) (row) = (double) number;
+        PWONumber number (attr);
+        ((const c4_DoubleProp&) prop) (row) = (double) number;
       }
       break;
     case 'S': 
@@ -173,7 +178,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         prop (row).SetData(temp);
       }
       else if (attr != Py_None)
-	Fail(PyExc_TypeError, "wrong type for StringProp");
+        Fail(PyExc_TypeError, "wrong type for StringProp");
       break;
     case 'V': 
       if (PyView_Check(attr)) {
@@ -181,7 +186,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         ((const c4_ViewProp&) prop)(row) = *obj;
       }
       else {  
-        ((const c4_ViewProp&) prop) (row) = c4_View ();
+        //((const c4_ViewProp&) prop) (row) = c4_View ();
         PyView tmp(((const c4_ViewProp&) prop)(row));
         PWOSequence lst(attr);
         tmp.SetSize(lst.len());
@@ -201,7 +206,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         prop (row).SetData(temp);
       }
       else if (attr != Py_None)
-	Fail(PyExc_TypeError, "wrong type for ByteProp");
+        Fail(PyExc_TypeError, "wrong type for ByteProp");
       break;
     default:
       PyErr_Format(PyExc_TypeError, "unknown property type '%c'", prop.Type());

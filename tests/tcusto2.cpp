@@ -1,6 +1,6 @@
 // tcusto2.cpp -- Regression test program, custom view tests
-// $Id: tcusto2.cpp 1261 2007-03-09 16:50:28Z jcw $
-// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+// $Id: tcusto2.cpp 1260 2007-03-09 16:49:54Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
 
@@ -397,5 +397,45 @@ void TestCustom2()
       A(p4 (v3[0]) == 1111);
       A(p4 (v3[1]) == 2222);
       A(p4 (v3[2]) == 3333);
+  } E;
+
+  B(c22, Groupby with selection, 0)
+  {
+    c4_Storage s1;
+    c4_View v1 = s1.GetAs("v1[p1:I,p2:I,p3:I]");
+    c4_IntProp p1 ("p1"), p2 ("p2"), p3 ("p3");
+    c4_ViewProp p4 ("p4");
+
+    v1.Add(p1[0] + p2[1] + p3[10]);
+    v1.Add(p1[1] + p2[1] + p3[20]);
+    v1.Add(p1[2] + p2[2] + p3[30]);
+    v1.Add(p1[3] + p2[3] + p3[40]);
+    v1.Add(p1[4] + p2[3] + p3[50]);
+
+    s1.Commit();
+      A(v1.GetSize() == 5);
+
+    c4_View v2 = v1.GroupBy(p2,p4);
+      A(v2.GetSize() == 3);
+
+    c4_View v3 = p4 (v2[0]);
+      A(v3.GetSize() == 2);
+      A(p3 (v3[0]) == 10);
+      A(p3 (v3[1]) == 20);
+
+    c4_View v4 = p4 (v2[1]);
+      A(v4.GetSize() == 1);
+      A(p3 (v4[0]) == 30);
+
+    c4_View v5 = p4 (v2[2]);
+      A(v5.GetSize() == 2);
+      A(p3 (v5[0]) == 40);
+      A(p3 (v5[1]) == 50);
+
+    c4_View v6 = v4.Sort();
+      A(v6.GetSize() == 1);
+      A(p1 (v6[0]) == 2);
+      A(p3 (v6[0]) == 30);
+
   } E;
 }
