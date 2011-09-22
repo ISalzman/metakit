@@ -1,5 +1,5 @@
 // field.cpp --
-// $Id: field.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: field.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -31,30 +31,25 @@ c4_Field::c4_Field (const char*& description_, c4_Field* parent_)
   size_t n = strcspn(description_, ",[]");
   const char* p = strchr(description_, ':');
 
-  if (p != 0 && p < description_ + n)
-  {
+  if (p != 0 && p < description_ + n) {
     _name = c4_String (description_, p - description_);
     _type = p[1] & ~0x20; // force to upper case
-  }
-  else
-  {
+  } else {
     _name = c4_String (description_, n);
     _type = 'S';
   }
 
   description_ += n;
     
-  if (*description_ == '[')
-  {
+  if (*description_ == '[') {
     ++description_;
     _type = 'V';
 
-    if (*description_ == '^')
-  {
-    ++description_;
-    _indirect = parent_;
-    d4_assert(*description_ == ']');
-  }
+    if (*description_ == '^') {
+      ++description_;
+      _indirect = parent_;
+      d4_assert(*description_ == ']');
+    }
 
     if (*description_ == ']')
       ++description_;
@@ -67,15 +62,13 @@ c4_Field::c4_Field (const char*& description_, c4_Field* parent_)
 
 c4_Field::~c4_Field ()
 {
-  if (_indirect == this)
-  {
-  //better? for (int i = NumSubFields(); --i >= 0 ;)
-  for (int i = 0; i < NumSubFields(); ++i)
-  {
-    c4_Field* sf = & SubField(i);
-    if (sf != this) // careful with recursive subfields
-    delete sf;
-  }
+  if (_indirect == this) {
+    //better? for (int i = NumSubFields(); --i >= 0 ;)
+    for (int i = 0; i < NumSubFields(); ++i) {
+      c4_Field* sf = & SubField(i);
+      if (sf != this) // careful with recursive subfields
+      delete sf;
+    }
   }
 }
 
@@ -85,8 +78,7 @@ c4_String c4_Field::Description(bool anonymous_) const
   
   if (Type() == 'V')
     s += "[" + DescribeSubFields(anonymous_) + "]";
-  else
-  {
+  else {
     s += ':';
     s += Type();
   }
@@ -94,7 +86,7 @@ c4_String c4_Field::Description(bool anonymous_) const
   return s;
 }
   
-c4_String c4_Field::DescribeSubFields(bool anonymous_) const
+c4_String c4_Field::DescribeSubFields(bool) const
 {
   d4_assert(Type() == 'V');
 
@@ -104,11 +96,10 @@ c4_String c4_Field::DescribeSubFields(bool anonymous_) const
   c4_String s;
   char c = 0;
   
-  for (int i = 0; i < NumSubFields(); ++i)
-  {
+  for (int i = 0; i < NumSubFields(); ++i) {
     if (c != 0)
       s += c;
-  s += SubField(i).Description();
+    s += SubField(i).Description();
     c = ',';
   } 
   

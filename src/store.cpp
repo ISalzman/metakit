@@ -1,5 +1,5 @@
 // store.cpp --
-// $Id: store.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: store.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -276,6 +276,19 @@ c4_ViewRef c4_Storage::View(const char* name_)
 c4_View c4_Storage::GetAs(const char* description_)
 {
   d4_assert(description_ != 0);
+
+    // Dec 2001: now that GetAs is being used so much more frequently, 
+    // add a quick check to see whether restructuring is needed at all
+  const char* q = strchr(description_, '[');
+  if (q != 0) {
+    c4_String vname (description_, q - description_);
+    const char* d = Description(vname);
+    if (d != 0) {
+      c4_String desc (d);
+      if (("[" + desc + "]").CompareNoCase(q) == 0)
+	return View(vname);
+    }
+  }
 
   c4_Field* field = d4_new c4_Field (description_);
   d4_assert(field != 0);

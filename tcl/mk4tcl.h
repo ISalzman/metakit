@@ -1,5 +1,5 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1269 2007-03-09 16:53:45Z jcw $
+// $Id: mk4tcl.h 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -169,6 +169,8 @@ class KeepRef
 public:
   KeepRef (Tcl_Obj* obj_) : _obj (obj_) { Tcl_IncrRefCount(_obj); }
   ~KeepRef ()               { Tcl_DecrRefCount(_obj); }
+
+  operator Tcl_Obj* () const { return _obj; }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -343,7 +345,7 @@ public:
   int tcl_GetIntFromObj(Tcl_Obj* obj_);
   long tcl_GetLongFromObj(Tcl_Obj* obj_);
   double tcl_GetDoubleFromObj(Tcl_Obj* obj_);
-  int tcl_GetIndexFromObj(Tcl_Obj *obj_, char **table_, char *msg_ ="option");
+  int tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, char *msg_ ="option");
   long tcl_ExprLongObj(Tcl_Obj *obj_);
 
   Tcl_Obj* GetValue(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_ =0);

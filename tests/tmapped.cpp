@@ -1,5 +1,5 @@
 // tmapped.cpp -- Regression test program, mapped view tests
-// $Id: tmapped.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: tmapped.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -92,4 +92,47 @@ void TestMapped()
     s1.Commit();
 
   } D(m03a); R(m03a); E;
+
+  B(m04, Locate bug, 0) W(m04a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_StringProp p2 ("p2");
+
+    c4_Storage s1 ("m04a", true);
+    s1.AutoCommit();
+  
+    c4_View v1 = s1.GetAs("v1[p1:I,p2:S]");
+  
+    v1.Add(p1 [1] + p2 ["one"]);
+    v1.Add(p1 [2] + p2 ["two"]);
+    v1.Add(p1 [3] + p2 ["three"]);
+    s1.Commit();
+  
+    c4_View v2 = v1.Ordered();
+      A(v2.GetSize() == 3);
+    v2.Add(p1 [6] + p2 ["six"]);
+    v2.Add(p1 [5] + p2 ["five"]);
+    v2.Add(p1 [4] + p2 ["four"]);
+      A(v2.GetSize() == 6);
+      A(v1.GetSize() == 6);
+
+      A(p1 (v1[0]) == 1);
+      A(p1 (v1[1]) == 2);
+      A(p1 (v1[2]) == 3);
+      A(p1 (v1[3]) == 4);
+      A(p1 (v1[4]) == 5);
+      A(p1 (v1[5]) == 6);
+
+      A(v2.Find(p1 [4]) == 3);
+      A(v2.Search(p1 [4]) == 3);
+
+      int i1 = -1;
+      A(v1.Locate(p1 [4], &i1) == 1);
+      A(i1 == 3);
+
+      int i2 = -1;
+      A(v2.Locate(p1 [4], &i2) == 1);
+      A(i2 == 3);
+  
+  } D(m04a); R(m04a); E;
 }

@@ -1,5 +1,5 @@
 // column.h --
-// $Id: column.h 1269 2007-03-09 16:53:45Z jcw $
+// $Id: column.h 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

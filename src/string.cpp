@@ -1,5 +1,5 @@
 // string.cpp --
-// $Id: string.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: string.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -191,7 +191,8 @@ void c4_String::Init(const void* p, int n)
 
   _value[0] = 1; // many assumptions here: set the reference count to 1
   
-  memcpy(_value + 2, p, n);
+  if (n > 0)
+    memcpy(_value + 2, p, n);
   _value[1] = (unsigned char) (n <= 255 ? n : 255);
   _value[n+2] = 0;
 }

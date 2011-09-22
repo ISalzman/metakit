@@ -1,5 +1,5 @@
 // mk4.inl --
-// $Id: mk4.inl 1269 2007-03-09 16:53:45Z jcw $
+// $Id: mk4.inl 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -11,7 +11,7 @@
  
 d4_inline c4_Cursor c4_RowRef::operator& () const
 {
-    return _cursor;
+  return _cursor;
 }
 
 /** Return a unique id for this property
@@ -26,7 +26,7 @@ d4_inline c4_Cursor c4_RowRef::operator& () const
  */
 d4_inline int c4_Property::GetId() const
 {
-    return _id;
+  return _id;
 }
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -35,12 +35,12 @@ d4_inline int c4_Property::GetId() const
 
 d4_inline bool operator== (const t4_i64 a_, const t4_i64 b_)
 {
-    return a_.l1 == b_.l1 && a_.l2 == b_.l2;
+  return a_.l1 == b_.l1 && a_.l2 == b_.l2;
 }
 
 d4_inline bool operator< (const t4_i64 a_, const t4_i64 b_)
 {
-    return a_.l2 < b_.l2 || a_.l2 == b_.l2 && a_.l2 < b_.l2;
+  return a_.l2 < b_.l2 || a_.l2 == b_.l2 && a_.l2 < b_.l2;
 }
 
 #endif
@@ -51,7 +51,7 @@ d4_inline bool operator< (const t4_i64 a_, const t4_i64 b_)
 /// Returns the number of entries in this view.
 d4_inline int c4_View::GetSize() const
 {
-    return _seq->NumRows();
+  return _seq->NumRows();
 }
 
 /** Change the size of this view
@@ -62,19 +62,19 @@ d4_inline int c4_View::GetSize() const
  */
 d4_inline void c4_View::SetSize(int newSize_, int growBy_)
 {
-    _seq->Resize(newSize_, growBy_);
+  _seq->Resize(newSize_, growBy_);
 }
 
 /// Removes all entries (sets size to zero).
 d4_inline void c4_View::RemoveAll()
 {
-    SetSize(0);
+  SetSize(0);
 }
 
 /// Return a pointer to the persistence handler, or zero
 d4_inline c4_Persist* c4_View::Persist() const
 {
-    return _seq->Persist();
+  return _seq->Persist();
 }
 
 /**
@@ -86,7 +86,7 @@ d4_inline c4_Persist* c4_View::Persist() const
  */
 d4_inline void c4_View::SetAt(int index_, const c4_RowRef& newElem_)
 {
-    _seq->SetAt(index_, &newElem_);
+  _seq->SetAt(index_, &newElem_);
 }
 
 /**
@@ -100,7 +100,7 @@ d4_inline void c4_View::InsertAt(
 	int count_ ///< number of copies to insert, must be > 0
     )
 {
-    _seq->InsertAt(index_, &newElem_, count_);
+  _seq->InsertAt(index_, &newElem_, count_);
 }
 
 /**
@@ -113,7 +113,7 @@ d4_inline void c4_View::InsertAt(
  */
 d4_inline void c4_View::RemoveAt(int index_, int count_)
 {
-    _seq->RemoveAt(index_, count_);
+  _seq->RemoveAt(index_, count_);
 }
 
 /** Return the number of properties present in this view.
@@ -121,7 +121,7 @@ d4_inline void c4_View::RemoveAt(int index_, int count_)
  */
 d4_inline int c4_View::NumProperties() const
 {
-    return _seq->NumHandlers();
+  return _seq->NumHandlers();
 }
 
 /** Find the index of a property, given its id
@@ -130,67 +130,67 @@ d4_inline int c4_View::NumProperties() const
  */
 d4_inline int c4_View::FindProperty(int propId_)
 {
-    return _seq->PropIndex(propId_);
+  return _seq->PropIndex(propId_);
 }
 
     /// Return a decription if there is a fixed structure, else zero
 d4_inline const char* c4_View::Description() const
 {
-    return _seq->Description();
+  return _seq->Description();
 }
 
     /// Increase the reference count of the associated sequence
 d4_inline void c4_View::_IncSeqRef()
 {
-    _seq->IncRef();
+  _seq->IncRef();
 }
 
     /// Decrease the reference count of the associated sequence
 d4_inline void c4_View::_DecSeqRef()
 {
-    _seq->DecRef();
+  _seq->DecRef();
 }
 
 /// Destructor, decrements reference count
 d4_inline c4_View::~c4_View ()
 {
-    _DecSeqRef();
+  _DecSeqRef();
 }
 
     /// Return true if the contents of both views are equal
 d4_inline bool operator== (const c4_View& a_, const c4_View& b_)
 {
-    return a_.GetSize() == b_.GetSize() && a_.Compare(b_) == 0;
+  return a_.GetSize() == b_.GetSize() && a_.Compare(b_) == 0;
 }
 
     /// Return true if the contents of both views are not equal
 d4_inline bool operator!= (const c4_View& a_, const c4_View& b_)
 {
-    return !(a_ == b_);
+  return !(a_ == b_);
 }
 
     /// True if first view is less than second view
 d4_inline bool operator< (const c4_View& a_, const c4_View& b_)
 {
-    return a_.Compare(b_) < 0;
+  return a_.Compare(b_) < 0;
 }
 
     /// True if first view is greater than second view
 d4_inline bool operator> (const c4_View& a_, const c4_View& b_)
 {
-    return b_ < a_;
+  return b_ < a_;
 }
 
     /// True if first view is less or equal to second view
 d4_inline bool operator<= (const c4_View& a_, const c4_View& b_)
 {
-    return !(b_ < a_);
+  return !(b_ < a_);
 }
 
     /// True if first view is greater or equal to second view
 d4_inline bool operator>= (const c4_View& a_, const c4_View& b_)
 {                     
-    return !(a_ < b_);
+  return !(a_ < b_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -210,96 +210,96 @@ d4_inline c4_Cursor::c4_Cursor (c4_Sequence& seq_, int index_)
 /// Pre-increments the cursor.
 d4_inline c4_Cursor& c4_Cursor::operator++ ()
 {
-    ++_index;
-    return *this;
+  ++_index;
+  return *this;
 }
 
 /// Post-increments the cursor.
 d4_inline c4_Cursor c4_Cursor::operator++ (int)
 {
-    return c4_Cursor (*_seq, _index++);
+  return c4_Cursor (*_seq, _index++);
 }
 
 /// Pre-decrements the cursor.
 d4_inline c4_Cursor& c4_Cursor::operator-- ()
 {
-    --_index;
-    return *this;
+  --_index;
+  return *this;
 }
 
 /// Post-decrements the cursor.
 d4_inline c4_Cursor c4_Cursor::operator-- (int)
 {
-    return c4_Cursor (*_seq, _index--);
+  return c4_Cursor (*_seq, _index--);
 }
 
 /// Advances by a given offset.
 d4_inline c4_Cursor& c4_Cursor::operator+= (int offset_)
 {
-    _index += offset_;
-    return *this;
+  _index += offset_;
+  return *this;
 }
 
 /// Backs up by a given offset.
 d4_inline c4_Cursor& c4_Cursor::operator-= (int offset_)
 {
-    _index -= offset_;
-    return *this;
+  _index -= offset_;
+  return *this;
 }
 
 /// Subtracts a specified offset.
 d4_inline c4_Cursor c4_Cursor::operator- (int offset_) const
 {
-    return c4_Cursor (*_seq, _index - offset_);
+  return c4_Cursor (*_seq, _index - offset_);
 }
 
 /// Returns the distance between two cursors.
 d4_inline int c4_Cursor::operator- (c4_Cursor cursor_) const
 {
-    return _index - cursor_._index;
+  return _index - cursor_._index;
 }
 
 /// Add a specified offset.
 d4_inline c4_Cursor operator+ (c4_Cursor cursor_, int offset_)
 {
-    return c4_Cursor (*cursor_._seq, cursor_._index + offset_);
+  return c4_Cursor (*cursor_._seq, cursor_._index + offset_);
 }
 
 /// Adds specified offset to cursor.
 d4_inline c4_Cursor operator+ (int offset_, c4_Cursor cursor_)
 {
-    return cursor_ + offset_;
+  return cursor_ + offset_;
 }
 
 d4_inline bool operator== (c4_Cursor a_, c4_Cursor b_)
 {
-    return a_._seq == b_._seq && a_._index == b_._index;
+  return a_._seq == b_._seq && a_._index == b_._index;
 }
 
 d4_inline bool operator!= (c4_Cursor a_, c4_Cursor b_)
 {
-    return !(a_ == b_);
+  return !(a_ == b_);
 }
 
 d4_inline bool operator< (c4_Cursor a_, c4_Cursor b_)
 {
-    return a_._seq < b_._seq ||
-            a_._seq == b_._seq && a_._index < b_._index;
+  return a_._seq < b_._seq ||
+	  a_._seq == b_._seq && a_._index < b_._index;
 }
 
 d4_inline bool operator> (c4_Cursor a_, c4_Cursor b_)
 {
-    return b_ < a_;
+  return b_ < a_;
 }
 
 d4_inline bool operator<= (c4_Cursor a_, c4_Cursor b_)
 {
-    return !(b_ < a_);
+  return !(b_ < a_);
 }
 
 d4_inline bool operator>= (c4_Cursor a_, c4_Cursor b_)
 {                     
-    return !(a_ < b_);
+  return !(a_ < b_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -312,47 +312,47 @@ d4_inline c4_RowRef::c4_RowRef (c4_Cursor cursor_)
 
 d4_inline c4_RowRef c4_RowRef::operator= (const c4_RowRef& rowRef_)
 {
-    if (_cursor != rowRef_._cursor)
-        _cursor._seq->SetAt(_cursor._index, &rowRef_);
-    
-    return *this;
+  if (_cursor != rowRef_._cursor)
+    _cursor._seq->SetAt(_cursor._index, &rowRef_);
+  
+  return *this;
 }
 
 d4_inline c4_View c4_RowRef::Container() const
 {
-    return _cursor._seq;
+  return _cursor._seq;
 }
 
 d4_inline bool operator== (const c4_RowRef& a_, const c4_RowRef& b_)
 {
-    return (&a_)._seq->Compare((&a_)._index, &b_) == 0;
+  return (&a_)._seq->Compare((&a_)._index, &b_) == 0;
 }               
 
 d4_inline bool operator!= (const c4_RowRef& a_, const c4_RowRef& b_)
 {
-    return !(a_ == b_);
+  return !(a_ == b_);
 }
 
 d4_inline bool operator< (const c4_RowRef& a_, const c4_RowRef& b_)
 {
-        // 25-5-1998: don't exchange a and b, this comparison is -not- symmetric
-    return (&a_)._seq->Compare((&a_)._index, &b_) < 0;
+      // 25-5-1998: don't exchange a and b, this comparison is -not- symmetric
+  return (&a_)._seq->Compare((&a_)._index, &b_) < 0;
 }               
 
 d4_inline bool operator> (const c4_RowRef& a_, const c4_RowRef& b_)
 {
-        // 25-5-1998: don't exchange a and b, this comparison is -not- symmetric
-    return (&a_)._seq->Compare((&a_)._index, &b_) > 0;
+      // 25-5-1998: don't exchange a and b, this comparison is -not- symmetric
+  return (&a_)._seq->Compare((&a_)._index, &b_) > 0;
 }
 
 d4_inline bool operator<= (const c4_RowRef& a_, const c4_RowRef& b_)
 {
-    return !(a_ > b_);
+  return !(a_ > b_);
 }
 
 d4_inline bool operator>= (const c4_RowRef& a_, const c4_RowRef& b_)
 {                     
-    return !(a_ < b_);
+  return !(a_ < b_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -362,44 +362,44 @@ d4_inline bool operator>= (const c4_RowRef& a_, const c4_RowRef& b_)
 d4_inline c4_Bytes::c4_Bytes ()
     : _size (0), _copy (false)
 { 
-    _contents = 0; // moved out of intializers for DEC CXX 5.7
+  _contents = 0; // moved out of intializers for DEC CXX 5.7
 }
 
     /// Construct an object with contents, no copy
 d4_inline c4_Bytes::c4_Bytes (const void* buf_, int len_)
     : _size (len_), _copy (false)
 {
-    _contents = (t4_byte*) buf_; // moved out of intializers for DEC CXX 5.7
+  _contents = (t4_byte*) buf_; // moved out of intializers for DEC CXX 5.7
 }
 
 /// Returns a pointer to the contents.
 d4_inline const t4_byte* c4_Bytes::Contents() const
 {
-    return _contents;
+  return _contents;
 }
 
 /// Returns the number of bytes of its contents.
 d4_inline int c4_Bytes::Size() const
 {
-    return _size;
+  return _size;
 }
 
 d4_inline void c4_Bytes::_LoseCopy()
 {
-    if (_copy)
-        delete [] (char*) _contents;
+  if (_copy)
+    delete [] (char*) _contents;
 }
 
 /// Returns true if the contents of both objects is not equal.
 d4_inline bool operator!= (const c4_Bytes& a_, const c4_Bytes& b_)
 {
-    return !(a_ == b_);
+  return !(a_ == b_);
 }
 
 /// Destructor, if a copy was made, it will be released here.
 d4_inline c4_Bytes::~c4_Bytes ()
 {
-    _LoseCopy();
+  _LoseCopy();
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -413,22 +413,22 @@ d4_inline c4_Reference::c4_Reference (const c4_RowRef& rowRef_,
 
 d4_inline int c4_Reference::GetSize() const
 {
-    return _cursor._seq->ItemSize(_cursor._index, _property.GetId());
+  return _cursor._seq->ItemSize(_cursor._index, _property.GetId());
 }
 
 d4_inline bool c4_Reference::GetData(c4_Bytes& buf_) const
 {
-    return _cursor._seq->Get(_cursor._index, _property.GetId(), buf_);
+  return _cursor._seq->Get(_cursor._index, _property.GetId(), buf_);
 }
 
 d4_inline void c4_Reference::SetData(const c4_Bytes& buf_) const
 {
-    _cursor._seq->Set(_cursor._index, _property, buf_);
+  _cursor._seq->Set(_cursor._index, _property, buf_);
 }
 
 d4_inline bool operator!= (const c4_Reference& a_, const c4_Reference& b_)
 {
-    return !(a_ == b_);
+  return !(a_ == b_);
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -502,19 +502,19 @@ d4_inline c4_Property::c4_Property (char type_, int id_)
     /// Get or set this untyped property in a row
 d4_inline c4_Reference c4_Property::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
     /// Return a view like the first, with a property appended to it
 d4_inline c4_View c4_Property::operator, (const c4_Property& prop_) const
 {
-    return c4_View (*this), prop_;
+  return c4_View (*this), prop_;
 }
 
     /// Return the type of this property
 d4_inline char c4_Property::Type() const
 {
-    return _type;
+  return _type;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -531,29 +531,29 @@ d4_inline c4_IntProp::~c4_IntProp ()
 
 d4_inline c4_IntRef c4_IntProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline t4_i32 c4_IntProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_IntProp::Set(const c4_RowRef& rowRef_, t4_i32 value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_IntProp::AsRow(t4_i32 value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_IntProp::operator[] (t4_i32 value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -572,29 +572,29 @@ d4_inline c4_LongProp::~c4_LongProp ()
 
 d4_inline c4_LongRef c4_LongProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline t4_i64 c4_LongProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_LongProp::Set(const c4_RowRef& rowRef_, t4_i64 value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_LongProp::AsRow(t4_i64 value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_LongProp::operator[] (t4_i64 value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -611,29 +611,29 @@ d4_inline c4_FloatProp::~c4_FloatProp ()
 
 d4_inline c4_FloatRef c4_FloatProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline double c4_FloatProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_FloatProp::Set(const c4_RowRef& rowRef_, double value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_FloatProp::AsRow(double value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_FloatProp::operator[] (double value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -650,29 +650,29 @@ d4_inline c4_DoubleProp::~c4_DoubleProp ()
 
 d4_inline c4_DoubleRef c4_DoubleProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline double c4_DoubleProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_DoubleProp::Set(const c4_RowRef& rowRef_, double value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_DoubleProp::AsRow(double value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_DoubleProp::operator[] (double value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -691,29 +691,29 @@ d4_inline c4_BytesProp::~c4_BytesProp ()
 
 d4_inline c4_BytesRef c4_BytesProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline c4_Bytes c4_BytesProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_BytesProp::Set(const c4_RowRef& rowRef_, const c4_Bytes& value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_BytesProp::AsRow(const c4_Bytes& value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_BytesProp::operator[] (const c4_Bytes& value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -730,29 +730,29 @@ d4_inline c4_StringProp::~c4_StringProp ()
 
 d4_inline c4_StringRef c4_StringProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline const char* c4_StringProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_StringProp::Set(const c4_RowRef& rowRef_, const char* value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_StringProp::AsRow(const char* value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_StringProp::operator[] (const char* value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -769,29 +769,29 @@ d4_inline c4_ViewProp::~c4_ViewProp ()
 
 d4_inline c4_ViewRef c4_ViewProp::operator() (const c4_RowRef& rowRef_) const
 {
-    return c4_Reference (rowRef_, *this);
+  return c4_Reference (rowRef_, *this);
 }
 
 d4_inline c4_View c4_ViewProp::Get(const c4_RowRef& rowRef_) const
 {
-    return operator() (rowRef_);
+  return operator() (rowRef_);
 }
 
 d4_inline void c4_ViewProp::Set(const c4_RowRef& rowRef_, const c4_View& value_) const
 {
-    operator() (rowRef_) = value_;
+  operator() (rowRef_) = value_;
 }
 
 d4_inline c4_Row c4_ViewProp::AsRow(const c4_View& value_) const
 {
-    c4_Row row;
-    operator() (row) = value_;
-    return row;
+  c4_Row row;
+  operator() (row) = value_;
+  return row;
 }
     
 d4_inline c4_Row c4_ViewProp::operator[] (const c4_View& value_) const
 {
-    return AsRow(value_);
+  return AsRow(value_);
 }
     
 /////////////////////////////////////////////////////////////////////////////
@@ -800,7 +800,7 @@ d4_inline c4_Row c4_ViewProp::operator[] (const c4_View& value_) const
     /// True if we can do I/O with this object
 d4_inline bool c4_Strategy::IsValid() const
 { 
-    return false; 
+  return false; 
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -812,12 +812,12 @@ d4_inline c4_CustomViewer::c4_CustomViewer()
 
 d4_inline int c4_CustomViewer::Lookup(const c4_RowRef& r_, int& n_)
 {
-    return Lookup(&r_, n_); // c4_Cursor
+  return Lookup(&r_, n_); // c4_Cursor
 }
 
 d4_inline bool c4_CustomViewer::InsertRows(int p_, const c4_RowRef& r_, int n_)
 {
-    return InsertRows(p_, &r_, n_); // c4_Cursor
+  return InsertRows(p_, &r_, n_); // c4_Cursor
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -825,7 +825,7 @@ d4_inline bool c4_CustomViewer::InsertRows(int p_, const c4_RowRef& r_, int n_)
 
 d4_inline c4_Dependencies* c4_Sequence::GetDependencies() const
 {
-    return _dependencies;
+  return _dependencies;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -834,19 +834,19 @@ d4_inline c4_Dependencies* c4_Sequence::GetDependencies() const
 /// Dereferences this cursor to "almost" a row.
 d4_inline c4_RowRef c4_Cursor::operator* () const
 {
-    return *(c4_RowRef*) this; // cast avoids a const problem with BCPP 4.52
+  return *(c4_RowRef*) this; // cast avoids a const problem with BCPP 4.52
 }
 
 /// This is the same as *(cursor + offset).
 d4_inline c4_RowRef c4_Cursor::operator[] (int offset_) const
 {
-    return *(*this + offset_);
+  return *(*this + offset_);
 }
 
 /// Returns a reference to specified entry, for use as RHS or LHS
 d4_inline c4_RowRef c4_View::GetAt(int index_) const
 {
-    return * c4_Cursor (*_seq, index_);
+  return * c4_Cursor (*_seq, index_);
 }
 
 /** Element access, shorthand for GetAt
@@ -857,7 +857,7 @@ d4_inline c4_RowRef c4_View::operator[] (
 	int index_ ///< zero-based row index
     ) const
 {
-    return GetAt(index_);
+  return GetAt(index_);
 }
     
 /** Element access, shorthand for GetAt
@@ -868,7 +868,7 @@ d4_inline c4_RowRef c4_View::ElementAt(
 	int index_ ///< zero-based row index
     )
 {
-    return GetAt(index_);
+  return GetAt(index_);
 }
 
 /////////////////////////////////////////////////////////////////////////////

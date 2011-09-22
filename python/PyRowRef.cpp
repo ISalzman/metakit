@@ -1,5 +1,5 @@
 // PyRowRef.cpp --
-// $Id: PyRowRef.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: PyRowRef.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -23,6 +23,11 @@ static void PyRowRef_dealloc(PyRowRef *o) {
 
 static int PyRowRef_print(PyRowRef *o, FILE *f, int) {
   fprintf(f, "<PyRowRef object at %x>", (int)o);
+  return 0;
+}
+
+static int PyRORowRef_print(PyRowRef *o, FILE *f, int) {
+  fprintf(f, "<PyRORowRef object at %x>", (int)o);
   return 0;
 }
 
@@ -88,10 +93,28 @@ PyTypeObject PyRowReftype = {
   0,  /*tp_as_sequence*/
   0,    /*tp_as_mapping*/
 };
+PyTypeObject PyRORowReftype = {
+  PyObject_HEAD_INIT(&PyType_Type)
+  0,
+  "PyRORowRef",
+  sizeof(PyRowRef),
+  0,
+  (destructor)PyRowRef_dealloc, /*tp_dealloc*/
+  (printfunc)PyRORowRef_print, /*tp_print*/
+  (getattrfunc)PyRowRef_getattr, /*tp_getattr*/
+  (setattrfunc)0,    /*tp_setattr*/
+  (cmpfunc)0, /*tp_compare*/
+  (reprfunc)0, /*tp_repr*/
+  0,    /*tp_as_number*/
+  0,  /*tp_as_sequence*/
+  0,    /*tp_as_mapping*/
+};
 
-PyRowRef::PyRowRef(const c4_RowRef& o)
-  : PyHead (PyRowReftype), c4_RowRef(o)
-{
+
+PyRowRef::PyRowRef(const c4_RowRef& o, int immutable)
+  : PyHead (PyRowReftype), c4_RowRef(o) {
+  if (immutable)
+      ob_type = &PyRORowReftype;
   c4_Cursor c = & (*(c4_RowRef*) this);
   c._seq->IncRef();
 }

@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: mk4tcl.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -258,7 +258,7 @@ mkInput (ClientData instanceData, char* buf, int toRead, int* errorCodePtr)
 }
 
 static int
-mkOutput (ClientData instanceData, char* buf, int toWrite, int* errorCodePtr)
+mkOutput (ClientData instanceData, const char* buf, int toWrite, int* errorCodePtr)
 {
   MkChannel* chan = (MkChannel*) instanceData;
   chan->DataWrite(~0, buf, toWrite);
@@ -1321,9 +1321,8 @@ void TclSelector::ExactKeyProps(const c4_RowRef& row_)
       for (int j = 0; j < cond._view.NumProperties(); ++j)
       {
         const c4_Property& prop = cond._view.NthProperty(j);
-        Tcl_Obj* o = Tcl_NewStringObj(cond._crit, -1);
         // 2001-05-30: inc/decref to clean up the string object
-        KeepRef keeper (o);
+        KeepRef o = Tcl_NewStringObj(cond._crit, -1);
         SetAsObj(_interp, row_, prop, o);
       }
     }
@@ -1385,13 +1384,10 @@ int TclSelector::DoSelect(Tcl_Obj* list_)
       pos = mapView.GetIndexOf(sortResult [i]);
 
     // set up a Tcl integer which holds the selected row index
-    Tcl_Obj* o = Tcl_NewIntObj(pIndex (result[pos]));
+    KeepRef o = Tcl_NewIntObj(pIndex (result[pos]));
 
     if (Tcl_ListObjAppendElement(_interp, list_, o) != TCL_OK)
-    {
-      KeepRef keeper (o); // a funny way to release the value
       return TCL_ERROR;
-    }
   }
 
   return TCL_OK;
@@ -1476,7 +1472,7 @@ double Tcl::tcl_GetDoubleFromObj(Tcl_Obj* obj_)
   return value;
 }
 
-int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, char **table_, char *msg_)
+int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, char *msg_)
 {
   int index = -1;
   if (!_error)
@@ -1579,7 +1575,7 @@ int MkTcl::GetCmd()
 
   if (!_error)
   {
-    static char* cmds [] = { "-size", 0 };
+    static const char* cmds [] = { "-size", 0 };
 
     const bool returnSize = objc > 2 && // fixed 1999-11-19
                   tcl_GetIndexFromObj(objv[2], cmds) >= 0;
@@ -1591,7 +1587,8 @@ int MkTcl::GetCmd()
     else
     {
       _error = TCL_OK; // ignore missing option
-      tcl_SetObjResult(Tcl_NewObj());
+      KeepRef o = Tcl_NewObj();
+      tcl_SetObjResult(o);
     }
 
     Tcl_Obj* result = tcl_GetObjResult();
@@ -1668,7 +1665,7 @@ int MkTcl::SetCmd()
 
 int MkTcl::RowCmd()
 {
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "create",
     "append",
@@ -1785,7 +1782,7 @@ int MkTcl::RowCmd()
 
 int MkTcl::FileCmd()
 {
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "open", "end", "close", "commit", "rollback",
     "load", "save", "views", "aside", "autocommit",
@@ -1833,7 +1830,7 @@ int MkTcl::FileCmd()
 
         int mode = 1;
         bool nocommit = false, shared = false;
-        static char* options [] = {
+        static const char* options [] = {
           "-readonly", "-extend", "-nocommit", "-shared", 0
         };
 
@@ -1847,10 +1844,15 @@ int MkTcl::FileCmd()
           }
 
         const char* name = Tcl_GetStringFromObj(objv[2], 0);
+        int len = 0;
         const char* file = objc < 4 ? ""
-                      : Tcl_GetStringFromObj(objv[3], 0);
+                      : Tcl_GetStringFromObj(objv[3], &len);
 
-        np = work.Define(name, file, mode, shared);
+        Tcl_DString ds;
+        const char *native = Tcl_UtfToExternalDString(NULL, file, len, &ds);
+        np = work.Define(name, native, mode, shared);
+        Tcl_DStringFree(&ds);
+
         if (np == 0)
           return Fail("file open failed");
 
@@ -1861,10 +1863,16 @@ int MkTcl::FileCmd()
     
     case 1: // end
       {
-        const char* name = Tcl_GetStringFromObj(objv[2], 0);
+        int len;
+        const char* name = Tcl_GetStringFromObj(objv[2], &len);
+        Tcl_DString ds;
+        const char *native = Tcl_UtfToExternalDString(NULL, name, len, &ds);
 
         c4_FileStrategy strat;
-        if (!strat.DataOpen(name, false) || !strat.IsValid())
+        int err = strat.DataOpen(native, false);
+        Tcl_DStringFree(&ds);
+                
+        if (!err || !strat.IsValid())
           return Fail("no such file");
         t4_i32 end = strat.EndOfData();
         if (end < 0)
@@ -2009,7 +2017,7 @@ int MkTcl::FileCmd()
 
 int MkTcl::ViewCmd()
 {
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "layout",
     "delete",
@@ -2040,7 +2048,8 @@ int MkTcl::ViewCmd()
         c4_Storage& s = np->_storage;
 
         c4_String desc = KitToTclDesc(s.Description(f4_GetToken(string)));
-        return tcl_SetObjResult(tcl_NewStringObj(desc)); // different result
+        KeepRef o = tcl_NewStringObj(desc);
+        return tcl_SetObjResult(o); // different result
       }
         // else fall through
     case 1: // delete
@@ -2293,7 +2302,7 @@ int MkTcl::LoopCmd()
 
 int MkTcl::CursorCmd()
 {
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "create",
     "position",
@@ -2376,7 +2385,7 @@ int MkTcl::SelectCmd()
 {
   TclSelector sel (interp, asView(objv[1]));
 
-  static char* opts [] =
+  static const char* opts [] =
   {
     "-min",   // 0
     "-max",   // 1
@@ -2483,7 +2492,7 @@ int MkTcl::ChannelCmd()
 
   const c4_BytesProp& memo = (const c4_BytesProp&) AsProperty(objv[2], path._view);
 
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "read",
     "write",
@@ -2530,7 +2539,8 @@ int MkTcl::ChannelCmd()
   if (_error)
     return _error;
 
-  return tcl_SetObjResult(tcl_NewStringObj(buffer));
+  KeepRef o = tcl_NewStringObj(buffer);
+  return tcl_SetObjResult(o);
 }
 
 #if MKSQL
@@ -2618,7 +2628,8 @@ int MkTcl::SqlAuxCmd()
   if (_error)
     return _error;
 
-  return tcl_SetObjResult(tcl_NewStringObj("abc"));
+  KeepRef o = tcl_NewStringObj("abc");
+  return tcl_SetObjResult(o);
 }
 #endif
 
@@ -2713,7 +2724,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   }
 
     // this list must match the "CmdDef defTab []" above.
-  static char* cmds [] =
+  static const char* cmds [] =
   {
     "get",
     "set",
@@ -2735,7 +2746,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.2");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.3");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 // fileio.cpp --
-// $Id: fileio.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: fileio.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -242,7 +242,7 @@ void c4_FileStrategy::DataWrite(t4_i32 pos_, const void* buf_, int len_)
   d4_assert(_file != 0);
  //printf("DataWrite at %d len %d\n", pos_, len_);
 
-#if q4_WIN32
+#if q4_WIN32 || __MACH__
 // if (buf_ >= _mapStart && buf_ <= _mapLimit - len_)
 
     // a horrendous hack to allow file mapping for Win95 on network drive

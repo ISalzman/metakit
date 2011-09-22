@@ -1,5 +1,5 @@
 // PyStorage.cpp --
-// $Id: PyStorage.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: PyStorage.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -453,13 +453,25 @@ bool PyViewer::GetItem(int row_, int col_, c4_Bytes& buf_)
     PyRowRef::setFromPython(_tempRow, prop, item[col_]);
     return prop (_tempRow).GetData(buf_);
   }
-
+  PyObject *item = _data[row_];
+  if (PyInstance_Check(item)) {
+      PyObject* attr = PyObject_GetAttrString(item, (char *)prop.Name());
+      PyRowRef::setFromPython(_tempRow, prop, attr);
+      return prop (_tempRow).GetData(buf_);
+  }
+  if (PyDict_Check(item)) {
+      PyObject* attr = PyDict_GetItemString(item, (char *)prop.Name());
+      PyRowRef::setFromPython(_tempRow, prop, attr);
+      return prop (_tempRow).GetData(buf_);
+  }
+  Fail(PyExc_ValueError, "Object has no usable attributes");
+  return false;
     // create a row with just this single property value
     // this detour handles dicts and objects, because makeRow does
-  c4_Row one;
+/*  c4_Row one;
   PyView v (prop); // nasty, stack-based temp to get at makeRow
   v.makeRow(one, _data[row_]);
-  return prop (one).GetData(buf_);
+  return prop (one).GetData(buf_); */
 }
 
 bool PyViewer::SetItem(int row_, int col_, const c4_Bytes& buf_)
@@ -502,7 +514,7 @@ static PyObject* PyView_wrap(PyObject* o, PyObject* _args) {
     }
 
     c4_View cv = new PyViewer (seq, templ, (int) usetuples != 0);
-    return new PyView (cv);
+    return new PyView (cv, 0, ROVIEWER);
   }
   catch (...) { return 0; }
 }
@@ -519,15 +531,26 @@ static PyMethodDef Mk4Methods[] = {
 
 extern "C"
 __declspec(dllexport)
-#ifdef _DEBUG
-void initMk4py_d() {
-  Py_InitModule4("Mk4py_d", Mk4Methods, mk4py_module_documentation,
+/*#ifdef _DEBUG
+void initMk4py() {
+  PyObject *m = Py_InitModule4("Mk4py", Mk4Methods, mk4py_module_documentation,
           0,PYTHON_API_VERSION);
+  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.3"));
+  PyObject_SetAttrString(m, "ViewType", (PyObject*)&PyViewtype);
+  PyObject_SetAttrString(m, "ViewerType", (PyObject*)&PyViewertype);
+  PyObject_SetAttrString(m, "ROViewerType", (PyObject*)&PyROViewertype);
+  PyObject_SetAttrString(m, "RowRefType", (PyObject*)&PyRowReftype);
+  PyObject_SetAttrString(m, "RORowRefType", (PyObject*)&PyRORowReftype);
 }
-#else
+#else*/
 void initMk4py() {
   PyObject* m = Py_InitModule4("Mk4py", Mk4Methods,
             mk4py_module_documentation, 0, PYTHON_API_VERSION);
-  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.2"));
+  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.3"));
+  PyObject_SetAttrString(m, "ViewType", (PyObject*)&PyViewtype);
+  PyObject_SetAttrString(m, "ViewerType", (PyObject*)&PyViewertype);
+  PyObject_SetAttrString(m, "ROViewerType", (PyObject*)&PyROViewertype);
+  PyObject_SetAttrString(m, "RowRefType", (PyObject*)&PyRowReftype);
+  PyObject_SetAttrString(m, "RORowRefType", (PyObject*)&PyRORowReftype);
 }
-#endif
+//#endif

@@ -1,3 +1,69 @@
+2001-02-01  MK 2.4.3    Bug-fix release, mostly
+
+   As the title says...
+
+   Python include path now upgraded to python2.2 (was 2.1).
+
+2001-01-31              Cross-platform serialization, Tcl
+
+   There was a bug with serializing a datafile (SaveTo) when
+   it was created on a platform with reverse endian-ness.
+   Fixed so serialized data also flags reversed byte order.
+
+   Tweaks to fix const changes in the latest Tcl cvs branch.
+   Fixed a recently-introduced UTF8 path bug in mk4tcl.cpp.
+
+2001-12-21              Optimized GetAs
+
+   Now that GetAs is used so much more, optimize the common
+   case where a description does not require restructuring.
+   Can lead to order-of magnitude speed improvement in cases
+   where a storage contains many views.
+
+2001-12-20              Fixed bug in Locate, comparison issue
+
+   Testing for the Mk4py changes uncovered a serious bug in
+   c4_View::Locate, causing it to sometimes return zero, even
+   if there are matching rows (thanks, Gordon).
+
+   But a very fundamental weakness also showed up, being that
+   row comparisons (and that includes the C++ operators) have
+   the confusing property of not being symmetric in all cases.
+   The problem occurs when left- and right-hand sides do not
+   contain the same (number of) properties.  In that case, the
+   *left-hand* row participating in the comparison determines
+   which properties take part in a comparison.
+
+   In the case of Locate, this caused improper comparisons.
+   And it is very easy to get bitten by this, such as here:
+   	c4_RowRef key = ...;
+	int n = view.Search(key);
+	bool match = n >= 0 && view[n] == key;
+   The above code is *wrong*.  The last line needs to be:
+	bool match = n >= 0 && key == view[n];
+
+   This is very clearly a design mistake.  Comparisons should
+   have been *either* implemented *or* named differently.
+
+   A new "m04" test has been added to the regression suite.
+
+2001-12-19              Changes to mk4py by Gordon McMillan
+
+   Several changes and cleanups.  Mk4py now has logic to track
+   different view categories, e.g. to make sure a R/O view is
+   not being written to.  This should greatly reduce the number
+   of silently ignored incorrect calls, as well as crashes, and
+   will produce appropriate error messages instead.
+
+2001-12-18              Cleanup
+
+   Cleaned up source comments and got rid of yet more warnings.
+
+2001-12-14              Fixed yet another case of crash-on-exit
+
+   The new Unmapped() code of 2.4.2 forgot one case of cleaning
+   up, which has now been fixed (in c4_FormatB::Commit).
+
 2001-12-12  MK 2.4.2    Better portability, hashing improved
 
    This release marks the consolidation of a number of changes,

@@ -1,5 +1,5 @@
 // viewx.cpp --
-// $Id: viewx.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: viewx.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -114,9 +114,9 @@ void c4_Sequence::SetAt(int index_, c4_Cursor newElem_)
     // this way, new props get copied and undefined props get cleared
   if (newElem_._seq->NumHandlers() < NumHandlers())
   {
-    for (int i = 0; i < NumHandlers(); ++i)
+    for (int j = 0; j < NumHandlers(); ++j)
     {
-      c4_Handler& h = NthHandler(i);
+      c4_Handler& h = NthHandler(j);
 
         // if the property does not appear in the source
       if (newElem_._seq->PropIndex(h.PropId()) < 0)
@@ -149,7 +149,7 @@ const char* c4_Sequence::UseTempBuffer(const char* str_)
 }
 
   /// Change number of rows, either by inserting or removing them
-void c4_Sequence::Resize(int newSize_, int growBy_)
+void c4_Sequence::Resize(int newSize_, int)
 {
   if (NumHandlers() > 0)
   {
@@ -213,9 +213,9 @@ void c4_Sequence::InsertAt(int index_, c4_Cursor newElem_, int count_)
     // this way, new props get copied and undefined props get cleared
   if (newElem_._seq->NumHandlers() < NumHandlers())
   {
-    for (int i = 0; i < NumHandlers(); ++i)
+    for (int j = 0; j < NumHandlers(); ++j)
     {
-      c4_Handler& h = NthHandler(i);
+      c4_Handler& h = NthHandler(j);
 
         // if the property does not appear in the source
       if (newElem_._seq->PropIndex(h.PropId()) < 0)
@@ -398,14 +398,14 @@ void c4_Sequence::Detach(c4_Sequence* child_)
 }
 
   /// Called just before a change is made to the sequence
-c4_Notifier* c4_Sequence::PreChange(c4_Notifier& nf_)
+c4_Notifier* c4_Sequence::PreChange(c4_Notifier&)
 {
   d4_assert(0); // should not be called, because it should not attach
   return 0;
 }
 
   /// Called after changes have been made to the sequence
-void c4_Sequence::PostChange(c4_Notifier& nf_)
+void c4_Sequence::PostChange(c4_Notifier&)
 {
 }
 
@@ -645,7 +645,7 @@ c4_Strategy::~c4_Strategy ()
 }
 
   /// Read a number of bytes
-int c4_Strategy::DataRead(t4_i32 pos_, void* buffer_, int length_)
+int c4_Strategy::DataRead(t4_i32, void*, int)
 {
 /*
   if (_mapStart != 0 && pos_ + length_ <= _dataSize)
@@ -659,13 +659,13 @@ int c4_Strategy::DataRead(t4_i32 pos_, void* buffer_, int length_)
 }
 
   /// Write a number of bytes, return true if successful
-void c4_Strategy::DataWrite(t4_i32 pos_, const void* buffer_, int length_)
+void c4_Strategy::DataWrite(t4_i32, const void*, int)
 {
   ++_failure;
 }
 
   /// Flush and truncate file
-void c4_Strategy::DataCommit(t4_i32 newSize_)
+void c4_Strategy::DataCommit(t4_i32)
 {
 }
 

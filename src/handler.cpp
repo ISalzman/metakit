@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: handler.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -187,10 +187,10 @@ void c4_HandlerSeq::DetachFromStorage(bool full_)
       }
     }
 
-    //!!!!UnmappedAll();
-
-    if (full_)
+    if (full_) {
+      //UnmappedAll();
       _persist = 0;
+    }
   }
 }
 
@@ -223,7 +223,7 @@ const char* c4_HandlerSeq::Description()
 
 void c4_HandlerSeq::Restructure(c4_Field& field_, bool remove_)
 {
-  d4_assert(_field != 0);
+  //d4_assert(_field != 0);
 
     // all nested fields must be set up, before we shuffle them around
   for (int k = 0; k < NumHandlers(); ++k)
@@ -436,7 +436,7 @@ c4_HandlerSeq& c4_HandlerSeq::SubEntry(int col_, int row_) const
   NthHandler(col_).GetBytes(row_, temp);
 
   d4_assert(temp.Size() == sizeof (c4_HandlerSeq**));
-  c4_HandlerSeq** p = (c4_HandlerSeq**) temp.Contents();
+  c4_HandlerSeq** p = (c4_HandlerSeq**) temp.Contents(); // loses const
 
   d4_assert(p != 0 && *p != 0);
 

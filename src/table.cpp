@@ -1,5 +1,5 @@
 // table.cpp --
-// $Id: table.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: table.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -144,8 +144,9 @@ void c4_Bytes::_MakeCopy()
   
   _copy = _size > (int) sizeof _buffer;
 
-  _contents = (t4_byte*) memcpy(_copy ? d4_new t4_byte [_size] : _buffer,
-                            _contents, _size);
+  if (_size > 0)
+    _contents = (t4_byte*) memcpy(_copy ? d4_new t4_byte [_size]
+					: _buffer, _contents, _size);
 }
 
 /// Return true if the contents of both objects are equal

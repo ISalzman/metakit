@@ -1,5 +1,5 @@
 // tcusto2.cpp -- Regression test program, custom view tests
-// $Id: tcusto2.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: tcusto2.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"

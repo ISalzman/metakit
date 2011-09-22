@@ -1,5 +1,5 @@
 // univ.inl --
-// $Id: univ.inl 1269 2007-03-09 16:53:45Z jcw $
+// $Id: univ.inl 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: mk4too.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -140,7 +140,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     const char* desc;
   };
 
-  static char *subCmds [] =
+  static const char *subCmds [] =
   {
     "close",
     "delete",
@@ -450,7 +450,7 @@ int MkView::SelectCmd()
 {
   TclSelector sel (interp, view);
 
-  static char* opts [] =
+  static const char* opts [] =
   {
     "-min",   // 0
     "-max",   // 1
@@ -641,7 +641,7 @@ int MkView::ViewCmd()
     const char* desc;
   };
 
-  static char *subCmds [] =
+  static const char *subCmds [] =
   {
     "blocked",
     "clone",

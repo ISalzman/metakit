@@ -1,5 +1,5 @@
 // derived.cpp --
-// $Id: derived.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: derived.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -727,7 +727,7 @@ int c4_SortSeq::PosInMap(c4_Cursor cursor_) const
   return i;
 }
 
-c4_Notifier* c4_SortSeq::PreChange(c4_Notifier& nf_)
+c4_Notifier* c4_SortSeq::PreChange(c4_Notifier& /*nf_*/)
 {
   if (!GetDependencies())
     return 0;
@@ -905,16 +905,16 @@ c4_ProjectSeq::c4_ProjectSeq (c4_Sequence& seq_, c4_Sequence& in_,
   for (int j = 0; j < in_.NumHandlers(); ++j)
   {
     int propId = in_.NthPropId(j);
-    int index = _seq.PropIndex(propId);
+    int idx = _seq.PropIndex(propId);
 
       // if the j'th property is in the sequence, add it
-    if (index >= 0)
+    if (idx >= 0)
     {
         // but only if it's not in the out_ view
       if (out_ && out_->PropIndex(propId) >= 0)
         ++_omitCount;
       else
-        _colMap.Add(index);
+        _colMap.Add(idx);
     }
   }
 

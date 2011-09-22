@@ -1,5 +1,5 @@
 // persist.cpp --
-// $Id: persist.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: persist.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -558,7 +558,7 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
 
   const t4_i32 size = _strategy.FileSize();
   if (_strategy._failure != 0)
-  return;
+    return;
 
   const t4_i32 end = _fullScan ? 0 : size - _strategy._baseOffset;
 
@@ -1094,6 +1094,12 @@ void c4_Persist::Save(c4_Stream* stream_, c4_HandlerSeq& root_)
   d4_assert(stream_ != 0);
   
   c4_StreamStrategy strat (stream_);
+
+  // 31-01-2002: streaming must adopt byte order of origin datafile
+  c4_Persist* p = root_.Persist();
+  if (p != 0)
+    strat._bytesFlipped = p->Strategy()._bytesFlipped;
+
   c4_SaveContext ar (strat, true, 0, 0, 0);
   c4_Bytes tempWalk;
   ar.SaveIt(root_, 0, tempWalk);

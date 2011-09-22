@@ -30,7 +30,7 @@ if test x"${TCL_INCLUDE_DIR}" = x ; then
   fi
 fi
 
-if test x"${TCL_INCLUDE_DIR}" != no ; then
+if test x"${TCL_INCLUDE_DIR}" != xno ; then
   if test x"${TCL_INCLUDE_DIR}" != x ; then
     if test -f "${TCL_INCLUDE_DIR}/tcl.h" ; then
       AC_MSG_RESULT(found ${TCL_INCLUDE_DIR}/tcl.h)

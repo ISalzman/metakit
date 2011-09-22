@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: view.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -328,8 +328,9 @@ void c4_View::InsertAt(int index_, const c4_View& view_)
 /** Move attached rows to somewhere else in same storage
  *
  * This is not properly implemented in this release.
- */
 bool c4_View::RelocateRows(int from_, int count_, c4_View& dest_, int pos_)
+ */
+bool c4_View::RelocateRows(int, int, c4_View&, int)
 {
 #if 0 // implementation doesn't work any more
   d4_assert(0 <= from_ && from_ <= GetSize());
@@ -882,6 +883,7 @@ int c4_View::Search(const c4_RowRef& crit_) const
   while (l + 1 != u) {
     const int m = (l + u) >> 1;
     if (_seq->Compare(m, &crit_) < 0)
+    //if (crit_ > (*this)[m]) // Dec 2001: see comments below
       l = m;
     else
       u = m;
@@ -893,30 +895,49 @@ int c4_View::Search(const c4_RowRef& crit_) const
 /// Return number of matching keys, and pos of first one as arg
 int c4_View::Locate(const c4_RowRef& crit_, int* pos_) const
 {
-  int l = -1, u = GetSize(), f = 1;
+    // Dec 2001: fixed a problem with searching of partial rows.
+    //
+    // There is an *extremely* tricky issue in here, in that the
+    // comparison operator for rows is not symmetric.  So in the
+    // general case, "a == b" is not euivalent to "b == a".  This
+    // is without doubt a design mistake (and should have at least
+    // been named differently).
+    //
+    // The reason is that the number of properties in both rowrefs
+    // need not be the same.  Only the properties of the leftmost
+    // rowref are compared against the other one.  This also applies
+    // to the other comparisons, i.e. !=, <, >, <=, and >=.
+    //
+    // All Compare calls below have been changed to use comparisons
+    // in the proper order and now use "rowref <op> rowref" syntax.
+
+  c4_Cursor curr (*(c4_Sequence*) _seq, 0); // loses const
+
+  int l = -1, u = GetSize();
   while (l + 1 != u) {
-    const int m = (l + u) >> 1;
-  f = _seq->Compare(m, &crit_);
-    if (f < 0)
-      l = m;
+    curr._index = (l + u) >> 1;
+    if (crit_ > *curr)
+      l = curr._index;
     else
-      u = m;
+      u = curr._index;
   }
 
   if (pos_ != 0)
     *pos_ = u;
 
-  if (f != 0) // only look for more if the search hit an exact match
-  return 0;
+    // only look for more if the search hit an exact match
+  curr._index = u;
+  if (u == GetSize() || crit_ != *curr)
+    return 0;
 
     // as Jon Bentley wrote in DDJ Apr 2000, setting l2 to -1 is better than u
   int l2 = -1, u2 = GetSize();
   while (l2 + 1 != u2) {
-    const int m = (l2 + u2) >> 1;
-    if (_seq->Compare(m, &crit_) <= 0)
-      l2 = m;
+    curr._index = (l2 + u2) >> 1;
+    if (crit_ >= *curr)
+      l2 = curr._index;
     else
-      u2 = m;
+      u2 = curr._index;
   }
 
   return u2 - u;

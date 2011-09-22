@@ -1,5 +1,5 @@
 // PyView.h --
-// $Id: PyView.h 1269 2007-03-09 16:53:45Z jcw $
+// $Id: PyView.h 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -17,17 +17,31 @@
 #include "PyHead.h"
 
 #define PyView_Check(v) ((v)->ob_type==&PyViewtype)
+#define PyViewer_Check(v) ((v)->ob_type==&PyViewertype)
+#define PyROViewer_Check(v) ((v)->ob_type==&PyROViewertype)
+#define PyGenericView_Check(v) (PyView_Check(v) || PyViewer_Check(v) || PyROViewer_Check(v))
 
 class PyView;
 class PyRowRef;
 
 extern PyTypeObject PyViewtype;
+extern PyTypeObject PyViewertype;
+extern PyTypeObject PyROViewertype;
+
+#define BASE 0              //0000
+#define MVIEWER 4           //0100
+#define RWVIEWER 5          //0101
+#define NOTIFIABLE 1        //0001
+#define FINALNOTIFIABLE 9   //1001
+#define ROVIEWER 7          //0111
+#define IMMUTABLEROWS 2
 
 class PyView : public PyHead, public c4_View {
   PyView *_base;
+  int _state;
 public:
   PyView();
-  PyView(const c4_View& o, PyView *owner=0);
+  PyView(const c4_View& o, PyView *owner=0, int state=BASE);
   ~PyView() {}
   void insertAt(int i, PyObject* o);
   PyRowRef *getItem(int i);
@@ -51,6 +65,7 @@ public:
   PyObject *reduce(const PWOCallable& func, PWONumber& start);
   void remove(const PyView& indices);
   PyView *indices(const PyView& subset);
+  int computeState(int targetstate);
 };
 
 PyObject* PyView_new(PyObject* o, PyObject* _args);

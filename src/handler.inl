@@ -1,5 +1,5 @@
 // handler.inl --
-// $Id: handler.inl 1269 2007-03-09 16:53:45Z jcw $
+// $Id: handler.inl 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -36,7 +36,7 @@ d4_inline int c4_Handler::PropId() const
   return _property.GetId();
 }
 
-d4_inline c4_Column* c4_Handler::GetNthMemoCol(int index_, bool alloc_)
+d4_inline c4_Column* c4_Handler::GetNthMemoCol(int, bool alloc_)
 {
   d4_assert(!alloc_); // only overrides can allocate a memo item
 

@@ -1,5 +1,5 @@
 // PyRowRef.h --
-// $Id: PyRowRef.h 1269 2007-03-09 16:53:45Z jcw $
+// $Id: PyRowRef.h 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -17,13 +17,16 @@
 #include "PyProperty.h"
 
 #define PyRowRef_Check(ob) ((ob)->ob_type == &PyRowReftype)
+#define PyRORowRef_Check(ob) ((ob)->ob_type == &PyRORowReftype)
+#define PyGenericRowRef_Check(ob) (PyRowRef_Check(ob) || PyRORowRef_Check(ob))
 
 extern PyTypeObject PyRowReftype;
+extern PyTypeObject PyRORowReftype;
 
 class PyRowRef : public PyHead, public c4_RowRef {
 public:
   //PyRowRef();
-  PyRowRef(const c4_RowRef& o);
+  PyRowRef(const c4_RowRef& o, int immutable=0);
   //PyRowRef(c4_Row row);
   ~PyRowRef() {
     c4_Cursor c = & (*(c4_RowRef*) this);

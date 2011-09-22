@@ -1,5 +1,5 @@
 // format.cpp --
-// $Id: format.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: format.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -105,7 +105,7 @@ void c4_FormatX::Define(int rows_, const t4_byte** ptr_)
   _data.SetRowCount(rows_);
 }
 
-void c4_FormatX::OldDefine(char type_, c4_Persist& pers_)
+void c4_FormatX::OldDefine(char, c4_Persist& pers_)
 {
   pers_.FetchOldLocation(_data);
   _data.SetRowCount(Owner().NumRows());
@@ -143,7 +143,6 @@ void c4_FormatX::Remove(int index_, int count_)
 
 void c4_FormatX::Unmapped()
 {
-  //!!!d4_assert(!_data.RequiresMap());
   _data.ReleaseAllSegments();
 }
 
@@ -411,16 +410,18 @@ c4_Column* c4_FormatB::GetNthMemoCol(int index_, bool alloc_)
 
 void c4_FormatB::Unmapped()
 {
-  //!!!d4_assert(!_data.RequiresMap());
-  //!!!d4_assert(!_sizeCol.RequiresMap());
-  //!!!d4_assert(!_memoCol.RequiresMap());
-
   _data.ReleaseAllSegments();
   _sizeCol.ReleaseAllSegments();
   _memoCol.ReleaseAllSegments();
+
+  for (int i = 0; i < _memos.GetSize(); ++i) {
+    c4_Column* cp = (c4_Column*) _memos.GetAt(i);
+    if (cp != 0)
+      cp->ReleaseAllSegments();
+  }
 }
 
-void c4_FormatB::Define(int rows_, const t4_byte** ptr_)
+void c4_FormatB::Define(int, const t4_byte** ptr_)
 {
   d4_assert(_memos.GetSize() == 0);
   
@@ -1029,7 +1030,7 @@ void c4_FormatV::Define(int rows_, const t4_byte** ptr_)
     _data.PullLocation(*ptr_);
 }
 
-void c4_FormatV::OldDefine(char type_, c4_Persist& pers_)
+void c4_FormatV::OldDefine(char, c4_Persist& pers_)
 {
   int rows = Owner().NumRows();
   _subSeqs.SetSize(rows);
@@ -1179,8 +1180,6 @@ void c4_FormatV::Remove(int index_, int count_)
 
 void c4_FormatV::Unmapped()
 {
-  //!!!d4_assert(!_data.RequiresMap());
-
   if (!_inited)
     SetupAllSubviews();
 

@@ -1,5 +1,5 @@
 // custom.cpp --
-// $Id: custom.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: custom.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -77,12 +77,12 @@ void c4_CustomHandler::Set(int index_, const c4_Bytes& buf_)
   _seq->DoSet(index_, colnum, buf_);
 }
 
-void c4_CustomHandler::Insert(int index_, const c4_Bytes& buf_, int count_)
+void c4_CustomHandler::Insert(int, const c4_Bytes&, int)
 {
   d4_assert(0); //! not yet
 }
 
-void c4_CustomHandler::Remove(int index_, int count_)
+void c4_CustomHandler::Remove(int, int)
 {
   d4_assert(0); //! not yet
 }
@@ -158,7 +158,7 @@ void c4_CustomSeq::RemoveAt(int p_, int n_)
   _viewer->RemoveRows(p_, n_);
 }
 
-void c4_CustomSeq::Move(int from_, int to_)
+void c4_CustomSeq::Move(int, int)
 {
   d4_assert(false); //! not yet
 }
@@ -205,26 +205,26 @@ c4_CustomViewer::~c4_CustomViewer ()
 }
 
   /// Locate a row in this view, try to use native searches
-int c4_CustomViewer::Lookup(c4_Cursor key_, int& count_)
+int c4_CustomViewer::Lookup(c4_Cursor, int& count_)
 {
   count_ = GetSize();
   return 0; // not implemented, return entire view range
 }
 
   /// Store one data item, supplied as a generic data value
-bool c4_CustomViewer::SetItem(int row_, int col_, const c4_Bytes& buf_)
+bool c4_CustomViewer::SetItem(int, int, const c4_Bytes&)
 {
   return false; // default is not modifiable
 }
 
   /// Insert one or more copies of a row (if possible)
-bool c4_CustomViewer::InsertRows(int pos_, c4_Cursor value_, int count_)
+bool c4_CustomViewer::InsertRows(int, c4_Cursor, int)
 {
   return false; // default is not modifiable
 }
 
   /// Remove one or more rows (this is not always possible)
-bool c4_CustomViewer::RemoveRows(int pos_, int count_)
+bool c4_CustomViewer::RemoveRows(int, int)
 {
   return false; // default is not modifiable
 }

@@ -1,5 +1,5 @@
 // univ.cpp --
-// $Id: univ.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: univ.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -175,7 +175,7 @@ c4_StringArray::~c4_StringArray()
   SetSize(0);
 }
 
-void c4_StringArray::SetSize(int nNewSize, int nGrowBy)
+void c4_StringArray::SetSize(int nNewSize, int)
 {
   int i = nNewSize;
   

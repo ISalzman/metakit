@@ -1,5 +1,5 @@
 // column.cpp --
-// $Id: column.cpp 1269 2007-03-09 16:53:45Z jcw $
+// $Id: column.cpp 1268 2007-03-09 16:53:24Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -44,18 +44,6 @@ c4_Column::c4_Column (c4_Persist* persist_)
 {
 }
 
-c4_Column::~c4_Column ()
-{
-  Validate();
-  ReleaseAllSegments();
-
-    // this is needed to remove this column from the cache
-  d4_assert(_slack == 0);
-  FinishSlack();
-
-  _slack = -1; // bad value in case we try to set up again (!)
-}
-
 #if q4_CHECK
 
     // debugging version to verify that the internal data is consistent
@@ -92,6 +80,18 @@ c4_Column::~c4_Column ()
   }
 
 #endif
+
+c4_Column::~c4_Column ()
+{
+  Validate();
+  ReleaseAllSegments();
+
+    // this is needed to remove this column from the cache
+  d4_assert(_slack == 0);
+  FinishSlack();
+
+  _slack = -1; // bad value in case we try to set up again (!)
+}
 
 c4_Strategy& c4_Column::Strategy() const
 {
@@ -233,7 +233,7 @@ void c4_Column::SetupSegments()
   if (IsMapped()) {
       // setup for mapped files is quick, just fill in the pointers
     d4_assert(_position > 1);
-    d4_assert(_position + (n-1) * kSegMax < Strategy()._dataSize);
+    d4_assert(_position + (n-1) * kSegMax <= Strategy()._dataSize);
     const t4_byte* map = Strategy()._mapStart + _position;
 
     for (int i = 0; i < n; ++i) {
@@ -731,6 +731,7 @@ const t4_byte* c4_Column::FetchBytes(t4_i32 pos_, int len_, c4_Bytes& buffer_, b
 
   t4_byte* p = buffer_.SetBuffer(len_);
   do {
+    d4_assert(iter.BufLen() > 0);
     memcpy(p, iter.BufLoad(), iter.BufLen());
     p += iter.BufLen();
   } while (iter.Next());
@@ -749,6 +750,7 @@ void c4_Column::StoreBytes(t4_i32 pos_, const c4_Bytes& buffer_)
 
     const t4_byte* p = buffer_.Contents();
     while (iter.Next(n)) {
+      d4_assert(iter.BufLen() > 0);
       memcpy(iter.BufSave(), p, iter.BufLen());
       p += iter.BufLen();
     }
@@ -860,7 +862,7 @@ void c4_ColOfInts::Get_8i(int index_)
   t4_i32 off = index_;
   d4_assert(off < ColSize());
 
-  *(t4_i32*) _item = *(const char*) LoadNow(off);
+  *(t4_i32*) _item = *(const signed char*) LoadNow(off);
 }
 
 void c4_ColOfInts::Get_16i(int index_)
@@ -1236,7 +1238,7 @@ void c4_ColOfInts::SetAccessWidth(int bits_)
   d4_assert(_getter != 0 && _setter != 0);
 }
 
-int c4_ColOfInts::ItemSize(int index_)
+int c4_ColOfInts::ItemSize(int)
 {
   return _currWidth >= 8 ? _currWidth >> 3 : - _currWidth;
 }
