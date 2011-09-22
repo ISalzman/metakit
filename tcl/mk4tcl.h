@@ -1,11 +1,14 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mk4tcl.h 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
 #include "mk4str.h"
 
+#ifdef PIC
 #define USE_TCL_STUBS 1
+#endif
+
 #include <tcl.h>
 
 #ifndef d4_assert
@@ -447,6 +450,7 @@ public:
   int ConcatCmd();    // $obj view concat view
   int CopyCmd();      // $obj view copy
   int DifferentCmd(); // $obj view different view
+  int DupCmd();       // $obj view dup
   int BlockedCmd();   // $obj view blocked
   int FlattenCmd();   // $obj view flatten prop
   int GroupByCmd();   // $obj view groupby subview prop ?prop ...?

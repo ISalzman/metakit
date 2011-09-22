@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mk4.h 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 247    // 2.4.7 release, May 30, 2002
+#define d4_MetaKitLibraryVersion 248    // 2.4.8 release, Nov 2, 2002
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -97,8 +97,10 @@
 #define q4_TINY 1
 #endif
 
-    // and here's the other end of the scale... Alpha has 64-bit longs
-#if (defined (__alpha) || defined (__ia64)) && \
+    // and here's the other end of the scale...
+#if (defined (_PA_RISC2_0) || defined (__powerpc64__) || \
+     defined (__x86_64__) || defined (__s390x__) || defined (__alpha) || \
+     (defined (__ia64) && !defined (__HP_aCC))) && \
 			!defined (_WIN32) && !defined (q4_LONG64)
 #define q4_LONG64 1
 #endif
@@ -1044,6 +1046,15 @@ public:
       /// Set the value to the specified view
   c4_ViewRef& operator= (const c4_View&);
 };
+
+//---------------------------------------------------------------------------
+// Debug logging option, can generate log of changes for one/all properties
+
+#if q4_LOGPROPMODS
+FILE* f4_LogPropMods(FILE* fp_, int propId_);
+#else
+#define f4_LogPropMods(a,b) 0
+#endif
 
 //---------------------------------------------------------------------------
 

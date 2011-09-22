@@ -60,6 +60,7 @@ static void ViewDisplay(const c4_View& v_, int l_ =0)
           printf(" %ld", (long) ((c4_IntProp&) p) (r));
           break;
 
+#if !q4_TINY
         case 'F':
           printf(" %g", (double) ((c4_FloatProp&) p) (r));
           break;
@@ -67,6 +68,7 @@ static void ViewDisplay(const c4_View& v_, int l_ =0)
         case 'D':
           printf(" %.12g", (double) ((c4_DoubleProp&) p) (r));
           break;
+#endif
 
         case 'S':
           printf(" '%s'", (const char*) ((c4_StringProp&) p) (r));

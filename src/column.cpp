@@ -1,5 +1,5 @@
 // column.cpp --
-// $Id: column.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: column.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -1007,6 +1007,11 @@ bool c4_ColOfInts::Set_4b(int index_, const t4_byte* item_)
   return (v >> 4) == 0;
 }
 
+// avoid a bug in MS EVC 3.0's code gen for ARM (i.e. WinCE)
+#ifdef _ARM_
+#pragma optimize("g",off)
+#endif
+
 bool c4_ColOfInts::Set_8i(int index_, const t4_byte* item_)
 {
   t4_i32 v = *(const t4_i32*) item_;
@@ -1016,8 +1021,12 @@ bool c4_ColOfInts::Set_8i(int index_, const t4_byte* item_)
 
   *(char*) CopyNow(off) = (char) v;
 
-  return v == (char) v;
+  return v == (signed char) v;
 }
+
+#ifdef _ARM_
+#pragma optimize("",on)
+#endif
 
 bool c4_ColOfInts::Set_16i(int index_, const t4_byte* item_)
 {

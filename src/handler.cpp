@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: handler.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -375,21 +375,18 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
     if (IsNested(col))
     {
       d4_assert(dst_.IsNested(col));
-/*
-        // force both entries to exist
-      SubTable(col, srcPos_);
-      dst_.SubTable(col, dstPos_);
 
-      c4_HandlerSeq*& e1 = SubEntry(col, srcPos_);
-      c4_HandlerSeq*& e2 = dst_.SubEntry(col, dstPos_);
-      d4_assert(e1 != 0 && e2 != 0);
+      int n;
+      c4_HandlerSeq** e1 = (c4_HandlerSeq**) NthHandler(col).Get(srcPos_, n);
+      c4_HandlerSeq** e2 = (c4_HandlerSeq**) dst_.NthHandler(col).Get(dstPos_, n);
+      d4_assert(*e1 != 0 && *e2 != 0);
 
         // swap the two entries
-      c4_HandlerSeq* e = e1;
-      e1 = e2;
-      e2 = e;
-*/
-        // shorthand, *after* the swap
+      c4_HandlerSeq* e = *e1;
+      *e1 = *e2;
+      *e2 = e;
+
+      // shorthand, *after* the swap
       c4_HandlerSeq& t1 = SubEntry(col, srcPos_);
       c4_HandlerSeq& t2 = dst_.SubEntry(col, dstPos_);
 

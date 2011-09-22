@@ -1,4 +1,4 @@
-The MetaKit Library 2.4.7                                             May 2002
+The MetaKit Library 2.4.8                                             Nov 2002
 ==============================================================================
 
 
@@ -76,12 +76,10 @@ UNIX
         make CXXFLAGS='-Dq4_STD' test   # add -O3 etc, as needed
 
     To build the Mk4py extension on Unix, change the configure to:
-        % ../unix/configure --enable-python     (tweak if not Python 2.1)
+        % ../unix/configure --enable-python
 
     To build the Mk4tcl extension on Unix, change the configure to:
         % ../unix/configure --with-tcl=<dir-where-tclConfig.sh-is>
-
-    See below for some platform-specific build notes.
 
 WINDOWS
 
@@ -124,67 +122,6 @@ MACINTOSH
     located in the "mac/" folder, which is also where MWCW will place its own
     "... Data" folders with intermediate results.  As with all other setups,
     final results are made to end up in the "builds/" directory.
-
-
-PLATFORM-SPECIFIC NOTES
-=======================
-
-* Linux / gcc 2.95.2
-
-    Builds with gcc 2.95.2 work out of the box.  The Python extension ends up
-    as libmk4py.so, the Tcl extension is called libmk4tcl.so.  For backward
-    compatibility, just copy and rename them to Mk4py.so and Mk4tcl.so, resp.
-
-* FreeBSD 4.4-RELEASE
-
-    Builds should now work out of the box (thanks Dirk Meyer).  If you first
-    install Tcl 8.3 and Python 2.1, then you can build and test it all with:
-    	cd builds
-	../unix/configure --with-tcl=/usr/local/lib/tcl8.3 --enable-python
-	make test test-tcl
-
-* Solaris 2.6 / gcc 2.8.1
-
-    The gcc 2.8.1 optimizer appears to be buggy, I have had to turn off the
-    default "-O3" flag to prevent compiler crashes (for a number of files).
-    This problems appears to be resolved with gcc 2.95.
-
-* Other Unix systems
-
-    No further notes, most systems will build just fine.
-
-* Windows
-
-    MSVC 6 builds MK as static lib and as DLL (universal config, I have not
-    yet created build versions with MFC or STL, mainly because MK can now be
-    used in all contexts regardless of how it was built).  The Python and Tcl
-    extensions build as dynamic extensions (a static build is easy to add).
-
-    MWCW 5 (that's Metrowerks) builds as static lib and as DLL (interestingly
-    enough, the DLL is slightly smaller than MSVC 6 - 102 vs 108 Kb - when
-    their runtimes are linked in dynamically as well).  I have not added Win
-    builds for Tcl or Python, since MSVC 6 has those already.
-
-    Cygwin B20.1, with gcc 2.95.2 ugrade, also builds MK as static lib and as
-    DLL.  Both "pure" Cygwin (i.e. requiring cygwin1.dll) and mingw32 (using
-    the -mno-cygwin flag) build, but there are some hairy include issues when
-    it comes to choosing the right locking model for Tcl and Python.  These
-    issues have not been resolved fully.
-
-* Macintosh
-
-    MWCW 6 builds 4 libs: PPC and 68K, static and shared.
-
-    Regression tests and demo apps are built from the cw5app project.
-    Two additional projects can be used to build Python and Tcl extensions.
-
-* BeOS
-
-    John Bushakra has ported MK to BeOS, apparently just minor #define tweaks.
-
-* VMS, ...
-
-    No news yet, please report your findings with any other platform builds.
 
 
 LICENSE AND COPYRIGHT STATEMENT

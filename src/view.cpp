@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: view.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -38,7 +38,9 @@ public:
 
 /////////////////////////////////////////////////////////////////////////////
 
-#if q4_WIN32 && q4_MULTI
+#if q4_MULTI
+
+#if q4_WIN32
 
 /*
  *  On Win32, use a critical section to protect the global symbol table.
@@ -82,7 +84,41 @@ public:
              : InterlockedIncrement(&count_);
   }
 
-#else
+#else /* q4_WIN32 */
+
+#include <pthread.h>
+
+  static pthread_mutex_t gMutex;
+  static pthread_mutex_t gMutexInc;
+
+  d4_inline c4_ThreadLock::c4_ThreadLock ()
+  {
+     ::pthread_mutex_init(&gMutex, 0);
+     ::pthread_mutex_init(&gMutexInc, 0);
+  }
+
+  d4_inline c4_ThreadLock::Hold::Hold ()
+  {
+      d4_assert(::pthread_mutex_lock(&gMutex) == 0);
+  }
+
+  d4_inline c4_ThreadLock::Hold::~Hold ()
+  {
+      d4_assert(::pthread_mutex_unlock(&gMutex) == 0);
+  }
+
+  d4_inline t4_i32 c4_ThreadLock::AddRef(t4_i32& count_, int diff_)
+  {
+      d4_assert(::pthread_mutex_lock(&gMutexInc) == 0);
+      count_ += diff_;
+      t4_i32 return_val = count_;
+      d4_assert(::pthread_mutex_unlock(&gMutexInc) == 0);
+      return return_val;
+  }
+
+#endif /* q4_WIN32 */
+
+#else /* q4_MULTI */
 
 //  All other implementations revert to the simple "thread-less" case.
 
@@ -102,6 +138,31 @@ public:
   {
     return count_ += diff_;
   }
+
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+
+#if q4_LOGPROPMODS
+
+  static FILE* sPropModsFile = 0;
+  static int   sPropModsProp = -1;
+
+FILE* f4_LogPropMods(FILE* fp_, int propId_)
+{
+  FILE* prevfp = sPropModsFile;
+  sPropModsFile = fp_;
+  sPropModsProp = propId_;
+  return prevfp;
+}
+
+void f4_DoLogProp(const c4_Handler* hp_, int id_, const char* fmt_, int arg_)
+{
+  if (sPropModsFile != 0 && (sPropModsProp < 0 || sPropModsProp == id_)) {
+    fprintf(sPropModsFile, "handler 0x%x id %d: ", hp_, id_);
+    fprintf(sPropModsFile, fmt_, arg_);
+  }
+}
 
 #endif
 

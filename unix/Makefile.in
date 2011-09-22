@@ -22,6 +22,9 @@ TSTOBJS = regress.o tbasic1.o tbasic2.o tcusto1.o tcusto2.o tdiffer.o \
 
 DEMOS   = demo dump myio
 
+LINK_SPECIAL_FLAGS	=	@LINK_SPECIAL_FLAGS@
+LINK_SPECIAL_FILES	=	@LINK_SPECIAL_FILES@
+
 #---------- Autoconf settings, can be overriden as "make" args
 
 prefix = @prefix@
@@ -30,23 +33,33 @@ includedir = @includedir@
 libdir = @libdir@
 srcdir = @srcdir@
 top_builddir = .
+
+pyincludedir = @includedir@/python2.2
+pylibdir = @libdir@/python2.2/site-packages
+
 tclsh = tclsh
+tclincludedir = @TCL_INCLUDE_DIR@
+tcllibdir = @TCL_INCLUDE_DIR@/../lib
 
 # Compiling without frame pointers can play tricks with exception handling
 # (e.g. in Mk4py).  This does not affect standard operation, *only* errors.
 # Happens in gcc 2.95.3, it has been disabled for now (even though slower).
-CXXFLAGS = -O2 -fomit-frame-pointer
-#CXXFLAGS = -O2
-#CXXFLAGS = @CFLAGS@
-#CXXFLAGS = -g -Dq4_CHECK
-#CXXFLAGS = -Wall -pedantic -Wno-unused -g
+#CXXFLAGS = -fomit-frame-pointer @CXXFLAGS@
+CXXFLAGS = @CXXFLAGS@
+#CXXFLAGS = -Dq4_CHECK @CXXFLAGS@
+#CXXFLAGS = -Wall -pedantic -Wno-unused @CXXFLAGS@
 
 CXX = @CXX@
 L = @LIBTOOL@
 INSTALL = @INSTALL@
 INSTALL_DATA = $L --mode=install @INSTALL_DATA@
 INSTALL_PROGRAM = $L --mode=install @INSTALL_PROGRAM@
-TCL_INCLUDE_DIR = @TCL_INCLUDE_DIR@
+
+LIBTOOL_FLAGS = @LIBTOOL_FLAGS@
+
+STRIP_FLAGS = @STRIP_FLAGS@
+
+DESTDIR =
 
 #---------- Do not change, shorthand only
 
@@ -55,12 +68,12 @@ CXX_SWITCHES      = $(CXXFLAGS) \
 			-I$(srcdir)/../src -I.
 CXX_SWITCHES_TCL  = $(CXXFLAGS) \
 			-I$(srcdir)/../include \
-			-I$(TCL_INCLUDE_DIR)/generic \
-			-I$(TCL_INCLUDE_DIR)
+			-I$(tclincludedir)/generic \
+			-I$(tclincludedir)
 CXX_SWITCHES_PY   = $(CXXFLAGS) \
 			-I$(srcdir)/../include \
 			-I$(srcdir)/../python/scxx \
-			-I$(includedir)/python2.2
+			-I$(pyincludedir)
 CXX_SWITCHES_LUA  = $(CXXFLAGS) \
 			-I$(srcdir)/../include
 CXX_SWITCHES_TEST = $(CXXFLAGS) \
@@ -72,14 +85,14 @@ all: @MK_TARGETS@
 
 core: Makefile libmk4.la $(DEMOS)
 
-tcl: Makefile libmk4tcl.la
+tcl: Makefile Mk4tcl@SHLIB_SUFFIX@
 
-python: Makefile libmk4py.la
+python: Makefile Mk4py@SHLIB_SUFFIX@
 
 test: Makefile libmk4.la regress
 	test -d tests || mkdir tests
 	-test -d ../tests/ok/CVS && (test -d tests/CVS || mkdir tests/CVS)
-	test -f reversed || cp $(srcdir)/../unix/reversed .
+	test -f reversed || cp $(srcdir)/reversed .
 	./regress
 	diff $(srcdir)/../tests/ok tests
 
@@ -89,18 +102,21 @@ test-tcl: tcl
 install: @MK_INSTALL@
 
 install-mk: libmk4.la
-	-$(INSTALL) -d $(includedir) $(libdir)
+	mkdir -p $(DESTDIR)$(includedir) $(DESTDIR)$(libdir)
 	$(INSTALL_DATA) $(srcdir)/../include/mk4.h \
 			$(srcdir)/../include/mk4.inl \
 			$(srcdir)/../include/mk4str.h \
-			$(srcdir)/../include/mk4str.inl $(includedir)
-	$(INSTALL_PROGRAM) libmk4.la $(libdir)
+			$(srcdir)/../include/mk4str.inl $(DESTDIR)$(includedir)
+	$(INSTALL_PROGRAM) libmk4.la $(DESTDIR)$(libdir)
 
-install-tcl: libmk4tcl.la
-	$(INSTALL_PROGRAM) libmk4tcl.la $(libdir)
+install-tcl: Mk4tcl@SHLIB_SUFFIX@
+	mkdir -p $(DESTDIR)$(tcllibdir)/Mk4tcl
+	$(INSTALL_PROGRAM) Mk4tcl@SHLIB_SUFFIX@ $(DESTDIR)$(tcllibdir)/Mk4tcl
+	echo 'package ifneeded Mk4tcl 2.4.8 [list load [file join $$dir Mk4tcl@SHLIB_SUFFIX@] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
 
-install-python: libmk4py.la
-	$(INSTALL_PROGRAM) libmk4py.la $(libdir)
+install-python: Mk4py@SHLIB_SUFFIX@
+	$(INSTALL_PROGRAM) Mk4py@SHLIB_SUFFIX@ $(DESTDIR)$(pylibdir)
+	$(INSTALL_PROGRAM) $(srcdir)/../python/metakit.py $$(DESTDIR)(pylibdir)
 
 clean:
 	$L rm -f *.la *.o *.lo
@@ -121,19 +137,27 @@ config.status: $(srcdir)/configure
 $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && autoconf
 
-libmk4.la: $(LIBOBJS)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
-		-rpath $(libdir) $(SHLOBJS)
+libmk4.la: $(LIBOBJS) $(LINK_SPECIAL_FILES)
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
+		-rpath $(libdir) $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
 
-libmk4tcl.la: mk4tcl.o mk4too.o $(LIBOBJS)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
-		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS)
+Mk4tcl@SHLIB_SUFFIX@: libmk4tcl.la
+	cp .libs/libmk4tcl@SHLIB_SUFFIX@ $@
+	-strip $(STRIP_FLAGS) $@ 2>/dev/null
+
+libmk4tcl.la: mk4tcl.o mk4too.o $(LIBOBJS) $(LINK_SPECIAL_FILES)
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
+		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
+
+Mk4py@SHLIB_SUFFIX@: libmk4py.la
+	cp .libs/libmk4py@SHLIB_SUFFIX@ $@
+	-strip $(STRIP_FLAGS) $@ 2>/dev/null
 
 libmk4py.la: $(PYOBJS) $(LIBOBJS)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
 		-rpath $(libdir) $(SPYOBJS) $(SHLOBJS)
 
-Mk4lua.so: mk4lua.o libmk4.la
+Mk4lua@SHLIB_SUFFIX@: mk4lua.o libmk4.la
 	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4lua.lo $(SHLOBJS) \
 		-L$(libdir) -llua -llualib
 
@@ -157,6 +181,13 @@ regress: $(TSTOBJS) libmk4.la
 	$L --mode=link $(CXX) -static -o $@@EXEEXT@ $(TSTOBJS) libmk4.la
 
 #---------- Dependencies
+
+# Hack.
+# Configuration: HPUX, CXX=aCC, CC=cc, cpu PA-RISC
+# => Have to link this object file to satisfy symbols.
+#
+cpprt0_stubs.o: $(srcdir)/cpprt0_stubs.s
+	as -o $@ $?
 
 mk4tcl.o: $(srcdir)/../tcl/mk4tcl.cpp
 	$L --mode=compile $(CXX) -c $(CXX_SWITCHES_TCL) $?

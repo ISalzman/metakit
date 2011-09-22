@@ -1,5 +1,5 @@
 // tstore3.cpp -- Regression test program, storage tests, part 3
-// $Id: tstore3.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tstore3.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -121,6 +121,7 @@ void TestStores3()
     }
   } D(s21a); R(s21a); E;
   
+#if !q4_TINY
   B(s22, Double storage, 0) W(s22a);
   {
     c4_DoubleProp p1 ("p1");
@@ -132,6 +133,7 @@ void TestStores3()
       v1.InsertAt(1, p1 [3456.7890]);
     s1.Commit();
   } D(s22a); R(s22a); E;
+#endif
 
   B(s23, Find absent record, 0) W(s23a);
   {
@@ -304,6 +306,7 @@ void TestStores3()
 
   } D(s27a); R(s27a); E;
 
+#if !q4_TINY
   B(s28, Doubles added later, 0) W(s28a);
   {
     c4_FloatProp p1 ("p1");
@@ -334,6 +337,7 @@ void TestStores3()
     s1.Commit(); 
 
   } D(s28a); R(s28a); E;
+#endif
 
   B(s29, Delete bytes property, 0) W(s29a);
   {

@@ -1,5 +1,5 @@
 // header.h --
-// $Id: header.h 1264 2007-03-09 16:52:09Z jcw $
+// $Id: header.h 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -22,6 +22,7 @@
 //  q4_VMS      DEC OpenVMS OS
 //  q4_WIN      Microsoft Windows OS, any flavor
 //  q4_WIN32    Microsoft Windows OS, 32-bit
+//  q4_WINCE    Microsoft Windows OS, embedded
 //
 //  q4_MFC      Microsoft MFC framework
 //  q4_STD      Standard STL version
@@ -56,7 +57,8 @@
 #define d4_OS_H "win.h"
 #elif defined (MSDOS) && defined (__GNUC__)
 #define q4_DOS 1
-#elif defined(unix) || defined(__unix__) || defined(__GNUC__) || defined(_AIX)
+#elif defined(unix) || defined(__unix__) || defined(__GNUC__) || \
+	defined(_AIX) || defined(__hpux)
 #define q4_UNIX 1
 #elif defined (__VMS)
 #define q4_VMS 1
@@ -172,6 +174,15 @@ typedef long t4_i32;            // longs aren't 64b, so they are 32b
 
 #ifndef d4_reentrant            // thread-local storage
 #define d4_reentrant
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+// Debug logging option, called internally where properties are modified
+
+#if q4_LOGPROPMODS
+void f4_DoLogProp(const c4_Handler*, int, const char*, int);
+#else
+#define f4_LogPropMods(a,b) 0
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

@@ -1,5 +1,5 @@
 // tmapped.cpp -- Regression test program, mapped view tests
-// $Id: tmapped.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tmapped.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -135,4 +135,33 @@ void TestMapped()
       A(i2 == 3);
   
   } D(m04a); R(m04a); E;
+
+    // subviews are not relocated properly with blocked views in 2.4.7
+  B(m05, Blocked view with subviews, 0) W(m05a);
+  {
+    char buf[10];
+    c4_StringProp p1 ("p1");
+    c4_IntProp p2 ("p2");
+    c4_ViewProp pSv ("sv");
+    
+    c4_Storage s1 ("m05a", true);
+    c4_View v1 = s1.GetAs("v1[_B[p1:S,sv[p2:I]]]");
+    c4_View v2 = v1.Blocked();
+
+    for (int i = 0; i < 1000; ++i) {
+      sprintf(buf, "id-%d", i);
+      v2.Add(p1 [buf]);
+
+      c4_View v3 = pSv (v2[i]);
+      v3.Add(p2 [i]);
+    }
+      
+    for (int j = 0; j < 1; ++j) {
+      sprintf(buf, "insert-%d", j);
+      v2.InsertAt(500, p1 [buf]);
+    }
+
+    s1.Commit();
+
+  } D(m05a); R(m05a); E;
 }

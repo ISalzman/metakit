@@ -57,9 +57,79 @@ AC_CHECK_TYPES(long long)
 # Checks for library functions.
 AC_CHECK_FUNCS(mmap memmove bcopy)
 
+# Deal with shared lib differences
+SHLIB_SUFFIX=".so"
+STRIP_FLAGS=
+LIBTOOL_FLAGS=-module
+
+case $build_os in
+  darwin*)
+    SHLIB_SUFFIX=".dylib"
+    STRIP_FLAGS=-S
+    LIBTOOL_FLAGS=
+    ;;
+  hpux*)
+    SHLIB_SUFFIX=".sl"
+    if test "X$build_cpu" = "Xia64" ; then
+	# libtools insists on .so files for HPUX/Itanium :(
+        SHLIB_SUFFIX=".so"
+    fi
+    ;;
+  cyg*)
+    SHLIB_SUFFIX=".dll"
+    ;;
+esac
+
+# ---------------------------------------------------------
+# Special hackery for hpux machines to allow usage of the
+# metakit C++ library from within Tcl (C application).
+#
+# The special configurations are:
+#
+# (1) CXX=aCC, CC=cc, build_os=hpux*, build_cpu=hppa
+# (2) CXX=aCC, CC=cc, build_os=hpux*, build_cpu=ia64
+#
+# [Ad 1] Link against -lCsup and insert cpprt0_stub.o
+# [Ad 2] Link against -lCsup
+#
+# Variables to substitute
+# = LINK_SPECIAL_FLAGS
+# = LINK_SPECIAL_FILES
+
+LINK_SPECIAL_FLAGS=""
+LINK_SPECIAL_FILES=""
+
+case $build_os in
+  hpux*)
+    if test \
+	"`basename $CXX`x" = "aCCx" -a	\
+	"Z`basename $CC`" = "Zcc"
+    then
+    	if test "X$build_cpu" = "Xia64" ; then
+	    LINK_SPECIAL_FLAGS="-lCsup"
+	    LINK_SPECIAL_FILES=""
+    	else
+	    LINK_SPECIAL_FLAGS="-lCsup -Wl,cpprt0_stubs.o"
+	    LINK_SPECIAL_FILES="cpprt0_stubs.o"
+	fi
+    fi
+    ;;
+  *)
+    ;;
+esac
+
+AC_SUBST(LINK_SPECIAL_FLAGS)
+AC_SUBST(LINK_SPECIAL_FILES)
+
+# ---------------------------------------------------------
+
+
 AC_SUBST(MK_TARGETS)
 AC_SUBST(MK_INSTALL)
 AC_SUBST(TCL_INCLUDE_DIR)
 AC_SUBST(EXEEXT)
+AC_SUBST(SHLIB_SUFFIX)
+AC_SUBST(LIBTOOL_FLAGS)
+AC_SUBST(STRIP_FLAGS)
 
 AC_OUTPUT(Makefile)

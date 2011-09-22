@@ -1,5 +1,5 @@
 // tstore1.cpp -- Regression test program, storage tests, part 1
-// $Id: tstore1.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tstore1.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -27,6 +27,7 @@ void TestStores1()
         A(v1.GetSize() == 3);
   } D(s01a); R(s01a); E;
 
+#if !q4_TINY
   B(s02, Float storage, 0) W(s02a);
   {
     c4_FloatProp p1 ("p1");
@@ -38,6 +39,7 @@ void TestStores1()
       v1.InsertAt(1, p1 [78.9]);
     s1.Commit();
   } D(s02a); R(s02a); E;
+#endif
 
   B(s03, String storage, 0) W(s03a);
   {

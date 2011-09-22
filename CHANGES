@@ -1,3 +1,104 @@
+2002-05-30    ##############################################    MK 2.4.8
+
+   Reverted non-portable change in Makefile to copy to "Mk4tcl.*".
+
+2002-10-28    Workaround for bugs on ARM/WinCE and HP/UX, Mk4tcl/WinCE
+
+   Turn off c4_ColofInts::Set_8i optimization when compiling for ARM on
+   WinCE using EVC3.  All regression tests now pass (on ARM & x86emu).
+
+   On HP/UX, enable copying in fileio.cpp, line 265, so a write is not
+   done directly from a mmap'ed file (this can hang a process, hard).
+
+   Added a "mktcl" subproject to msevc3, to build "Mk4tcl.dll".
+   
+2002-10-27    Added multi-thread support for Unix
+
+   Added changes to support same appartment-threading model on Unix as
+   on Win32 (pthreads based).  This merely adds support to allow safe
+   use of the current "each datafile in one thread" design on Unix.  All
+   changes in view.cpp (thank you, M. Berk).  Define q4_MULTI to enable.
+
+2002-10-26    Merged WinCE changes
+
+   Merged changes to build MK for WinCE using MS Embedded VC 3.0.
+   These changes are based on Joseph Tate's modifications (thanks!).
+
+2002-10-21    Updated autoconf & libtool (on teevie)
+
+   Files in unix/ regenerated with autoconf 2.53a and libtool 1.4.1.
+
+2002-10-16    Added "dup" subcommand to Mk4tcl OO
+
+   There was no way to duplicate a view in the mk4tcl OO interface.
+   Needed to properly deal with re-use / ref counts - added "dup".
+
+2002-10-11    Cast widened in Mk4tcl, support q4_TINY def for Mk4tcl
+
+   Changed cast from int to long, to avoid compiler warning on some
+   64-bit machines (mk4tcl.cpp, line 2013).
+
+   Remove float/double code when q4_TINY is defined, also in Mk4tcl.
+
+2002-10-10    Makefile tweaks
+
+   Removed duplicate flags from CXXFLAGS definition.
+
+2002-10-09    Fixed blocked/subview bug, tweak for the ARM platform
+
+   Blocked viewers were not doing the right thing when rows had subviews
+   in them - fixed the logic, and add a new m05 test to verify it all.
+
+   Fixed a signed-char bug which prevented MK from passing all tests on
+   the ARM, in this case the Compaq iPaq PDA with Linux and gcc 2.95.4.
+
+2002-10-07    Tweak to prevent gcc compiler bug
+
+   Added intermediate temp var in derived.cpp to prevent gcc -O failure.
+
+2002-10-04    Config and makefile adjustments
+
+   Adjusted configure.in to use ".sl" for HP-UX, and ".dll" for Cygwin.
+
+   Changed "install -d" to "mkdir -p" (2x) in Makefile.in, since the
+   former is not supported by all incarnations of install (A Kupries).
+
+   Added @CXXFLAGS@ to the end of "CXXFLAGS =" lines in Makefile.in,
+   as suggested by Donal K. Fellows.  Used for his IRIX(64) builds.
+
+   Added logic to build properly on HP-UX, including a small assembly
+   file (!) which allows loading C++ shared lib from C, as needed in
+   Tcl - with thanks to Andreas Kupries for solving and patching this.
+
+2002-09-25    Build tweaks for Mac OS X
+
+   Applied patches by Daniel Steffen to deal with ".dylib" (thanks!).
+
+   Use -O i.s.o. -O2, which caused test b27 to fail on OS X (gcc 3.1).
+
+2002-09-09    More 64-bit platforms recognized
+
+   Added #ifdefs for more 64-bit platforms, thanks to Reinhard Max.
+
+2002-09-08    Make tweaks for HP-UX
+
+   Tweaks to build on HP-UX / 9000 (added __hpux #ifdef in header.h).
+
+2002-09-03    Fixed Mac OSX build problem
+
+   Compile Mk4tcl lib with stubs only if building the shared lib.
+   Ignore strip errors (fails with Mk4tcl.so on OSX / dyld libs).
+
+2002-07-01    Python and Tcl installation improved
+
+   Now installs Python Mk4py.so and metakit.py in the most common dir
+   location by default, i.e. "/usr/local/lib/python2.2/site-packages".
+   Locations can be overridden through $pyincludedir and $pylibdir.
+
+   For Tcl, "make install" now constructs a standard package dir, i.e.
+   "/usr/local/lib/Mk4tcl/" with entries "Mk4tcl.so" and "pkgIndex.tcl".
+   Locations can be overridden through $tclincludedir and $tcllibdir.
+
 2002-05-30    ##############################################    MK 2.4.7
 
    Fix CONST84 logic so source compiles under both Tcl 8.3 and 8.4.

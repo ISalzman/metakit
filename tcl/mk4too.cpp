@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mk4too.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -643,6 +643,7 @@ int MkView::ViewCmd()
     "concat",
     "copy",
     "different",
+    "dup",
     "flatten",
     "groupby",
     "hash",
@@ -673,26 +674,27 @@ int MkView::ViewCmd()
   {
   // the "&MkView::" stuff is required for Mac cwpro2
     { &MkView::BlockedCmd,   2,  2,  "blocked" },
-    { &MkView::CloneCmd,   2,  2,  "clone" },
-    { &MkView::ConcatCmd,  3,  3,  "concat view" },
-    { &MkView::CopyCmd,    2,  3,  "copy" },
+    { &MkView::CloneCmd,     2,  2,  "clone" },
+    { &MkView::ConcatCmd,    3,  3,  "concat view" },
+    { &MkView::CopyCmd,      2,  3,  "copy" },
     { &MkView::DifferentCmd, 3,  3,  "different view" },
+    { &MkView::DupCmd,       2,  2,  "dup" },
     { &MkView::FlattenCmd,   3,  3,  "flatten prop" },
     { &MkView::GroupByCmd,   4,  0,  "groupby subview prop ?prop ...?" },
-    { &MkView::HashCmd,    3,  4,  "hash map ?numkeys?" },
+    { &MkView::HashCmd,      3,  4,  "hash map ?numkeys?" },
     { &MkView::IndexedCmd,   5,  0,  "indexed map unique prop ?prop ...?" },
     { &MkView::IntersectCmd, 3,  3,  "intersect view" },
-    { &MkView::JoinCmd,    4,  0,  "join view prop ?prop ...?" },
-    { &MkView::MapCmd,     3,  3,  "map view" },
-    { &MkView::MinusCmd,   3,  3,  "minus view" },
+    { &MkView::JoinCmd,      4,  0,  "join view prop ?prop ...?" },
+    { &MkView::MapCmd,       3,  3,  "map view" },
+    { &MkView::MinusCmd,     3,  3,  "minus view" },
     { &MkView::OrderedCmd,   2,  3,  "ordered ?numkeys?" },
-    { &MkView::PairCmd,    3,  3,  "pair view" },
+    { &MkView::PairCmd,      3,  3,  "pair view" },
     { &MkView::ProjectCmd,   3,  0,  "project prop ?prop ...?" },
-    { &MkView::RangeCmd,   4,  0,  "range start finish ?step?" },
+    { &MkView::RangeCmd,     4,  0,  "range start finish ?step?" },
     { &MkView::ReadOnlyCmd,  2,  2,  "readonly" },
     { &MkView::RestrictCmd,  2,  0,  "restrict...." },
-    { &MkView::UnionCmd,   3,  3,  "union view" },
-    { &MkView::UniqueCmd,  2,  2,  "unique" },
+    { &MkView::UnionCmd,     3,  3,  "union view" },
+    { &MkView::UniqueCmd,    2,  2,  "unique" },
 #if 0
     { &MkView::OperatorCmd,  3,  3,  "== view" },
     { &MkView::OperatorCmd,  3,  3,  "!= view" },
@@ -735,6 +737,13 @@ int MkView::BlockedCmd()
   MkView *ncmd = new MkView( interp, view.Blocked());
 
   return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
+}
+
+int MkView::DupCmd()
+{
+  MkView *cmd = new MkView( interp, view);
+
+  return tcl_SetObjResult(tcl_NewStringObj(cmd->CmdName()));
 }
 
 int MkView::CloneCmd()

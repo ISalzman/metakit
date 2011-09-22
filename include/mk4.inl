@@ -1,5 +1,5 @@
 // mk4.inl --
-// $Id: mk4.inl 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mk4.inl 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -834,7 +834,7 @@ d4_inline c4_Dependencies* c4_Sequence::GetDependencies() const
 /// Dereferences this cursor to "almost" a row.
 d4_inline c4_RowRef c4_Cursor::operator* () const
 {
-  return *(c4_RowRef*) this; // cast avoids a const problem with BCPP 4.52
+  return *(c4_Cursor*) this; // cast avoids a const problem with BCPP 4.52
 }
 
 /// This is the same as *(cursor + offset).

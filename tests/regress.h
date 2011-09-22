@@ -1,5 +1,5 @@
 // regress.h -- Regression test program, header file
-// $Id: regress.h 1264 2007-03-09 16:52:09Z jcw $
+// $Id: regress.h 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -9,10 +9,15 @@
 #define TraceAll  false
 
   // default for dos and unix is to assume they don't support exceptions
-#if defined (_DOS) || defined (unix) || defined (__unix__) || defined (__GNUC__)
+#if defined (_DOS) || defined (unix) || defined (__unix__) || \
+    defined (__GNUC__) || defined (_WIN32_WCE)
 #if !defined (q4_NOTHROW)
 #define q4_NOTHROW 1
 #endif
+#endif
+
+#ifdef _WIN32_WCE
+int remove(const char*);
 #endif
 
 #if _MSC_VER == 800
@@ -22,30 +27,6 @@
 #if defined (_QWINVER) && !defined (q4_NOTHROW)
 #define q4_NOTHROW 1    
 #endif
-#endif
-
-#ifdef q4_WINCE
-#include <afx.h>
-#ifdef _DEBUG
-#define remove(x) \
-	TRY { \
-		CFile::Remove(CString(x)); \
-	}CATCH (CFileException, pEx) \
-	{ \
-	    afxDump << "File " << x << " cannot be removed\n"; \
-	} \
-END_CATCH
-#else
-#define remove(x) \
-	TRY { \
-		CFile::Remove(CString(x)); \
-	}CATCH (CFileException, pEx) \
-	{ \
-	} \
-END_CATCH
-#endif
-
-int mainfunc();  //predeclaration of the main function
 #endif
 
 #if q4_NOTHROW
@@ -103,40 +84,6 @@ extern const char* msg;
     } \
     fflush(stdout); \
   }
-#elif q4_WINCE
-#ifdef _DEBUG
-#define B(n_,d_,c_) \
-  if (StartTest(c_, #n_, #d_)) \
-  { \
-    afxTraceEnabled = TraceAll; \
-    try \
-    { \
-      {
-#define E \
-      } \
-      _putws(_T("<<< done.")); \
-    } \
-    catch (const TCHAR* msg) { CatchMsg(msg); } \
-    catch (...) { CatchOther(); } \
-    fflush(stdout); \
-    afxTraceEnabled = true; \
-  }
-#else //!_DEBUG
-#define B(n_,d_,c_) \
-  if (StartTest(c_, #n_, #d_)) \
-  { \
-    try \
-    { \
-      {
-#define E \
-      } \
-      _putws(_T("<<< done.")); \
-    } \
-    catch (const TCHAR* msg) { CatchMsg(msg); } \
-    catch (...) { CatchOther(); } \
-    fflush(stdout); \
-  }
-#endif
 #else
 #define B(n_,d_,c_) \
   if (StartTest(c_, #n_, #d_)) \
@@ -157,12 +104,7 @@ extern const char* msg;
 #define A(e_) if (e_) ; else FailExpr(#e_)
 
 #define W(f_) remove(#f_)
-#ifndef q4_WINCE
-#  define R(f_) A(remove(#f_) == 0)
-#else
-#  define R(f_) W(f_)
-#endif
-//#define R(f_) 
+#define R(f_) A(remove(#f_) == 0)
 #define D(f_) DumpFile(#f_, TESTDIR #f_ ".txt")
 
 typedef c4_BytesProp c4_MemoProp;

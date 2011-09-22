@@ -1,5 +1,5 @@
 // trseize.cpp -- Regression test program, resizing tests
-// $Id: tresize.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tresize.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -82,7 +82,7 @@ int CResizer::Ins(int pos_, int cnt_)
   _unattached.InsertAt(pos_, row, cnt_);
   _attached.InsertAt(pos_, row, cnt_);
 
-  for (int i = pos_; i < pos_ + cnt_; ++i)
+  for (int i = pos_; i < pos_ + cnt_; ++i)  
   {
     _refData[i] = ++_seed;
     _prop (_unattached[i]) = _seed;

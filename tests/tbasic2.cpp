@@ -1,5 +1,5 @@
 // tbasic2.cpp -- Regression test program, basic tests part 2
-// $Id: tbasic2.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tbasic2.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -203,6 +203,8 @@ void TestBasics2()
     c4_View v1;
     v1.SetSize(2);
     p1 (v1[1]) = "abc";
+      // next assert fails in MacOS X 10.2.1 "Jaguar" with 2.4.7
+      // seems bug in gcc 3.1, -O i.s.o. -O2 works [jcw 21oct02]
       A((const char*) (p1 (v1[0])) == (c4_String) "");
       A((const char*) (p1 (v1[1])) == (c4_String) "abc");
 

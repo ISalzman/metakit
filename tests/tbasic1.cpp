@@ -1,5 +1,5 @@
 // tbasic1.cpp -- Regression test program, basic tests part 1
-// $Id: tbasic1.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: tbasic1.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -29,6 +29,7 @@ void TestBasics1()
       A(x1 == 1234567890L);
   } E;
 
+#if !q4_TINY
   B(b03, Float property, 0)
   {
     c4_Row r1;
@@ -37,6 +38,7 @@ void TestBasics1()
       double x1 = p1 (r1);
       A((float) x1 == (float) 123.456);
   } E;
+#endif
 
   B(b04, String property, 0)
   {
@@ -227,6 +229,7 @@ void TestBasics1()
     A(p1 (v1[0]) == 123);
   } E;
 
+#if !q4_TINY
   B(b17, Double property, 0)
   {
     c4_Row r1;
@@ -235,6 +238,7 @@ void TestBasics1()
       double x1 = p1 (r1);
       A(x1 == (double) 1234.5678);
   } E;
+#endif
 
   B(b18, SetAtGrow usage, 0)
   {

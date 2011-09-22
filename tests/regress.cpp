@@ -1,5 +1,5 @@
 // regress.cpp -- Regression test program, main code
-// $Id: regress.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: regress.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -24,16 +24,27 @@
   const char* msg;
 #endif
 
-#if q4_WINCE
-#include <afxcview.h>
+#if _WIN32_WCE
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+int remove(const char* fn_)
+{
+  c4_Bytes buffer;
+  int n = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, fn_, -1, NULL, 0);
+  wchar_t* w = (wchar_t*) buffer.SetBufferClear((n+1) * sizeof (wchar_t));
+  MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, fn_, -1, w, n);
+  return DeleteFile((wchar_t*) buffer.Contents()) ? 0 : -1;
+}
+
 #endif
 
 int
-#if q4_WINCE
-mainfunc()
-#else
-main()
+#if _WIN32_WCE
+_cdecl
 #endif
+main()
 {
 //  afxMemDF |= allocMemDF | checkAlwaysMemDF;
 
@@ -131,6 +142,7 @@ static void ViewDisplay(const c4_View& v_, FILE* fp, int l_ =0)
           fprintf(fp, " %ld", (long) ((c4_IntProp&) p) (r));
           break;
 
+#if !q4_TINY
         case 'F':
           fprintf(fp, " %g", (double) ((c4_FloatProp&) p) (r));
           break;
@@ -138,6 +150,7 @@ static void ViewDisplay(const c4_View& v_, FILE* fp, int l_ =0)
         case 'D':
           fprintf(fp, " %.12g", (double) ((c4_DoubleProp&) p) (r));
           break;
+#endif
 
         case 'S':
           fprintf(fp, " '%s'", (const char*) ((c4_StringProp&) p) (r));
@@ -189,26 +202,11 @@ void DumpFile(const char* in_, const char* out_)
   fclose(fp);
 }
 
-#if q4_WINCE
-  static void ShowString(const CString& str_)
-  {
-    CView* v = ((CFrameWnd*) AfxGetApp()->m_pMainWnd)->GetActiveView();
-    ((CListView*) v)->GetListCtrl().InsertItem(INT_MAX, (LPCTSTR) str_);
-  }
-#endif
-
 void Fail(const char* msg)
 { 
   #if q4_NOTHROW
-    #if q4_WINCE
-      CString str;
-      str.Format(_T("*** %s ***"), (LPCTSTR) CString (msg));
-      ShowString(str);
-      ASSERT(0);
-    #else
-      fprintf(stderr, "\t%s\n", msg);
-      printf("*** %s ***\n", msg);
-    #endif
+    fprintf(stderr, "\t%s\n", msg);
+    printf("*** %s ***\n", msg);
   #else
     throw msg;
   #endif
@@ -237,20 +235,15 @@ int StartTest(int mask_, const char* name_, const char* desc_)
   #if q4_MFC && defined(_DEBUG)
     TRACE("%s - %s\n", name_, desc_);
   #endif
-  #if q4_WINCE
-    CString str;
-    str.Format(_T("%s - %s"), (LPCTSTR) CString (name_),
-				(LPCTSTR) CString (desc_));
-    ShowString(str);
-  #endif
   #if !q4_MWCW_PROFILER
     fprintf(stderr, "%s - %s\n", name_, desc_);
   #endif
 
   char buffer [50];
   sprintf(buffer, "%s%s.txt", TESTDIR, name_);
-  #if q4_WINCE
-    //TODO: Fix this to work under CE.
+  #if _WIN32_WCE
+    fclose(stdout);
+    fopen(buffer, TEXTOUT);
   #else
     freopen(buffer, TEXTOUT, stdout);
   #endif

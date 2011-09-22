@@ -1,5 +1,5 @@
 // string.cpp --
-// $Id: string.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: string.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -30,7 +30,7 @@
   
 /////////////////////////////////////////////////////////////////////////////
 
-#if !q4_MSVC && !q4_WATC && !q4_BORC
+#if !q4_MSVC && !q4_WATC && !q4_BORC || q4_WINCE
 
   // MS C/C++ has this handy stricmp: a case-insensitive version of strcmp
   // This version only works with 7-bit ASCII characters 0x00 through 0x7F
@@ -59,8 +59,17 @@
     return c1 - c2;
   }
   
-#elif q4_WINCE
-#define stricmp _stricmp
+#endif
+
+#if q4_WINCE
+  const char* strrchr(const char* p, char ch)
+  {
+    const char* q = 0;
+    while (*p)
+      if (*p++ == ch)
+	q = p;
+    return q;
+  }
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

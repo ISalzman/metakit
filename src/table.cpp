@@ -1,5 +1,5 @@
 // table.cpp --
-// $Id: table.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: table.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file

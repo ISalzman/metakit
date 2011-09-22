@@ -1,5 +1,5 @@
 // mwcw.h --
-// $Id: mwcw.h 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mwcw.h 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

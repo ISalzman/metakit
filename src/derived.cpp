@@ -1,5 +1,5 @@
 // derived.cpp --
-// $Id: derived.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: derived.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -661,7 +661,8 @@ c4_SortSeq::c4_SortSeq (c4_Sequence& seq_, c4_Sequence* down_)
           down[i] = 1;
 
     _width = -1;
-    _info = d4_new c4_SortInfo [NumHandlers() + 1];
+    int n = NumHandlers() + 1;
+    _info = d4_new c4_SortInfo [n];
 
     int j;
 

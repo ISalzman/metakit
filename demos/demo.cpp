@@ -18,7 +18,11 @@
 
 #include <stdio.h>
 
-int main()
+int
+#if _WIN32_WCE
+_cdecl
+#endif
+main()
 {
     // These properties could just as well have been declared globally.
   c4_StringProp pName ("name");

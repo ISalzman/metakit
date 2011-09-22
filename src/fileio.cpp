@@ -1,5 +1,5 @@
 // fileio.cpp --
-// $Id: fileio.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: fileio.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -36,8 +36,6 @@
 #define _get_osfhandle(x) x
 #endif
 
-#include <time.h>
-
 /////////////////////////////////////////////////////////////////////////////
 
 #if q4_CHECK
@@ -47,11 +45,7 @@ void f4_AssertionFailed(const char* cond_, const char* file_, int line_)
 {
   fprintf(stderr, "Assertion failed: %s (file %s, line %d)\n",
             cond_, file_, line_);
-#ifdef q4_WINCE
-  exit(0);
-#else
   abort();
-#endif
 }
 
 #endif //q4_CHECK
@@ -130,12 +124,8 @@ t4_i32 c4_FileStrategy::FileSize()
 
 t4_i32 c4_FileStrategy::FreshGeneration()
 {
-#ifndef q4_WINCE
-   return time(0);
-#else
-  CTime ti(NULL);
-  return ti.GetTime();
-#endif //q4_WINCE
+  d4_assert(false);
+  return 0;
 }
 
 void c4_FileStrategy::ResetFileMapping()
@@ -217,7 +207,7 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 
   if (_file != 0) {
 #ifndef q4_WINCE
-	setbuf(_file, 0); // 30-11-2001
+    setbuf(_file, 0); // 30-11-2001
 #endif //q4_WINCE
     ResetFileMapping();
     return true;
@@ -262,7 +252,7 @@ void c4_FileStrategy::DataWrite(t4_i32 pos_, const void* buf_, int len_)
   d4_assert(_file != 0);
  //printf("DataWrite at %d len %d\n", pos_, len_);
 
-#if q4_WIN32 || __MACH__
+#if q4_WIN32 || __MACH__ || __hpux
 // if (buf_ >= _mapStart && buf_ <= _mapLimit - len_)
 
     // a horrendous hack to allow file mapping for Win95 on network drive
@@ -270,6 +260,7 @@ void c4_FileStrategy::DataWrite(t4_i32 pos_, const void* buf_, int len_)
     // 
     //  6-Feb-1999  --  this workaround is not thread safe
     // 30-Nov-2001  --  changed to use the stack so now it is
+    // 28-Oct-2002  --  added HP/UX to the mix, to avoid hard lockup
   char tempBuf [4096];
   d4_assert(len_ <= sizeof tempBuf);
   buf_ = memcpy(tempBuf, buf_, len_);

@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1264 2007-03-09 16:52:09Z jcw $
+// $Id: mk4tcl.cpp 1246 2007-03-09 16:29:26Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -9,7 +9,10 @@
 #include "mksql.h"
 #endif
 
+#ifndef _WIN32_WCE
 #include <errno.h>
+#endif
+
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -39,6 +42,43 @@
   static int generation;
     
   TCL_DECLARE_MUTEX(mkMutex)  // use a single monolithic mutex for now
+
+  // moved out of member func scope to please HP-UX's aCC:
+  
+  static const char* getCmds [] =
+  {
+    "-size",
+    0
+  };
+
+  static const char* viewCmds [] =
+  {
+    "layout",
+    "delete",
+    "size",
+    "info",
+    "locate",
+    "restrict",
+    "open",
+    "new",
+    0
+  };
+
+  static const char* cursorCmds [] =
+  {
+    "create",
+    "position",
+    "incr",
+    0
+  };
+ 
+  static const char* channelCmds [] =
+  {
+    "read",
+    "write",
+    "append",
+    0
+  };
 
 /////////////////////////////////////////////////////////////////////////////
 // Utility code: return next token up to char < '0', and
@@ -352,6 +392,7 @@ Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_
       }
       break;
 
+#if !q4_TINY
     case 'F':
       Tcl_SetDoubleObj(obj_, ((c4_FloatProp&) prop_) (row_));
       break;
@@ -359,6 +400,7 @@ Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_
     case 'D':
       Tcl_SetDoubleObj(obj_, ((c4_DoubleProp&) prop_) (row_));
       break;
+#endif
 
     case 'I':
       Tcl_SetLongObj(obj_, ((c4_IntProp&) prop_) (row_));
@@ -407,6 +449,7 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
       }
       break;
 
+#if !q4_TINY
     case 'F':
       {
         double value = 0;
@@ -424,6 +467,7 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
           ((c4_DoubleProp&) prop_) (row_) = value;
       }
       break;
+#endif
 
     case 'I':
       {
@@ -1580,10 +1624,8 @@ int MkTcl::GetCmd()
 
   if (!_error)
   {
-    static const char* cmds [] = { "-size", 0 };
-
     const bool returnSize = objc > 2 && // fixed 1999-11-19
-                  tcl_GetIndexFromObj(objv[2], cmds) >= 0;
+                  tcl_GetIndexFromObj(objv[2], getCmds) >= 0;
     if (returnSize)
     {
       --objc;
@@ -2010,7 +2052,7 @@ int MkTcl::FileCmd()
 	  // now return the values as a list
 	Tcl_Obj* r = tcl_GetObjResult();
 	for (int i = 1; i < a->GetSize() - 1 && !_error; ++i)
-	  tcl_ListObjAppendElement(r, Tcl_NewIntObj((int) a->GetAt(i)));
+	  tcl_ListObjAppendElement(r, Tcl_NewLongObj((long) a->GetAt(i)));
  	return _error;
       }
   }
@@ -2023,20 +2065,7 @@ int MkTcl::FileCmd()
 
 int MkTcl::ViewCmd()
 {
-  static const char* cmds [] =
-  {
-    "layout",
-    "delete",
-    "size",
-    "info",
-    "locate",
-    "restrict",
-    "open",
-    "new",
-    0
-  };
-
-  int id = tcl_GetIndexFromObj(objv[1], cmds);
+  int id = tcl_GetIndexFromObj(objv[1], viewCmds);
   if (id < 0)
     return _error;
 
@@ -2290,15 +2319,7 @@ int MkTcl::LoopCmd()
 
 int MkTcl::CursorCmd()
 {
-  static const char* cmds [] =
-  {
-    "create",
-    "position",
-    "incr",
-    0
-  };
-
-  int id = tcl_GetIndexFromObj(objv[1], cmds);
+  int id = tcl_GetIndexFromObj(objv[1], cursorCmds);
   if (id < 0)
     return _error;
 
@@ -2480,15 +2501,7 @@ int MkTcl::ChannelCmd()
 
   const c4_BytesProp& memo = (const c4_BytesProp&) AsProperty(objv[2], path._view);
 
-  static const char* cmds [] =
-  {
-    "read",
-    "write",
-    "append",
-    0
-  };
-
-  int id = objc < 4 ? 0 : tcl_GetIndexFromObj(objv[3], cmds);
+  int id = objc < 4 ? 0 : tcl_GetIndexFromObj(objv[3], channelCmds);
   if (id < 0)
     return _error;
 
@@ -2734,7 +2747,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.7");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.8");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
