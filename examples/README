@@ -12,6 +12,7 @@ millions.py	storing millions of row, using a trick (by Christian Tismer)
 mkhash.cpp	hashed / blocked / ordered view performance in C++
 mkmemoio.py	treating a memo (binary) property as an I/O stream
 pair.py		pairwise view combination
+random.tcl	test of 100,000 adds/mods/dels using a bytes property
 remap.py	new mapping views (like mapped.tcl), in Python
 selfref.py	defining a self-referential (recursive) structure
 selmap.tcl	illustrates mapping select results back to a view

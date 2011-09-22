@@ -1,5 +1,5 @@
 // column.h --
-// $Id: column.h 1267 2007-03-09 16:53:02Z jcw $
+// $Id: column.h 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -130,7 +130,7 @@ public:
   static int CalcAccessWidth(int numRows_, t4_i32 colSize_);
 
   void SetAccessWidth(int bits_);
-  void FixSize();
+  void FixSize(bool fudge_);
   void ForceFlip();
 
   static int DoCompare(const c4_Bytes& b1_, const c4_Bytes& b2_);

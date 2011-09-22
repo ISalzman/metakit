@@ -1,8 +1,53 @@
-2001-03-31    ##############################################    MK 2.4.4
+2002-04-29    ##############################################    MK 2.4.5
+
+   Various bug fixes, fixed a number of platform issues.
+
+2002-04-28    Fix small-int re-use view bug
+
+   A nasty bug was reported by VPI which caused upper bytes to be
+   truncated from int values.  The problem appears when storing ints
+   of 1..4 bits in a view, then clearing the view (so a gap is placed
+   past the end of the column), then adding a row with an int of 2 or
+   more bytes.  This uncovered a bug in forgetting to truncate columns
+   with sub-byte int storage.  Now fixed, added regression test s43.
+
+   This bug could also have affected string and byte storage, since
+   these use int columns to store item sizes.  Under very specific
+   conditions, it may have lead to truncated or even mixed-up values.
+
+2002-04-27    Fix nested mk4tcl loop bug
+
+   Loops would exit prematurely when nested - due to objc/objv being
+   overwritten in the inner loop.  Affects mk4tcl.cpp and mk4too.cpp.
+
+2002-04-10    Fix bug introduced in recent blocked viewer optimization
+
+   Murphy was at it again.  The bug affected the way row inserts and
+   deletes were done, and can cause incorrect data to be copied.  It
+   is relatively hard to reproduce (the test dataset was 12 Mb), but
+   the change explains things fully and is in fact very small.
+   
+2002-04-02    Fix bug in debug code
+
+   In remap.cpp line 531, a debug assertion was moved in the wrong way.
+
+2002-04-01    Backed out to libtool 1.4d, fix test diff and Tcl const
+
+   Backed out to the more official 1.4d release of libtool (instead of
+   the CVS version, which is adding "tags" we will not need anyway).
+   The unix/Makefile.in has been simplified, back to how it used to be.
+
+   Fixed the "diff" call at the end of "make test" so that it no longer
+   generates extra output if things match and now fails if they do not.
+
+   Added fix to allow compiling mk4tcl.cpp with "pre-constified" Tcl
+   code, thanks to a tip by Don Porter (see "grep CONST84 mk4tcl.*").
+
+2002-03-31    ##############################################    MK 2.4.4
 
    Various bug fixes and (blocked view) performance enhacements.
 
-2001-03-28    More blocked optimizations, IRIX tweaks
+2002-03-28    More blocked optimizations, IRIX tweaks
 
    Switched Slot() to binary search.  This seems to slow down a few
    percentage point for smaller views, but with 5 millions rows this is
@@ -10,12 +55,12 @@
 
    Added header "bool" fix by Erik Hofman so MK compiles on IRIX (SGI).
 
-2001-03-27    Added definitions for AIX
+2002-03-27    Added definitions for AIX
 
    Added six operators defs before c4_Cursor class, to avoid compile
    errors on AIX.  With apologies to Murat Berk for taking so long...
 
-2001-03-26    Re-instated the c4_View::RelocateRows operation
+2002-03-26    Re-instated the c4_View::RelocateRows operation
 
    Re-enabled code which supports efficient moves of rows from one view
    to another - avoiding copying of subviews.  Strings/memos are still
@@ -28,13 +73,13 @@
    blocked views with large subviews.  Added examples/blockdels.tcl to
    thoroughly exercise this new code and all boundary conditions.
 
-2001-03-22    Fixed a serious bug in serialization code
+2002-03-22    Fixed a serious bug in serialization code
 
    When serializing string/bytes columns with large strings using the
    c4_Storage::SaveTo function, memo's would sometimes not be written,
    leading to a *damaged* datafile (and incorrect free-space tracking).
 
-2001-03-15    Better configure logic, "mk::view layout" fix
+2002-03-15    Better configure logic, "mk::view layout" fix
 
    Many tweaks to configures, makes, and libtool setup.  Get rid of the
    library version numbers and the special Mk4*.so targets.  Instead of
@@ -42,14 +87,14 @@
 
    Fixed "mk::view layout", it was broken by the 10-2-2002 change.
 
-2001-03-13    Extend partial access 'B' usage
+2002-03-13    Extend partial access 'B' usage
 
    Added code to Access and Modify to simulate partial data access the
    hard way when the underlying view does not support it (c4_Bytes
    only), i.e. copy via full temp.  Added test s41, doing partial access
    on a blocked view.
 
-2001-03-12    Add test for serialized input
+2002-03-12    Add test for serialized input
 
    The c4_Storage::LoadFrom() call (mk::file load) can be tricky.  After
    a commit, the header is adjusted so that reading from the start
@@ -63,11 +108,11 @@
    Added test in mk4tl.cpp so LoadFrom failure generates an error
    return, instead of being ignored.
 
-2001-03-10    Tweaked March 8 fix a tad further
+2002-03-10    Tweaked March 8 fix a tad further
 
    The workaround implemented below wasn't 100% complete.
 
-2001-03-08    Workaround for file extend on Win
+2002-03-08    Workaround for file extend on Win
 
    There seems to be a bug when extending a file on at least NT4 with
    NTFS (file server works fine).  When extending the file in such a way
@@ -81,34 +126,34 @@
    after row 150000, it asserts on bad filesize when built in debug mode
    and run on NTFS.
 
-2001-02-19    Fixed over-aggressive optimization
+2002-02-19    Fixed over-aggressive optimization
 
    Change made on Feb 7 was releasing too many objects in a commit,
    causing it to detach empty top-level views, even when in use.  Fixed,
    added s39 to test for this case.
 
-2001-02-10    Improve Mk4tcl's "mk::view layout"
+2002-02-10    Improve Mk4tcl's "mk::view layout"
 
    Avoid crash when asking for the layout of a non-existent view.  Now
    returns an error instead.
 
-2001-02-07    Fast commit with many empty subviews
+2002-02-07    Fast commit with many empty subviews
 
    Avoid creating subviews when committing, if these are empty anyway.
    Added new s38 test for this case.
 
-2001-02-02    Small optimizations
+2002-02-02    Small optimizations
 
    Changed a few c4_Property instances to const& references to avoid
    copying (2 in view.cpp, 2 in custom.cpp).
 
-2001-02-01    ##############################################    MK 2.4.3
+2002-02-01    ##############################################    MK 2.4.3
 
    Bug-fix release, mostly.
 
    Python include path now upgraded to python2.2 (was 2.1).
 
-2001-01-31    Cross-platform serialization, Tcl
+2002-01-31    Cross-platform serialization, Tcl
 
    There was a bug with serializing a datafile (SaveTo) when it was
    created on a platform with reverse endian-ness.  Fixed so serialized

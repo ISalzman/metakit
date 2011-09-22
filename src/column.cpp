@@ -1,5 +1,5 @@
 // column.cpp --
-// $Id: column.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: column.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -1133,13 +1133,13 @@ int c4_ColOfInts::CalcAccessWidth(int numRows_, t4_i32 colSize_)
   if (numRows_ <= 7 && 0 < colSize_ && colSize_ <= 6) {
     static t4_byte realWidth [][6] = {
      // sz =  1:  2:  3:  4:  5:  6:
-        {  8, 16,  1, 32,  2,  4  },      //  n = 1
-        {  4,  8,  1, 16,  2,  0  },      //  n = 2
-        {  2,  4,  8,  1,  0, 16  },      //  n = 3
-        {  2,  4,  0,  8,  1,  0  },      //  n = 4
-        {  1,  2,  4,  0,  8,  0  },      //  n = 5
-        {  1,  2,  4,  0,  0,  8  },      //  n = 6
-        {  1,  2,  0,  4,  0,  0  },      //  n = 7
+	   {  8, 16,  1, 32,  2,  4  },      //  n = 1
+	   {  4,  8,  1, 16,  2,  0  },      //  n = 2
+	   {  2,  4,  8,  1,  0, 16  },      //  n = 3
+	   {  2,  4,  0,  8,  1,  0  },      //  n = 4
+	   {  1,  2,  4,  0,  8,  0  },      //  n = 5
+	   {  1,  2,  4,  0,  0,  8  },      //  n = 6
+	   {  1,  2,  0,  4,  0,  0  },      //  n = 7
     };
 
     w = realWidth [numRows_-1] [(int) colSize_ - 1];
@@ -1296,8 +1296,6 @@ void c4_ColOfInts::Set(int index_, const c4_Bytes& buf_)
       SetAccessWidth(n);
     }
 
-    ///FixSize();
-
       // now repeat the failed call to _setter
     /* bool f = */ (this->*_setter)(index_, buf_.Contents());
     //? d4_assert(f);
@@ -1343,7 +1341,6 @@ void c4_ColOfInts::Insert(int index_, const c4_Bytes& buf_, int count_)
     }
 
   ResizeData(index_, count_, clear);
-  _numRows += count_;
   
   if (!clear)
     while (--count_ >= 0)
@@ -1355,30 +1352,27 @@ void c4_ColOfInts::Remove(int index_, int count_)
   d4_assert(count_ > 0);
 
   ResizeData(index_, - count_);
-  _numRows -= count_;
 }
 
 void c4_ColOfInts::ResizeData(int index_, int count_, bool clear_)
 {
+  _numRows += count_;
+
   if (!(_currWidth & 7)) { // not 1, 2, or 4
     const t4_i32 w = (t4_i32) (_currWidth >> 3);
-
     if (count_ > 0)
       InsertData(index_ * w, count_ * w, clear_);
     else
       RemoveData(index_ * w, - count_ * w);
-
     return;
   }
 
   d4_assert(_currWidth == 1 || _currWidth == 2 || _currWidth == 4);
 
-    /*
-      _currwidth    1:  2:  4:
-      
-      shiftPos     3   2   1    shift the offset right this much
-      maskPos      7   3   1    mask the offset with this
-    */
+    /*  _currwidth    1:  2:  4:
+     *    shiftPos     3   2   1    shift the offset right this much
+     *    maskPos      7   3   1    mask the offset with this
+     */
 
   const int shiftPos = _currWidth == 4 ? 1 : 4 - _currWidth;
   const int maskPos = (1 << shiftPos) - 1;
@@ -1412,37 +1406,33 @@ void c4_ColOfInts::ResizeData(int index_, int count_, bool clear_)
 
     // now perform a deletion using a forward loop to copy down
   if (count_ < 0) {
-    int from = index_ - count_;
-    int adjust = 0;
-
     c4_Bytes temp;
-    t4_i32 n = ColSize() << shiftPos;
 
-    while (from < n) {
+    while (index_ < _numRows) {
       int length;
-      const void* ptr = Get(from++ + adjust, length);
+      const void* ptr = Get(index_ - count_, length);
       Set(index_++, c4_Bytes (ptr, length));
     }
   }
   else
     d4_assert(count_ == 0);
 
-  ///FixSize();
+  FixSize(false);
 }
 
-void c4_ColOfInts::FixSize()
+void c4_ColOfInts::FixSize(bool fudge_)
 {
   int n = RowCount();
   t4_i32 needBytes = ((t4_i32) n * _currWidth + 7) >> 3;
 
     // use a special trick to mark sizes less than 1 byte in storage
-  if (1 <= n && n <= 4 && (_currWidth & 7)) {
+  if (fudge_ && 1 <= n && n <= 4 && (_currWidth & 7)) {
     const int shiftPos = _currWidth == 4 ? 1 : 4 - _currWidth;
 
     static t4_byte fakeSizes [3][4] = { //  n:  1:  2:  3:  4:
-      { 6, 1, 2, 2 },   //  4-bit entries:   4b  8b 12b 16b
-      { 5, 5, 1, 1 },   //  2-bit entries:   2b  4b  6b  8b
-      { 3, 3, 4, 5 },   //  1-bit entries:   1b  2b  3b  4b
+      { 6, 1, 2, 2 },      //  4-bit entries:   4b  8b 12b 16b
+      { 5, 5, 1, 1 },      //  2-bit entries:   2b  4b  6b  8b
+      { 3, 3, 4, 5 },      //  1-bit entries:   1b  2b  3b  4b
     };
 
       // The idea is to use an "impossible" size (ie. 5, for n = 2)

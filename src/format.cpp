@@ -1,5 +1,5 @@
 // format.cpp --
-// $Id: format.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: format.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -93,8 +93,9 @@ int c4_FormatX::DoCompare(const c4_Bytes& b1_, const c4_Bytes& b2_)
 
 void c4_FormatX::Commit(c4_SaveContext& ar_)
 {
-  _data.FixSize();
+  _data.FixSize(true);
   ar_.CommitColumn(_data);
+  //_data.FixSize(false);
 }
 
 void c4_FormatX::Define(int rows_, const t4_byte** ptr_)
@@ -842,8 +843,9 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
   ar_.CommitColumn(_data);
   
   if (_data.ColSize() > 0) {
-    _sizeCol.FixSize();
+    _sizeCol.FixSize(true);
     ar_.CommitColumn(_sizeCol);
+    //_sizeCol.FixSize(false);
   }
   
   ar_.CommitColumn(_memoCol);

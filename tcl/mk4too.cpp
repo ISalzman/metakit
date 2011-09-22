@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: mk4too.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -591,30 +591,25 @@ int MkView::LoopCmd()
   if (_error)
     return _error;
     
+  Tcl_Obj* vname = objv[2];
   Tcl_Obj* cmd = objv[objc-1];
 
   for (int i = first; i < limit && incr > 0 || i > limit && incr < 0; i += incr)
   {
-    Tcl_Obj *var = Tcl_ObjSetVar2(interp, objv [2], 0, Tcl_NewIntObj(i),
+    Tcl_Obj *var = Tcl_ObjSetVar2(interp, vname, 0, Tcl_NewIntObj(i),
 							TCL_LEAVE_ERR_MSG);
     if (var == 0)
       return Fail();
 
-    if (_error)
-      break;
-    
     _error = Tcl_EvalObj(interp, cmd);
 
-    if (_error)
-    {
+    if (_error) {
       if (_error == TCL_CONTINUE)
         _error = TCL_OK;
-      else
-      {
+      else {
         if (_error == TCL_BREAK)
           _error = TCL_OK;
-        else if (_error == TCL_ERROR)
-        {
+        else if (_error == TCL_ERROR) {
           char msg[100];
           sprintf(msg, "\n  (\"mk::loop\" body line %d)",
             interp->errorLine);

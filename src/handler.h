@@ -1,5 +1,5 @@
 // handler.h --
-// $Id: handler.h 1267 2007-03-09 16:53:02Z jcw $
+// $Id: handler.h 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -53,6 +53,8 @@ public:
     //: Return width of specified data item.
   void GetBytes(int index_, c4_Bytes& buf_, bool copySmall_ =false);
     //: Used for backward compatibility, should probably be replaced.
+  virtual const void* Get(int index_, int& length_) = 0;
+    //: Retrieves the data item at the specified index.
   virtual void Set(int index_, const c4_Bytes& buf_) = 0;
     //: Stores a new data item at the specified index.
 
@@ -77,10 +79,6 @@ public:
 
   virtual bool HasSubview(int index_);
     //: True if this subview has materialized into an object
-
-protected:
-  virtual const void* Get(int index_, int& length_) = 0;
-    //: Retrieves the data item at the specified index.
 };
 
 /////////////////////////////////////////////////////////////////////////////

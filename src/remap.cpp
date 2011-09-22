@@ -1,5 +1,5 @@
 // remap.cpp --
-// $Id: remap.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: remap.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -528,7 +528,8 @@ c4_BlockedViewer::~c4_BlockedViewer ()
 
 int c4_BlockedViewer::Slot(int& pos_)
 {
-  d4_assert(pos_ <= _offsets.GetAt(h));
+  d4_assert(_offsets.GetSize() > 0);
+  d4_assert(pos_ <= _offsets.GetAt(_offsets.GetSize() - 1));
 
 #if 0
   const int n = _offsets.GetSize();

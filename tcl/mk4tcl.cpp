@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: mk4tcl.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -1476,7 +1476,7 @@ double Tcl::tcl_GetDoubleFromObj(Tcl_Obj* obj_)
   return value;
 }
 
-int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, char *msg_)
+int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, CONST84 char **table_, char *msg_)
 {
   int index = -1;
   if (!_error)
@@ -2248,6 +2248,7 @@ int MkTcl::LoopCmd()
   if (_error)
     return _error;
     
+  Tcl_Obj* var = objv[1];
   Tcl_Obj* cmd = objv[objc-1];
 
   for (int i = first; ; i += incr)
@@ -2255,18 +2256,13 @@ int MkTcl::LoopCmd()
     if (Tcl_IsShared(value))
       value = Tcl_DuplicateObj(value);
 
-    //KeepRef keeper (value);
-
     changeIndex(value) = i;
 
-    if (Tcl_ObjSetVar2(interp, objv [1], 0, value, TCL_LEAVE_ERR_MSG) == 0)
+    if (Tcl_ObjSetVar2(interp, var, 0, value, TCL_LEAVE_ERR_MSG) == 0)
       return Fail();
 
     if (!(i < limit && incr > 0 || i > limit && incr < 0)) break;
 
-    if (_error)
-      break;
-    
     _error = Tcl_EvalObj(interp, cmd);
 
     if (_error == TCL_CONTINUE)
@@ -2737,7 +2733,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.4");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.5");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

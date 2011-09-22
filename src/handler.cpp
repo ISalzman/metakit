@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: handler.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -408,6 +408,7 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
       c4_Handler& h1 = NthHandler(col);
       c4_Handler& h2 = dst_.NthHandler(col);
 
+#if 0 // memo's are 'B' now, but tricky to deal with, so copy them for now
       if (ColumnType(col) == 'M')
       {
         c4_Column* c1 = h1.GetNthMemoCol(srcPos_, true);
@@ -423,14 +424,21 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
         //!h1.SetNthMemoPos(srcPos_, p2, s2, c2);
         //!h2.SetNthMemoPos(dstPos_, p1, s1, c1);
       }
-      else
-      {
-        h1.GetBytes(srcPos_, t1);
-        h2.GetBytes(dstPos_, t2);
-        
-        h1.Set(srcPos_, t2);
-        h2.Set(dstPos_, t1);
-      }
+#endif
+	// 10-4-2002: Need to use copies in case either item points into
+        // memory that could move, or if access re-uses a shared buffer.
+        // The special cases are sufficiently tricky that it's NOT being
+        // optimized for now (temp bufs, mmap ptrs, c4_Bytes buffering).
+
+      int n1, n2;
+      const void* p1 = h1.Get(srcPos_, n1);
+      const void* p2 = h2.Get(dstPos_, n2);
+
+      c4_Bytes t1 (p1, n1, true);
+      c4_Bytes t2 (p2, n2, true);
+      
+      h1.Set(srcPos_, t2);
+      h2.Set(dstPos_, t1);
     }
   }
 }

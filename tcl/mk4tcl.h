@@ -1,5 +1,5 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1267 2007-03-09 16:53:02Z jcw $
+// $Id: mk4tcl.h 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -20,8 +20,8 @@
 #endif
 #endif
 
-#ifndef TRACE
-#define TRACE if (1) {} else printf
+#ifndef CONST84
+#define CONST84
 #endif
 
 #ifndef TCL_DECLARE_MUTEX
@@ -45,8 +45,11 @@
 
 #if q4_MFC            // Microsoft Foundation Classes
   typedef class CPtrArray c4_PtrArray;
-#else
 
+#elif 1 // 2002-04-03: just use the original, don't introduce a copy here
+#include "../src/univ.h"
+#else
+    
   class c4_BaseArray
   {
   public:

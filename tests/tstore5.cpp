@@ -1,5 +1,5 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1267 2007-03-09 16:53:02Z jcw $
+// $Id: tstore5.cpp 1266 2007-03-09 16:52:46Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -95,4 +95,30 @@ void TestStores5()
       const char* cp = s1.Description("c");
       A(cp == 0);
   } E;
+
+    // 2002-04-24: VPI subview ints clobbered
+  B(s43, View reuse after sub-byte ints, 0) W(s43a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_Storage s1 ("s43a", true);
+    c4_View v1 = s1.GetAs("a[p1:I]");
+
+    v1.Add(p1 [0]);
+    v1.Add(p1 [1]);
+    s1.Commit();
+
+    v1.SetSize(1); // 1 is an even trickier bug than 0
+    s1.Commit();
+
+    // adding the following two lines works around the 2.4.4 bug
+    //s1.Rollback();
+    //v1 = s1.GetAs("a[p1:I]");
+    
+    v1.Add(p1 [12345]);
+    s1.Commit();
+    
+      int n = p1 (v1[1]);
+      A(p1 (v1[1]) == 12345);
+
+  } D(s43a); R(s43a); E;
 }
