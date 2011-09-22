@@ -19,29 +19,16 @@ else
   AC_MSG_RESULT(not enabled)
 fi
 
-AC_ARG_WITH(tcl, [  --with-tcl=DIR          location of tcl.h header file (disable with DIR=no)], [TCL_INCLUDE_DIR=${withval}])
+AC_ARG_WITH(tcl, [  --with-tcl=DIR          location of tcl.h header file], [TCL_INCLUDE_DIR=${withval}])
 
 AC_MSG_CHECKING([for Tcl headers])
-if test x"${TCL_INCLUDE_DIR}" = x ; then
-  if test -f "/usr/local/include/tcl.h" ; then
-    TCL_INCLUDE_DIR=/usr/local/include
-  elif test -f "/usr/include/tcl.h" ; then
-    TCL_INCLUDE_DIR=/usr/include
-  fi
-fi
-
-if test x"${TCL_INCLUDE_DIR}" != xno ; then
-  if test x"${TCL_INCLUDE_DIR}" != x ; then
-    if test -f "${TCL_INCLUDE_DIR}/tcl.h" ; then
-      AC_MSG_RESULT(found ${TCL_INCLUDE_DIR}/tcl.h)
-      MK_TARGETS="$MK_TARGETS tcl"
-      MK_INSTALL="$MK_INSTALL install-tcl"
-    else
-      AC_MSG_ERROR([${TCL_INCLUDE_DIR} directory doesn't contain tcl.h])
-    fi
+if test x"${TCL_INCLUDE_DIR}" != x ; then
+  if test -f "${TCL_INCLUDE_DIR}/tcl.h" ; then
+    AC_MSG_RESULT(found ${TCL_INCLUDE_DIR}/tcl.h)
+    MK_TARGETS="$MK_TARGETS tcl"
+    MK_INSTALL="$MK_INSTALL install-tcl"
   else
-    TCL_INCLUDE_DIR="# no Tcl headers"
-    AC_MSG_RESULT(not found)
+    AC_MSG_ERROR([${TCL_INCLUDE_DIR} directory doesn't contain tcl.h])
   fi
 else
   TCL_INCLUDE_DIR="# no Tcl headers"

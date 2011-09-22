@@ -1,6 +1,4 @@
 # Some example and timing tests of the new hash/blocked/ordered views
-#
-# This is work in progress, the tests don't work 100% with MK 2.3.2 beta
 
 if [catch {package require Mk4tcl}] {
   catch {load ./Mk4tcl.so mk4tcl}

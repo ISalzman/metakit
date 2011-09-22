@@ -1,5 +1,5 @@
 // mk4str.h --
-// $Id: mk4str.h 1268 2007-03-09 16:53:24Z jcw $
+// $Id: mk4str.h 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -19,11 +19,14 @@
 #include <afxcoll.h>
 #endif
 
-typedef class CString c4_String;
-
-// MSVC 1.52 thinks a typedef has no constructor, use define instead
 #if _MSC_VER == 800
+// MSVC 1.52 thinks a typedef has no constructor, use define instead
 #define c4_String CString
+#elif _MSC_VER >= 1300
+// VC 7.0 does not like "class" (6-2-2002, Zhang Dehua)
+typedef CString c4_String;
+#else
+typedef class CString c4_String;
 #endif
 
 #elif q4_STD                    // STL and standard strings

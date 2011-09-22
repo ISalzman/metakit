@@ -1,4 +1,4 @@
-The MetaKit Library 2.4.2                                        December 2001
+The MetaKit Library 2.4.4                                           March 2002
 ==============================================================================
 
 
@@ -23,8 +23,7 @@ PYTHON - The binding for Python is called "Mk4py".  It uses SCXX by Gordon
     McMillan as C++ glue interface.  The source is in directory "python/".
 
 TCL/TK - The MK extension for Tcl is called "Mk4tcl".  It is being used in a
-    number of commercial projects, for in-house use as well as in commercially
-    distributed products.  The source is in directory "tcl/".
+    number of commercial projects.  The source is in directory "tcl/".
 
 LICENSE AND SUPPORT - MetaKit is now distributed as open source software (the
     X/MIT-style license is at the end of this document).  Commercial support
@@ -133,11 +132,8 @@ PLATFORM-SPECIFIC NOTES
 * Linux / gcc 2.95.2
 
     Builds with gcc 2.95.2 work out of the box.  The Python extension ends up
-    as Mk4py.so (ignore libmk4py.*), the Tcl extension is called Mk4tcl.so
-    (ignore libmk4tcl.*).
-
-    The core MK libs end up as ".libs/libmk4.a" and ".libs/libmk4.so.0.0.0".
-    The .0.0.0 stuff comes from libtool, I usually rename it to "libmk4.so".
+    as libmk4py.so, the Tcl extension is called libmk4tcl.so.  For backward
+    compatibility, just copy and rename them to Mk4py.so and Mk4tcl.so, resp.
 
 * FreeBSD 4.4-RELEASE
 
@@ -146,7 +142,6 @@ PLATFORM-SPECIFIC NOTES
     	cd builds
 	../unix/configure --with-tcl=/usr/local/lib/tcl8.3 --enable-python
 	make test test-tcl
-    The "make install" command has the same messiness for Mk4*.so as Linux.
 
 * Solaris 2.6 / gcc 2.8.1
 
@@ -156,7 +151,7 @@ PLATFORM-SPECIFIC NOTES
 
 * Other Unix systems
 
-    No further notes, most systems should build just fine.
+    No further notes, most systems will build just fine.
 
 * Windows
 
@@ -186,7 +181,6 @@ PLATFORM-SPECIFIC NOTES
 * BeOS
 
     John Bushakra has ported MK to BeOS, apparently just minor #define tweaks.
-    His changes will be incorporated in the 2.3 release, see the beos/ subdir.
 
 * VMS, ...
 
@@ -196,7 +190,7 @@ PLATFORM-SPECIFIC NOTES
 LICENSE AND COPYRIGHT STATEMENT
 ===============================
 
-Copyright (c) 1996-2001 Jean-Claude Wippler
+Copyright (c) 1996-2002 Jean-Claude Wippler
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

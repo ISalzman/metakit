@@ -30,25 +30,26 @@ PATHRC = .;
 DEBUGLIBPATH = $(BCB)\lib\debug
 RELEASELIBPATH = $(BCB)\lib\release
 SYSDEFINES = NO_STRICT
-USERDEFINES = q4_EXPORT=0
+USERDEFINES = q4_EXPORT=0;q4_CHECK=1
 DEFFILE =
 # ---------------------------------------------------------------------------
-CFLAG1 = -I..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl -O2 -Hc \
-  -H=$(BCB)\lib\vcl.csm -w -Vmd -Ve -RT- -a4 -d -k- -vi \
+CFLAG1 = -I..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl -Od -Hc \
+  -H=$(BCB)\lib\vcl.csm -w -Vmd -Ve -RT- -r- -a4 -d -k -y -v -vi- \
   -D$(SYSDEFINES);$(USERDEFINES) -c -b- -w-par -w-inl -Vx -tWM
 CFLAG2 =
 CFLAG3 =
 IDLCFLAGS = -I..\..\src -I..\..\include -I.. -I$(BCB)\include -I$(BCB)\include\vcl \
-  -src_suffixcpp -Dq4_EXPORT=0
+  -src_suffixcpp -Dq4_EXPORT=0 -Dq4_CHECK=1
 PFLAGS = -U..\..\src;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) \
   -I..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl \
   -AWinTypes=Windows;WinProcs=Windows;DbiTypes=BDE;DbiProcs=BDE;DbiErrs=BDE \
-  -Dq4_EXPORT=0 -$YD -$L- -$D- -JPHNV -M -JPHNE
-RFLAGS = -i..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl -Dq4_EXPORT=0
-AFLAGS = /i..\..\src /i..\..\include /i..\..\win /i$(BCB)\include /i$(BCB)\include\vcl \
-  /dq4_EXPORT=0 /mx /w2 /zd
+  -Dq4_EXPORT=0;q4_CHECK=1 -$YD -$W -$O- -JPHNV -M -JPHNE
+RFLAGS = -i..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl \
+  -Dq4_EXPORT=0;q4_CHECK=1
+AFLAGS = /i..\..\src /i..\..\include /i.. /i$(BCB)\include /i$(BCB)\include\vcl \
+  /dq4_EXPORT=0 /dq4_CHECK=1 /mx /w2 /zi
 LFLAGS = -L..\..\src;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib;$(RELEASELIBPATH) -aa \
-  -Tpe -x
+  -Tpe -x -v
 IFLAGS =
 LINKER = tlink32
 # ---------------------------------------------------------------------------
@@ -79,18 +80,20 @@ CodePage=1252
 FileVersion=1.0.0.0
 
 [HistoryLists\hlIncludePath]
-Count=3
-Item0=..\..\src;..\..\include;..\..\win;$(BCB)\include;$(BCB)\include\vcl
-Item1=..\mk\src;..\mk\include;..\mk\win;$(BCB)\include;$(BCB)\include\vcl
-Item2=..\mk\include;..\mk\src;$(BCB)\include;$(BCB)\include\vcl
+Count=4
+Item0=..\..\src;..\..\include;..;$(BCB)\include;$(BCB)\include\vcl
+Item1=..\..\src;..\..\include;..\..\win;$(BCB)\include;$(BCB)\include\vcl
+Item2=..\mk\src;..\mk\include;..\mk\win;$(BCB)\include;$(BCB)\include\vcl
+Item3=..\mk\include;..\mk\src;$(BCB)\include;$(BCB)\include\vcl
 
 [HistoryLists\hlLibraryPath]
 Count=1
 Item0=..\..\src;$(BCB)\Projects\Lib;$(BCB)\lib\obj;$(BCB)\lib
 
 [HistoryLists\hlConditionals]
-Count=1
-Item0=q4_EXPORT=0
+Count=2
+Item0=q4_EXPORT=0;q4_CHECK=1
+Item1=q4_EXPORT=0
 
 [HistoryLists\hlUnitAliases]
 Count=1

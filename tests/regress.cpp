@@ -1,5 +1,5 @@
 // regress.cpp -- Regression test program, main code
-// $Id: regress.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: regress.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -40,7 +40,8 @@ int main()
   if (!ProfilerInit(collectDetailed, bestTimeBase, 20, 5))
   {
 #endif
-    TestBasics();
+    TestBasics1();
+    TestBasics2();
     TestNotify();
     TestCustom1();
     TestCustom2();
@@ -49,6 +50,7 @@ int main()
     TestStores2();
     TestStores3();
     TestStores4();
+    TestStores5();
     TestDiffer();
     TestExtend();
     TestFormat();

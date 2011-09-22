@@ -246,7 +246,7 @@ T 5 {blocked view} {
   rename [v1 view blocked] v2
 
   set n 2500
-  set nb 5  ;# number of buckets, depends on blocking algorithm
+  set nb 4  ;# number of buckets, depends on blocking algorithm
 
   for {set i 0} {$i < $n} {incr i} {
     v2 insert end k $i v $i.$i

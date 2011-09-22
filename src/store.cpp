@@ -1,5 +1,5 @@
 // store.cpp --
-// $Id: store.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: store.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -44,8 +44,7 @@ bool c4_Dependencies::Remove(c4_Sequence* seq_)
   d4_assert(n >= 0);
 
   for (int i = 0; i <= n; ++i)
-    if (_refs.GetAt(i) == seq_)
-    {
+    if (_refs.GetAt(i) == seq_) {
       _refs.SetAt(i, _refs.GetAt(n));     
       _refs.SetSize(n);
       return n > 0;
@@ -59,19 +58,16 @@ bool c4_Dependencies::Remove(c4_Sequence* seq_)
 
 c4_Notifier::~c4_Notifier ()
 {
-  if (_type > kNone && _origin->GetDependencies())
-  {
+  if (_type > kNone && _origin->GetDependencies()) {
     c4_PtrArray& refs = _origin->GetDependencies()->_refs;
 
-    for (int i = 0; i < refs.GetSize(); ++i)
-    {
+    for (int i = 0; i < refs.GetSize(); ++i) {
       c4_Sequence* seq = (c4_Sequence*) refs.GetAt(i);
       d4_assert(seq != 0);
 
       seq->PostChange(*this);
 
-      if (_chain && _chain->_origin == seq)
-      {
+      if (_chain && _chain->_origin == seq) {
         c4_Notifier* next = _chain->_next;
         _chain->_next = 0;
 
@@ -143,14 +139,12 @@ void c4_Notifier::Notify()
   
   c4_Notifier** rover = &_chain;
 
-  for (int i = 0; i < n; ++i)
-  {
+  for (int i = 0; i < n; ++i) {
     c4_Sequence* seq = (c4_Sequence*) refs.GetAt(i);
     d4_assert(seq != 0);
 
     c4_Notifier* ptr = seq->PreChange(*this);
-    if (ptr)
-    {
+    if (ptr) {
       d4_assert(ptr->_origin == seq);
 
       d4_assert(!*rover);
@@ -306,11 +300,9 @@ c4_View c4_Storage::GetAs(const char* description_)
   c4_String newDef;
 
     // go through all subfields
-  for (int i = 0; i < curr.NumSubFields(); ++i)
-  {
+  for (int i = 0; i < curr.NumSubFields(); ++i) {
     c4_Field& of = curr.SubField(i);   
-    if (of.Name().CompareNoCase(name) == 0)
-    {
+    if (of.Name().CompareNoCase(name) == 0) {
       if (field->IsRepeating())
         newDef += newField;
       // else new is not a repeating entry, so drop this entire field
@@ -341,8 +333,7 @@ void c4_Storage::SetStructure(const char* description_)
 {
   d4_assert(description_ != 0);
 
-  if (description_ != Description())
-  {
+  if (description_ != Description()) {
     c4_String s = "[" + c4_String (description_) + "]";
     description_ = s;
 
@@ -551,8 +542,7 @@ bool c4_StreamStrategy::IsValid() const
 
 int  c4_StreamStrategy::DataRead(t4_i32 pos_, void* buffer_, int length_)
 {
-  if (_buffer != 0)
-  {
+  if (_buffer != 0) {
     d4_assert(pos_ <= _buflen);
     _position = pos_ + _baseOffset;
 
@@ -560,10 +550,8 @@ int  c4_StreamStrategy::DataRead(t4_i32 pos_, void* buffer_, int length_)
       length_ = _buflen - _position;
     if (length_ > 0)
       memcpy(buffer_, _buffer + _position, length_);
-  }
-  else
-  {
-  d4_assert(_position == pos_ + _baseOffset);
+  } else {
+    d4_assert(_position == pos_ + _baseOffset);
     length_ = _stream != 0 ? _stream->Read(buffer_, length_) : 0;
   }
 
@@ -573,23 +561,19 @@ int  c4_StreamStrategy::DataRead(t4_i32 pos_, void* buffer_, int length_)
 
 void c4_StreamStrategy::DataWrite(t4_i32 pos_, const void* buffer_, int length_)
 {
-  if (_buffer != 0)
-  {
-  d4_assert(pos_ <= _buflen);
-  _position = pos_ + _baseOffset;
+  if (_buffer != 0) {
+    d4_assert(pos_ <= _buflen);
+    _position = pos_ + _baseOffset;
 
     int n = length_;
     if (n > _buflen - _position)
       n = _buflen - _position;
     if (n > 0)
       memcpy(_buffer + _position, buffer_, n);
-  }
-  else
-  {
-  d4_assert(_position == pos_ + _baseOffset);
-  if (_stream != 0)
-    if (!_stream->Write(buffer_, length_))
-    ++_failure;
+  } else {
+    d4_assert(_position == pos_ + _baseOffset);
+    if (_stream != 0 && !_stream->Write(buffer_, length_))
+      ++_failure;
   }
 
   _position += length_;

@@ -1,5 +1,5 @@
 // handler.inl --
-// $Id: handler.inl 1268 2007-03-09 16:53:24Z jcw $
+// $Id: handler.inl 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -38,8 +38,6 @@ d4_inline int c4_Handler::PropId() const
 
 d4_inline c4_Column* c4_Handler::GetNthMemoCol(int, bool alloc_)
 {
-  d4_assert(!alloc_); // only overrides can allocate a memo item
-
   return 0;
 }
 
@@ -50,6 +48,11 @@ d4_inline bool c4_Handler::IsPersistent() const
 
 d4_inline void c4_Handler::Unmapped()
 {
+}
+
+d4_inline bool c4_Handler::HasSubview(int)
+{
+  return false;
 }
 
 /////////////////////////////////////////////////////////////////////////////

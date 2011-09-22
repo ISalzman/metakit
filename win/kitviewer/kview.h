@@ -25,19 +25,16 @@ __published:	// IDE-managed Components
     TDrawGrid *DataGrid;
 
 	void __fastcall StructTreeChange(TObject *Sender, TTreeNode *Node);
-	
-	
-	
-	void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
     void __fastcall FormActivate(TObject *Sender);
     void __fastcall DataGridDrawCell(TObject *Sender, int ACol, int ARow,
           TRect &Rect, TGridDrawState State);
+    void __fastcall FormClose(TObject *Sender, TCloseAction &Action);
 	
 	
 private:	// User declarations
 
     c4_FileStrategy _strategy;
-	c4_Storage* _storage;
+	c4_Storage _storage;
 
     	// defines the current data view
     c4_View _path;		// used as a stack

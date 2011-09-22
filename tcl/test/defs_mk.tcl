@@ -6,8 +6,11 @@ if {[info commands mk::file] == ""} {
   set x [info sharedlibextension]
     # assume we're in tcl/test/, try debug version first if it exists
     # normally, builds happen in builds/ but check unix/ just in case
-  foreach d {builds/Mk4tcl_d unix/Mk4tcl_d builds/Mk4tcl unix/Mk4tcl} {
-    if {![catch {load ../../$d$x} Mk4tcl]} break
+  foreach d {Mk4tcl_d Mk4tcl .libs/libmk4tcl} {
+    if {![catch {load ../../builds/$d$x} Mk4tcl]} {
+      #puts "using [file join [file dirname [file dirname [pwd]]] builds/$d$x]"
+      break
+    }
   }
   unset d x
 }

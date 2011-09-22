@@ -10,32 +10,27 @@
 TMainForm *MainForm;
 //---------------------------------------------------------------------------
 __fastcall TMainForm::TMainForm(TComponent* Owner)
-	: TForm(Owner), _storage (0), _colNum (-1)
+	: TForm(Owner), _colNum (-1)
 {
 	if (ParamCount() >= 1)
     	Caption = ParamStr(1);
     else if (OpenDialog->Execute())
         Caption = OpenDialog->FileName;
     else
-    	_storage = new c4_Storage;
+    	return;
 
-	if (!_storage)
-    {
-        if (_strategy.DataOpen(Caption.c_str(), false))
-        	_storage = new c4_Storage (_strategy, true);
-        else
-    	    _storage = new c4_Storage;
-    }
+    if (_strategy.DataOpen(Caption.c_str(), false))
+        _storage = c4_Storage (_strategy, true);
 }
 //---------------------------------------------------------------------------
 void __fastcall TMainForm::FormActivate(TObject *Sender)
 {
-    c4_View root = *_storage;
+    c4_View root = _storage;
     TTreeNode* top = StructTree->TopItem;
 
     _path.SetSize(0);
 
-    const char* desc = _storage->Description();
+    const char* desc = _storage.Description();
     SetupTree(top, desc);
 
     StructTree->FullExpand();
@@ -87,7 +82,7 @@ void __fastcall TMainForm::SetupData()
     	return;
     }
 
-    _data = *_storage;
+    _data = _storage;
 
     c4_IntProp pItem ("item");
     c4_StringProp pName ("name");
@@ -179,15 +174,6 @@ void __fastcall TMainForm::StructTreeChange(TObject *Sender, TTreeNode *Node)
     SetupData();
 }
 //---------------------------------------------------------------------------
-void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
-{
-	_data = c4_View ();
-    _path = c4_View ();
-
-	delete _storage;
-    _storage = 0;
-}
-//---------------------------------------------------------------------------
 void __fastcall TMainForm::DataGridDrawCell(TObject *Sender, int Col,
       int Row, TRect &Rect, TGridDrawState State)
 {
@@ -252,3 +238,10 @@ void __fastcall TMainForm::DataGridDrawCell(TObject *Sender, int Col,
 	DataGrid->Canvas->TextRect(Rect, Rect.Left + 3, Rect.Top, as);
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TMainForm::FormClose(TObject *Sender, TCloseAction &Action)
+{
+    exit(0);
+}
+//---------------------------------------------------------------------------
+

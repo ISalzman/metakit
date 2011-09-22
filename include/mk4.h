@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1268 2007-03-09 16:53:24Z jcw $
+// $Id: mk4.h 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 243    // 2.4.3 release, Februari 1, 2002
+#define d4_MetaKitLibraryVersion 244    // 2.4.4 release, March 31, 2002
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -98,7 +98,8 @@
 #endif
 
     // and here's the other end of the scale... Alpha has 64-bit longs
-#if defined (__alpha) && !defined (_WIN32) && !defined (q4_LONG64)
+#if (defined (__alpha) || defined (__ia64)) && \
+			!defined (_WIN32) && !defined (q4_LONG64)
 #define q4_LONG64 1
 #endif
 
@@ -121,6 +122,15 @@
 #define q4_BOOL 1
 #endif
 #endif // __BORLANDC__
+
+    // IRIX supports the bool datatype
+    // define before gcc to cover both the gcc and MipsPRO compiler
+#if defined (sgi)
+#define q4_BOOL 1
+#undef bool
+#undef true
+#undef false
+#endif
 
     // GNU gcc/egcs
 #if defined (__GNUC__) && !defined (q4_BOOL)
@@ -237,7 +247,9 @@ public:
   void InsertAt(int, const c4_RowRef&, int =1);
   void RemoveAt(int, int =1);
   void InsertAt(int, const c4_View&);
-  bool RelocateRows(int, int, c4_View&, int);
+
+  bool IsCompatibleWith(const c4_View&) const;
+  void RelocateRows(int, int, c4_View&, int);
 
 /* Dealing with the properties of this view */
   int NumProperties() const; 
@@ -318,6 +330,15 @@ protected:
 };
 
 //---------------------------------------------------------------------------
+
+#if defined(os_aix) && defined(compiler_ibmcxx) && (compiler_ibmcxx > 500)
+  bool operator== (const c4_RowRef& a_, const c4_RowRef& b_);
+  bool operator!= (const c4_RowRef& a_, const c4_RowRef& b_);
+  bool operator<= (const c4_RowRef& a_, const c4_RowRef& b_);
+  bool operator>= (const c4_RowRef& a_, const c4_RowRef& b_);
+  bool operator> (const c4_RowRef& a_, const c4_RowRef& b_);
+  bool operator< (const c4_RowRef& a_, const c4_RowRef& b_);
+#endif
 
 class c4_Cursor
 {
@@ -827,6 +848,7 @@ public:
 /* Reference counting */
   void IncRef();
   void DecRef();
+  int NumRefs() const;
 
 /* Adding / removing rows */
       /// Return the current number of rows

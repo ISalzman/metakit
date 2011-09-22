@@ -1,5 +1,5 @@
 // viewx.cpp --
-// $Id: viewx.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: viewx.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -49,6 +49,12 @@ void c4_Sequence::DecRef()
 
   if (--_refCount == 0)
     delete this;
+}
+
+  /// Return the current reference count
+int c4_Sequence::NumRefs() const
+{
+  return _refCount;
 }
 
   /// Compare the specified row with another one
@@ -542,16 +548,25 @@ c4_Bytes c4_BytesRef::Access(t4_i32 off_, int len_) const
   if (colNum >= 0)
   {
     c4_Handler& h = _cursor._seq->NthHandler(colNum);
+    int sz = h.ItemSize(_cursor._index);
+    if (len_ == 0 || off_ + len_ > sz)
+      len_ = sz - off_;
+
     c4_Column* col = h.GetNthMemoCol(_cursor._index, true);
     if (col != 0)
     {
-      if (len_ == 0 || off_ + len_ > col->ColSize())
-        len_ = col->ColSize() - off_;
 
       if (len_ > 0) {
         col->FetchBytes(off_, len_, buffer, true);
         return buffer;
       }
+    }
+    else // do it the hard way for custom/mapped views (2002-03-13)
+    {
+      c4_Bytes result;
+      GetData(result);
+      d4_assert(off_ + len_ <= result.Size());
+      return c4_Bytes (result.Contents() + off_, len_, true);
     }
   }
 
@@ -564,17 +579,16 @@ bool c4_BytesRef::Modify(const c4_Bytes& buf_, t4_i32 off_, int diff_) const
   if (colNum >= 0)
   {
     c4_Handler& h = _cursor._seq->NthHandler(colNum);
+    const int n = buf_.Size();
+    const t4_i32 limit = off_ + n; // past changed bytes
+    const t4_i32 overshoot = limit - h.ItemSize(_cursor._index);
+
+    if (diff_ < overshoot)
+      diff_ = overshoot;
+
     c4_Column* col = h.GetNthMemoCol(_cursor._index, true);
     if (col != 0)
     {
-      const int n = buf_.Size();
-
-      const t4_i32 limit = off_ + n; // past changed bytes
-      const t4_i32 overshoot = limit - col->ColSize();
-
-      if (diff_ < overshoot)
-        diff_ = overshoot;
-
       if (diff_ < 0)
         col->Shrink(limit, - diff_);
       else if (diff_ > 0)
@@ -584,8 +598,22 @@ bool c4_BytesRef::Modify(const c4_Bytes& buf_, t4_i32 off_, int diff_) const
                diff_ > n ? off_ : limit - diff_, diff_);
 
       col->StoreBytes(off_, buf_);
-      return true;
     }
+    else // do it the hard way for custom/mapped views (2002-03-13)
+    {
+      c4_Bytes orig;
+      GetData(orig);
+
+      c4_Bytes result;
+      t4_byte* ptr = result.SetBuffer(orig.Size() + diff_);
+
+      memcpy(ptr, orig.Contents(), off_);
+      memcpy(ptr + off_, buf_.Contents(), n);
+      memcpy(ptr + off_ + n, orig.Contents() + off_, orig.Size() - off_);
+
+      SetData(result);
+    }
+    return true;
   }
 
   return false;

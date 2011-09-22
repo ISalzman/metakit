@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: view.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -201,14 +201,14 @@ c4_View& c4_View::operator= (const c4_View& view_)
  */
 bool c4_View::GetItem(int row_, int col_, c4_Bytes& buf_) const
 {
-  c4_Property prop = NthProperty(col_);
+  const c4_Property& prop = NthProperty(col_);
   return prop (GetAt(row_)).GetData(buf_);
 }
 
 /// Set a single data item in a generic way
 void c4_View::SetItem(int row_, int col_, const c4_Bytes& buf_) const
 {
-  c4_Property prop = NthProperty(col_);
+  const c4_Property& prop = NthProperty(col_);
   prop (GetAt(row_)).SetData(buf_);
 }
 
@@ -325,53 +325,62 @@ void c4_View::InsertAt(int index_, const c4_View& view_)
   }
 }
 
+bool c4_View::IsCompatibleWith(const c4_View& dest_) const
+{
+    // can't determine table without handlers (and can't be a table)
+  if (NumProperties() == 0 || dest_.NumProperties() == 0)
+    return false;
+
+  c4_Sequence* s1 = _seq;
+  c4_Sequence* s2 = dest_._seq;
+  c4_HandlerSeq* h1 = (c4_HandlerSeq*) s1->HandlerContext(0);
+  c4_HandlerSeq* h2 = (c4_HandlerSeq*) s2->HandlerContext(0);
+
+    // both must be real handler views, not derived ones
+  if (h1 != s1 || h2 != s2)
+    return false;
+
+    // both must not contain any temporary handlers
+  if (s1->NumHandlers() != h1->NumFields() ||
+      s2->NumHandlers() != h2->NumFields())
+    return false;
+
+    // both must be in the same storage
+  if (h1->Persist() == 0 || h1->Persist() != h2->Persist())
+    return false;
+
+    // both must have the same structure (is this expensive?)
+  c4_String d1 = h1->Definition().Description(true);
+  c4_String d2 = h1->Definition().Description(true);
+  return d1 == d2; // ignores all names
+}
+
 /** Move attached rows to somewhere else in same storage
  *
- * This is not properly implemented in this release.
-bool c4_View::RelocateRows(int from_, int count_, c4_View& dest_, int pos_)
+ * There is a lot of trickery going on here.  The whole point of this
+ * code is that moving rows between (compatible!) subviews should not
+ * use copying when potentially large memo's and subviews are involved.
+ * In that case, the best solution is really to move pointers, not data.
  */
-bool c4_View::RelocateRows(int, int, c4_View&, int)
+void c4_View::RelocateRows(int from_, int count_, c4_View& dest_, int pos_)
 {
-#if 0 // implementation doesn't work any more
+  if (count_ < 0)
+    count_ = GetSize() - from_;
+  if (pos_ < 0)
+    pos_ = dest_.GetSize();
+
   d4_assert(0 <= from_ && from_ <= GetSize());
   d4_assert(0 <= count_ && from_ + count_ <= GetSize());
   d4_assert(0 <= pos_ && pos_ <= dest_.GetSize());
 
   if (count_ > 0) {
       // the destination must not be inside the source rows
-    if (&dest_ == this && from_ <= pos_ && pos_ < from_ + count_)
-      return false;
+    d4_assert(&dest_ != this || from_ > pos_ || pos_ >= from_ + count_);
 
-      // can't determine table without handlers (and can't be a table)
-    if (NumProperties() == 0 || dest_.NumProperties() == 0)
-      return false;
+      // this test is slow, so do it only as a debug check
+    d4_assert(IsCompatibleWith(dest_));
 
-    c4_Sequence* s1 = _seq;
-    c4_Sequence* s2 = dest_._seq;
-    c4_HandlerSeq* h1 = (c4_HandlerSeq*) s1->HandlerContext(0);
-    c4_HandlerSeq* h2 = (c4_HandlerSeq*) s2->HandlerContext(0);
-
-      // both must be real handler views, not derived ones
-    if (h1 != s1 || h2 != s2)
-      return false;
-
-      // both must not contain any temporary handlers
-    if (s1->NumHandlers() != h1->NumFields() ||
-        s2->NumHandlers() != h2->NumFields())
-      return false;
-
-      // both must be in the same storage
-    if (h1->Persist() == 0 || h1->Persist() != h2->Persist())
-      return false;
-
-      // both must have the same structure (is this expensive?)
-    c4_String d1 = h1->Definition().Description(true);
-    c4_String d2 = h1->Definition().Description(true);
-    if (d1 != d2) // ignores all names
-      return false;
-
-      // now do the real work: make space, swap rows, drop originals
-
+      // make space, swap rows, drop originals
     c4_Row empty;
     dest_.InsertAt(pos_, empty, count_);
 
@@ -380,14 +389,11 @@ bool c4_View::RelocateRows(int, int, c4_View&, int)
       from_ += count_;
 
     for (int i = 0; i < count_; ++i)
-      h1->ExchangeEntries(from_ + i, *h2, pos_ + i);
+      ((c4_HandlerSeq*) _seq)->ExchangeEntries(from_ + i,
+				*(c4_HandlerSeq*) dest_._seq, pos_ + i);
 
     RemoveAt(from_, count_);
   }
-#endif
-  d4_assert(false);
-
-  return true;
 }
 
 /** Create view with all rows in natural (property-wise) order

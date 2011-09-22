@@ -1,5 +1,5 @@
 // tmapped.cpp -- Regression test program, mapped view tests
-// $Id: tmapped.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: tmapped.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"

@@ -20,7 +20,7 @@
 <P>
 <B>Python</B> - The extension for <A HREF="http://www.python.org/">Python</A> is called "Mk4py".  It provides a lower-level API for the Metakit C++ core extension than an earlier version of this interface, and uses <A HREF="http://starship.python.net/crew/gmcm/scxx.html">SCXX</A> by Gordon McMillan as C++ glue interface.
 <P>
-<B>Mk4py 2.4.3</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using MetaKit memo fields, and a few more goodies.
+<B>Mk4py 2.4.4</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using MetaKit memo fields, and a few more goodies.
 <P>
 <B>Changes since 2.01</B> - the MK core has changed substantially:
 <UL>
@@ -29,7 +29,7 @@
 <li>The "M" (memo) datatype is gone, use "B" instead, it now handles huge items
 <li>Internal changes to take advantage of the hash/ordered/blocked viewers
 <li>Mk4py members storage, view, and property are now lower-case
-<li>Added Mk4py.version (currently the string "2.4.3")
+<li>Added Mk4py.version (currently the string "2.4.4")
 <li>Added "metakit.py" as new main wrapper, use as "import metakit"
 </UL>
 <P>
@@ -138,7 +138,14 @@ Show a list of all people with first name 'John':
         <BR><BR></DL></BLOCKQUOTE>
 <H3><A NAME="2"></A><A HREF="#0">2.</A> Storage objects</H3><B><FONT SIZE=-1>SYNOPSYS</FONT></B><BLOCKQUOTE><DL><DT><FONT COLOR="#990000"><I>vw</I> = <I>storage</I>.<B>getas</B>(<I>description</I>)</font><DD>Locate, define, or re-define a view stored in a storage object<DT><FONT COLOR="#990000"><I>vw</I> = <I>storage</I>.<B>view</B>(<I>viewname</I>)</font><DD>The normal way to retrieve an existing view<DT><FONT COLOR="#990000"><I>storage</I>.<B>rollback</B>(<I>full</I>=0)</font><DD>Revert data and structure as was last committed to disk.
 	In commit-aside mode, a &quot;full&quot; rollback reverts to the
-	state of the original file and forgets about the aside file.<DT><FONT COLOR="#990000"><I>storage</I>.<B>commit</B>(<I>full</I>=0)</font><DD>Permanently commit data and structure changes to disk
+	state of the original file and forgets about the aside file.
+<br> After a rollback, your view objects are invalid (use the view
+or getas methods on your storage object to get them back).
+Furthermore, after a full rollback, the aside storage is detached from
+the main storage. Use the aside method on your main storage object to
+reattach it. If you do not reattach it, further commits will (try to)
+write to the main storage.
+	<DT><FONT COLOR="#990000"><I>storage</I>.<B>commit</B>(<I>full</I>=0)</font><DD>Permanently commit data and structure changes to disk
 	In commit-aside mode, a &quot;full&quot; commit save the latest
 	state in the original file and clears the aside datafile.<DT><FONT COLOR="#990000"><I>ds</I> = <I>storage</I>.<B>description</B>(<I>viewname</I>='')</font><DD>The description string is described under getas<DT><FONT COLOR="#990000"><I>vw</I> = <I>storage</I>.<B>contents</B>()</font><DD>Returns the View which holds the meta data for the Storage.<DT><FONT COLOR="#990000"><I>storage</I>.<B>autocommit</B>()</font><DD>Commit changes automatically when the storage object goes away<DT><FONT COLOR="#990000"><I>storage</I>.<B>load</B>(<I>fileobj</I>)</font><DD>Replace storage contents with data from file (or any other object
 	supporting read)<DT><FONT COLOR="#990000"><I>storage</I>.<B>save</B>(<I>fileobj</I>)</font><DD>Serialize storage contents to file (or any other object

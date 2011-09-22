@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: mk4tcl.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -18,8 +18,12 @@
 #define EINVAL 9
 #endif
 
-// stub interface code, removes the need to link with -libtclstub8.?
+// stub interface code, removes the need to link with libtclstub*.a
+#ifdef USE_TCL_STUBS
 #include "stubtcl.h"
+#else
+#define MyInitStubs(x) 1
+#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 // Defined in this file:
@@ -315,11 +319,11 @@ static Tcl_ChannelType mkChannelType = {
   0,        /* Set blocking/nonblocking behaviour. NULL'able */
   mkClose,      /* Close channel, clean instance data      */
   mkInput,      /* Handle read request               */
-  mkOutput,     /* Handle write request              */
-  mkSeek,     /* Move location of access point.    NULL'able */
+  (Tcl_DriverOutputProc*) mkOutput,     /* Handle write request              */
+  (Tcl_DriverSeekProc*) mkSeek,     /* Move location of access point.    NULL'able */
   0,        /* Set options.              NULL'able */
   0,        /* Get options.              NULL'able */
-  mkWatchChannel, /* Initialize notifier               */
+  (Tcl_DriverWatchProc*) mkWatchChannel, /* Initialize notifier               */
   mkGetFile     /* Get OS handle from the channel.         */
 };
 
@@ -1930,7 +1934,8 @@ int MkTcl::FileCmd()
         np->ForceRefresh(); // detach first
 
         c4_TclStream stream (cp);
-        np->_storage.LoadFrom(stream);
+        if (!np->_storage.LoadFrom(stream))
+          return Fail("load error");
       }
       break;
     
@@ -2047,7 +2052,11 @@ int MkTcl::ViewCmd()
 
         c4_Storage& s = np->_storage;
 
-        c4_String desc = KitToTclDesc(s.Description(f4_GetToken(string)));
+        const char* p = s.Description(f4_GetToken(string));
+	if (p == 0)
+          return Fail("no view with this name");
+
+        c4_String desc = KitToTclDesc(p);
         KeepRef o = tcl_NewStringObj(desc);
         return tcl_SetObjResult(o); // different result
       }
@@ -2222,80 +2231,62 @@ int MkTcl::ViewCmd()
 
 int MkTcl::LoopCmd()
 {
-  if (objc >= 4 && Tcl_ObjSetVar2(interp, objv [1], 0, objv [2],
-                  				TCL_LEAVE_ERR_MSG) == 0)
-    return Fail();
-
-  Tcl_Obj* var = Tcl_ObjGetVar2(interp, objv[1], 0, TCL_LEAVE_ERR_MSG);
-  if (var == 0)
+  Tcl_Obj* value = objc >= 4 ? Tcl_ObjSetVar2(interp, objv [1], 0, objv [2],
+                  				TCL_LEAVE_ERR_MSG)
+    			     : Tcl_ObjGetVar2(interp, objv[1], 0,
+			       			TCL_LEAVE_ERR_MSG);
+  if (value == 0)
     return Fail(); // has to exist, can't be valid otherwise
 
-  c4_View view = asView(var);
+  long first = objc >= 5 ? tcl_ExprLongObj (objv [3]) : 0;
+  long limit = objc >= 6 ? tcl_ExprLongObj (objv [4]) : asView(value).GetSize();
+  long incr = objc >= 7 ? tcl_ExprLongObj (objv [5]) : 1;
 
-  long first = 0;
-  long limit = view.GetSize();
-  long incr = 1;
-
-  if (objc >= 5)
-    first = tcl_ExprLongObj (objv [3]);
-
-  if (objc >= 6)
-    limit = tcl_ExprLongObj (objv [4]);
-
-  if (objc >= 7) {
-    incr = tcl_ExprLongObj (objv [5]);
-    if (incr == 0)
-      Fail("increment must be nonzero");
-  }
+  if (incr == 0)
+    Fail("increment must be nonzero");
 
   if (_error)
     return _error;
     
   Tcl_Obj* cmd = objv[objc-1];
 
-  for (int i = first; i < limit && incr > 0 || i > limit && incr < 0; i += incr)
+  for (int i = first; ; i += incr)
   {
-      // about to modify, so make sure we are sole owners
-    if (Tcl_IsShared(var))
-      var = Tcl_DuplicateObj(var);
+    if (Tcl_IsShared(value))
+      value = Tcl_DuplicateObj(value);
 
-    KeepRef keeper (var);
+    //KeepRef keeper (value);
 
-    changeIndex(var) = i;
+    changeIndex(value) = i;
 
-    var = Tcl_ObjSetVar2(interp, objv [1], 0, var, TCL_LEAVE_ERR_MSG);
-    if (var == 0)
+    if (Tcl_ObjSetVar2(interp, objv [1], 0, value, TCL_LEAVE_ERR_MSG) == 0)
       return Fail();
+
+    if (!(i < limit && incr > 0 || i > limit && incr < 0)) break;
 
     if (_error)
       break;
     
     _error = Tcl_EvalObj(interp, cmd);
 
-    if (_error)
-    {
-      if (_error == TCL_CONTINUE)
-        _error = TCL_OK;
-      else
-      {
-        if (_error == TCL_BREAK)
-          _error = TCL_OK;
-        else if (_error == TCL_ERROR)
-        {
-          char msg[100];
-          sprintf(msg, "\n  (\"mk::loop\" body line %d)",
-            interp->errorLine);
-          Tcl_AddObjErrorInfo(interp, msg, -1);
-        }
-        break;
+    if (_error == TCL_CONTINUE)
+      _error = TCL_OK;
+
+    if (_error) {
+      if (_error == TCL_BREAK)
+	_error = TCL_OK;
+      else if (_error == TCL_ERROR) {
+	char msg[100];
+	sprintf(msg, "\n  (\"mk::loop\" body line %d)",
+	  interp->errorLine);
+	Tcl_AddObjErrorInfo(interp, msg, -1);
       }
+      break;
     }
   }
 
   if (_error == TCL_OK)
     Tcl_ResetResult(interp);
-
-  Tcl_ObjSetVar2(interp, objv [1], 0, var, TCL_LEAVE_ERR_MSG);
 
   return _error;
 }
@@ -2746,7 +2737,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.3");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.4");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

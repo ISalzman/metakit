@@ -1,5 +1,5 @@
 // persist.cpp --
-// $Id: persist.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: persist.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -159,7 +159,7 @@ void c4_Allocator::Initialize(t4_i32 first_)
   Add(0);          // ... only used to avoid merging
   
     // if occupied, add a tiny free slot at the end, else add entire range
-  const t4_i32 kMaxInt = (t4_i32) ((unsigned long) ~0L >> 1);
+  const t4_i32 kMaxInt = 0x7fffffff;
   if (first_ == 0)
     first_ = kMaxInt;
   
@@ -503,6 +503,11 @@ bool c4_SaveContext::IsFlipped() const
   return _strategy._bytesFlipped;
 }
 
+bool c4_SaveContext::Serializing() const
+{
+  return _fullScan;
+}
+
 void c4_SaveContext::FlushBuffer()
 {
   int n = _curr - _bufPtr;
@@ -649,6 +654,23 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
   if (!_fullScan && !inPlace) {
     c4_FileMark mark1 (end0, 0);
     _strategy.DataWrite(end0, &mark1, sizeof mark1);
+#if q4_WIN32
+    /* March 8, 2002
+     * On at least NT4 with NTFS, extending a file can cause it to be
+     * rounded up further than expected.  To prevent creating a bad
+     * file (since the file does then not end with a marker), the
+     * workaround it so simply accept the new end instead and rewrite.
+     * Note that between these two writes, the file is in a bad state.
+     */
+    t4_i32 realend = _strategy.FileSize() - _strategy._baseOffset;
+    if (realend > end1) {
+      end0 = limit = realend - 8;
+      end1 = realend;
+      end2 = realend + 8;
+      c4_FileMark mark1a (end0, 0);
+      _strategy.DataWrite(end0, &mark1a, sizeof mark1a);
+    }
+#endif
     d4_assert(_strategy.FileSize() == _strategy._baseOffset + end1);
   }
 
@@ -730,6 +752,8 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
     // may be smaller now, if old data at the end is no longer referenced
   _strategy.DataCommit(end2);
   
+  d4_assert(_strategy.FileSize() - _strategy._baseOffset == end2);
+
   if (spacePtr_ != 0 && _space != _nextSpace) {
     d4_assert(*spacePtr_ == _space);
     delete *spacePtr_;
@@ -961,17 +985,17 @@ void c4_Persist::LoadAll()
     c4_Bytes temp;
     t4_byte* buf = temp.SetBuffer(n);
     d4_dbgdef(int n2 =)
-      OldRead(buf, n);
+    OldRead(buf, n);
     d4_assert(n2 == n);
 
-      c4_String s = "[" + c4_String ((const char*) buf, n) + "]";
-      const char* desc = s;
+    c4_String s = "[" + c4_String ((const char*) buf, n) + "]";
+    const char* desc = s;
 
-      c4_Field* f = d4_new c4_Field (desc);
-      d4_assert(!*desc);
+    c4_Field* f = d4_new c4_Field (desc);
+    d4_assert(!*desc);
 
     //?_root->DefineRoot();
-      _root->Restructure(*f, false);
+    _root->Restructure(*f, false);
 
     _root->OldPrepare();
 

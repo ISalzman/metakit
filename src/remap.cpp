@@ -1,5 +1,5 @@
 // remap.cpp --
-// $Id: remap.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: remap.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -528,17 +528,32 @@ c4_BlockedViewer::~c4_BlockedViewer ()
 
 int c4_BlockedViewer::Slot(int& pos_)
 {
+  d4_assert(pos_ <= _offsets.GetAt(h));
+
+#if 0
   const int n = _offsets.GetSize();
 
-  int i;
-  for (i = 0; i < n; ++i)
-    if (pos_ <= (t4_i32) _offsets.GetAt(i))
+  int h;
+  for (h = 0; h < n; ++h)
+    if (pos_ <= (t4_i32) _offsets.GetAt(h))
       break;
-
-  if (i > 0)
-    pos_ -= _offsets.GetAt(i-1) + 1;
-
-  return i;
+#else
+    // switch to binary search, adapted from code by Zhang Dehua, 28-3-2002
+    // slows down some 5%, but said to be much better with 5 million rows
+  int l = 0, h = _offsets.GetSize() - 1;
+  while (l < h) {
+    int m = l + (h - l) / 2;
+    if ((t4_i32) _offsets.GetAt(m) < pos_)
+      l = m + 1;
+    else
+      h = m;
+  }
+#endif
+ 
+  if (h > 0)
+    pos_ -= _offsets.GetAt(h-1) + 1;
+  
+  return h;
 }
 
 void c4_BlockedViewer::Split(int bno_, int row_)
@@ -547,10 +562,13 @@ void c4_BlockedViewer::Split(int bno_, int row_)
   c4_View bz = _pBlock (_base[z]);
   c4_View bv = _pBlock (_base[bno_]);
 
-  bz.InsertAt(bno_, bv[row_]);
-  _base.InsertAt(bno_+1, _pBlock [bv.Slice(row_+1)]);
   _offsets.InsertAt(bno_, _offsets.GetAt(bno_) - bv.GetSize() + row_);
-  bv.RemoveAt(row_, bv.GetSize() - row_);
+  
+  _base.InsertAt(bno_+1, c4_Row ());
+  c4_View bn = _pBlock (_base[bno_+1]);
+
+  bv.RelocateRows(row_ + 1, -1, bn, 0);
+  bv.RelocateRows(row_, 1, bz, bno_);
 }
 
 void c4_BlockedViewer::Merge(int bno_)
@@ -560,14 +578,12 @@ void c4_BlockedViewer::Merge(int bno_)
   c4_View bv1 = _pBlock (_base[bno_]);
   c4_View bv2 = _pBlock (_base[bno_+1]);
 
-  bv1.InsertAt(bv1.GetSize(), bz[bno_]);
-  bv1.InsertAt(bv1.GetSize(), bv2);
-
-  bv2 = c4_View (); // XXX crashes if kept after deletion below (!)
-
-  bz.RemoveAt(bno_);
-  _base.RemoveAt(bno_+1);
   _offsets.RemoveAt(bno_);
+
+  bz.RelocateRows(bno_, 1, bv1, -1);
+  bv2.RelocateRows(0, -1, bv1, -1);
+
+  _base.RemoveAt(bno_+1);
 }
 
 c4_View c4_BlockedViewer::GetTemplate()
@@ -620,6 +636,8 @@ bool c4_BlockedViewer::InsertRows(int pos_, c4_Cursor value_, int count_)
 {
   d4_assert(count_ > 0);
   
+  bool atEnd = pos_ == GetSize();
+
   int z = _base.GetSize() - 1;
   int i = Slot(pos_);
   d4_assert(0 <= i && i < z);
@@ -636,7 +654,7 @@ bool c4_BlockedViewer::InsertRows(int pos_, c4_Cursor value_, int count_)
     Split(i, bv.GetSize() - kLimit - 2);
 
   if (bv.GetSize() > kLimit )
-    Split(i, bv.GetSize() / 2);
+    Split(i, atEnd ? kLimit - 1 : bv.GetSize() / 2); // 23-3-2002, from MB
 
   return true;
 }
@@ -653,33 +671,71 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
   c4_View bv = _pBlock (_base[i]);
   d4_assert(0 <= pos_ && pos_ <= bv.GetSize());
 
-      // merge into one block (very inefficient but safe)
-  while (pos_ + count_ > bv.GetSize())
-  {
-    d4_assert(i < z - 1);
-    Merge(i);
-    --z;
-  }
-  d4_assert(pos_ + count_ <= bv.GetSize());
+  int todo = count_;
 
-      // now remove the rows and adjust offsets
-  bv.RemoveAt(pos_, count_);
+    // optimize if the deletion goes past the end of this block...
+  int overshoot = pos_ + count_ - bv.GetSize();
+  if (overshoot > 0) {
+
+      // first, delete blocks which are going away completely
+    while (i+1 < _offsets.GetSize()) {
+      int nextsize = _offsets.GetAt(i+1) - _offsets.GetAt(i);
+      if (overshoot < nextsize)
+	break;
+      todo -= nextsize;
+      overshoot -= nextsize;
+      _offsets.RemoveAt(i);
+      _base.RemoveAt(i+1);
+      --z;
+      c4_View bz = _pBlock (_base[z]);
+      bz.RemoveAt(i+1);
+    }
+      
+      // delete before merging, to avoid useless copying
+    if (overshoot > 1) {
+      c4_View bv2 = _pBlock (_base[i+1]);
+      bv2.RemoveAt(0, overshoot - 1);
+      todo -= overshoot - 1;
+
+	// if the next block is filled enough, rotate the separator
+	// this avoids an expensive and unnecessary merge + split
+      if (bv2.GetSize() > kLimit / 2) {
+        c4_View bz = _pBlock (_base[z]);
+	bz[i] = bv2[0];
+	bv2.RemoveAt(0);
+	--todo;
+	d4_assert(pos_ + todo <= bv.GetSize());
+	d4_assert(i < _offsets.GetSize());
+	_offsets.SetAt(i, _offsets.GetAt(i) + overshoot);
+      }
+    }
+
+      // merge into one block
+    if (pos_ + todo > bv.GetSize()) {
+      d4_assert(i < z - 1);
+      Merge(i);
+      --z;
+    }
+  }
+  d4_assert(pos_ + todo <= bv.GetSize());
+
+    // now remove the rows and adjust offsets
+  if (todo > 0)
+    bv.RemoveAt(pos_, todo);
+
   for (int j = i; j < z; ++j)
     _offsets.SetAt(j, _offsets.GetAt(j) - count_);
 
-      // if the block underflows, merge it
-  if (bv.GetSize() < kLimit / 2)
-  {
+    // if the block underflows, merge it
+  if (bv.GetSize() < kLimit / 2) {
     if (i > 0) // merge with predecessor, preferably
       bv = _pBlock (_base[--i]);
-
     if (i >= z - 1) // unless there is no successor to merge with
       return true;
-  
     Merge(i);
   }
 
-      // if the block overflows, split it
+    // if the block overflows, split it
   if (bv.GetSize() > kLimit )
     Split(i, bv.GetSize() / 2);
 

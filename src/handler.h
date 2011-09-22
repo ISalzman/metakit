@@ -1,5 +1,5 @@
 // handler.h --
-// $Id: handler.h 1268 2007-03-09 16:53:24Z jcw $
+// $Id: handler.h 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -75,6 +75,9 @@ public:
   virtual void Unmapped();
     //: Make sure this handler stops using file mappings
 
+  virtual bool HasSubview(int index_);
+    //: True if this subview has materialized into an object
+
 protected:
   virtual const void* Get(int index_, int& length_) = 0;
     //: Retrieves the data item at the specified index.
@@ -129,6 +132,8 @@ public:
   c4_Field* FindField(const c4_Handler* handler_);
 
   void UnmappedAll();
+  
+  static void BuildMeta(int, int, c4_View&, const c4_Field&);
 
 protected:
   virtual c4_Handler* CreateHandler(const c4_Property&);

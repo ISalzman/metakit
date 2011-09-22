@@ -1,5 +1,5 @@
 // tstore4.cpp -- Regression test program, storage tests, part 4
-// $Id: tstore4.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: tstore4.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -277,4 +277,47 @@ void TestStores4()
     buf = p1 (v1[0]);
       A(buf == c4_Bytes ("12ab5", 6));
   } D(s37a); R(s37a); E;
+
+    // Gross memory use (but no leaks), January 2002, Murat Berk
+  B(s38, Lots of empty subviews, 0) W(s38a);
+  {
+    c4_BytesProp p1 ("p1");
+    {
+      c4_Storage s1( "s38a", true );
+      c4_View v = s1.GetAs("v[v1[p1:S]]");
+
+      v.SetSize(100000);
+      s1.Commit();
+    }
+    {
+      c4_Storage s2( "s38a", true );
+      c4_View v2 = s2.View("v");
+      // this should not materialize all the empty subviews
+      v2.SetSize(v2.GetSize() + 1);
+      // nor should this
+      s2.Commit();
+    }
+    {
+      c4_Storage s3( "s38a", true );
+      c4_View v3 = s3.View("v");
+      v3.RemoveAt(1, v3.GetSize() - 2);
+	A(v3.GetSize() == 2);
+      s3.Commit();
+    }
+  } D(s38a); R(s38a); E;
+
+    // Fix bug introduced on 7-2-2002, as reported by M. Berk
+  B(s39, Do not detach empty top-level views, 0) W(s39a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_Storage s1( "s39a", true );
+    c4_View v1 = s1.GetAs("v1[p1:I]");
+    s1.Commit();
+      A(v1.GetSize() == 0);
+    v1.Add(p1 [123]);
+      A(v1.GetSize() == 1);
+    s1.Commit();
+    c4_View v2 = s1.View("v1");
+      A(v2.GetSize() == 1); // fails with 0 due to recent bug
+  } D(s39a); R(s39a); E;
 }

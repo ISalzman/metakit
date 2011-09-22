@@ -1,5 +1,5 @@
 // custom.cpp --
-// $Id: custom.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: custom.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -417,20 +417,20 @@ int c4_RemapWithViewer::GetSize()
 
 bool c4_RemapWithViewer::GetItem(int row_, int col_, c4_Bytes& buf_)
 {
-  c4_Property map = _argView.NthProperty(0);
+  const c4_Property& map = _argView.NthProperty(0);
   d4_assert(map.Type() == 'I');
 
-  row_ = ((c4_IntProp&) map) (_argView[row_]);
+  row_ = ((const c4_IntProp&) map) (_argView[row_]);
 
   return _parent.GetItem(row_, col_, buf_);
 }
 
 bool c4_RemapWithViewer::SetItem(int row_, int col_, const c4_Bytes& buf_)
 {
-  c4_Property map = _argView.NthProperty(0);
+  const c4_Property& map = _argView.NthProperty(0);
   d4_assert(map.Type() == 'I');
 
-  row_ = ((c4_IntProp&) map) (_argView[row_]);
+  row_ = ((const c4_IntProp&) map) (_argView[row_]);
 
   _parent.SetItem(row_, col_, buf_);
   return true;

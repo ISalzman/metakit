@@ -106,7 +106,7 @@ public:
   };
   //PyDict_DelItemString
   void delItem(const char* key) {
-    int rslt = PyMapping_DelItemString(_obj, (char*) key);
+    int rslt = PyDict_DelItemString(_obj, (char*) key);
     if (rslt==-1)
       Fail(PyExc_KeyError, "Key not found");
   };

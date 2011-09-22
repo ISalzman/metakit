@@ -1,5 +1,5 @@
 // field.cpp --
-// $Id: field.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: field.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -55,8 +55,8 @@ c4_Field::c4_Field (const char*& description_, c4_Field* parent_)
       ++description_;
     else
       do
-    _subFields.Add(d4_new c4_Field (description_, this));
-    while (*description_++ == ',');
+	_subFields.Add(d4_new c4_Field (description_, this));
+      while (*description_++ == ',');
   }
 }
 

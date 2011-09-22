@@ -16,9 +16,9 @@ PYOBJS  = PyProperty.o PyRowRef.o PyStorage.o PyView.o PWOImp.o
 
 SPYOBJS = PyProperty.lo PyRowRef.lo PyStorage.lo PyView.lo PWOImp.lo
 
-TSTOBJS = regress.o tbasics.o tcusto1.o tcusto2.o tdiffer.o textend.o \
-	  tformat.o tlimits.o tmapped.o tnotify.o tresize.o tstore1.o \
-	  tstore2.o tstore3.o tstore4.o
+TSTOBJS = regress.o tbasic1.o tbasic2.o tcusto1.o tcusto2.o tdiffer.o \
+	  textend.o tformat.o tlimits.o tmapped.o tnotify.o tresize.o \
+	  tstore1.o tstore2.o tstore3.o tstore4.o tstore5.o
 
 DEMOS   = demo dump myio
 
@@ -42,10 +42,10 @@ CXXFLAGS = -O2
 #CXXFLAGS = -Wall -pedantic -Wno-unused -g
 
 CXX = @CXX@
-LIBTOOL = @LIBTOOL@
+L = @LIBTOOL@
 INSTALL = @INSTALL@
-INSTALL_DATA = $(LIBTOOL) --mode=install @INSTALL_DATA@
-INSTALL_PROGRAM = $(LIBTOOL) --mode=install @INSTALL_PROGRAM@
+INSTALL_DATA = $L --mode=install @INSTALL_DATA@
+INSTALL_PROGRAM = $L --mode=install @INSTALL_PROGRAM@
 TCL_INCLUDE_DIR = @TCL_INCLUDE_DIR@
 
 #---------- Do not change, shorthand only
@@ -70,13 +70,13 @@ CXX_SWITCHES_TEST = $(CXXFLAGS) \
 
 all: @MK_TARGETS@
 
-core: Makefile libmk4.a libmk4.la $(DEMOS)
+core: Makefile libmk4.la $(DEMOS)
 
-tcl: Makefile libmk4tcl.a libmk4tcl.la Mk4tcl.so
+tcl: Makefile libmk4tcl.la
 
-python: Makefile libmk4py.a libmk4py.la Mk4py.so
+python: Makefile libmk4py.la
 
-test: Makefile libmk4.a regress
+test: Makefile libmk4.la regress
 	test -d tests || mkdir tests
 	test -f reversed || cp $(srcdir)/../unix/reversed .
 	./regress
@@ -87,31 +87,27 @@ test-tcl: tcl
 
 install: @MK_INSTALL@
 
-install-mk: libmk4.a libmk4.la
-	$(INSTALL) -d $(includedir) $(libdir)
+install-mk: libmk4.la
+	-$(INSTALL) -d $(includedir) $(libdir)
 	$(INSTALL_DATA) $(srcdir)/../include/mk4.h \
-					$(includedir)/mk4.h
-	$(INSTALL_DATA) $(srcdir)/../include/mk4.inl \
-					$(includedir)/mk4.inl
-	$(INSTALL_DATA) $(srcdir)/../include/mk4str.h \
-					$(includedir)/mk4str.h
-	$(INSTALL_DATA) $(srcdir)/../include/mk4str.inl \
-					$(includedir)/mk4str.inl
-	$(INSTALL_PROGRAM) libmk4.la $(libdir)/libmk4.la
+			$(srcdir)/../include/mk4.inl \
+			$(srcdir)/../include/mk4str.h \
+			$(srcdir)/../include/mk4str.inl $(includedir)
+	$(INSTALL_PROGRAM) libmk4.la $(libdir)
 
-install-tcl: libmk4tcl.a libmk4tcl.la
-	$(INSTALL_PROGRAM) libmk4tcl.la $(libdir)/libmk4tcl.la
+install-tcl: libmk4tcl.la
+	$(INSTALL_PROGRAM) libmk4tcl.la $(libdir)
 
-install-python: libmk4py.a libmk4py.la
-	$(INSTALL_PROGRAM) libmk4py.la $(libdir)/libmk4py.la
+install-python: libmk4py.la
+	$(INSTALL_PROGRAM) libmk4py.la $(libdir)
 
 clean:
-	rm -f *.a *.la *.o *.lo *.so
-	rm -f core $(DEMOS) struct regress myfile.dat secret.dat
+	$L rm -f *.la *.o *.lo
+	rm -f $(DEMOS) struct regress myfile.dat secret.dat
 	rm -rf tests/[a-z]* .libs
 
 distclean: clean
-	rm -f Makefile config.h config.status config.log config.cache libtool
+	rm -f Makefile libtool config.h config.status config.log config.cache
 
 #---------- This defines what each of the targets does
 
@@ -124,114 +120,100 @@ config.status: $(srcdir)/configure
 $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && autoconf
 
-libmk4.a: $(LIBOBJS)
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBOBJS)
-
 libmk4.la: $(LIBOBJS)
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -export-dynamic \
+	$L --tag=CXX $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
 		-rpath $(libdir) $(SHLOBJS)
 
-libmk4tcl.a: mk4tcl.o mk4too.o libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) \
-		mk4tcl.o mk4too.o $(LIBOBJS)
-
-libmk4tcl.la: mk4tcl.o mk4too.o libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -export-dynamic \
+libmk4tcl.la: mk4tcl.o mk4too.o $(LIBOBJS)
+	$L --tag=CXX $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
 		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS)
 
-Mk4tcl.so: mk4tcl.o mk4too.o libmk4.a
-	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4tcl.lo mk4too.lo $(SHLOBJS)
-
-libmk4py.a: $(PYOBJS) libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(PYOBJS) $(LIBOBJS)
-
-libmk4py.la: $(PYOBJS) libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -export-dynamic \
+libmk4py.la: $(PYOBJS) $(LIBOBJS)
+	$L --tag=CXX $(CXX) -o $@ $(CXX_SWITCHES) -module -avoid-version \
 		-rpath $(libdir) $(SPYOBJS) $(SHLOBJS)
 
-Mk4py.so: $(PYOBJS) libmk4.a
-	$(CXX) -o $@ $(CXX_SWITCHES) -shared $(SPYOBJS) $(SHLOBJS)
-
-Mk4lua.so: mk4lua.o libmk4.a
+Mk4lua.so: mk4lua.o libmk4.la
 	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4lua.lo $(SHLOBJS) \
 		-L$(libdir) -llua -llualib
 
-demo: $(srcdir)/../demos/demo.cpp libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
-		$(srcdir)/../demos/demo.cpp libmk4.a
+demo: $(srcdir)/../demos/demo.cpp libmk4.la
+	$L --tag=CXX $(CXX) $(CXX_SWITCHES) -static -o $@@EXEEXT@ \
+		$(srcdir)/../demos/demo.cpp libmk4.la
 
 dump: $(srcdir)/../demos/dump.cpp libmk4.la
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -static -o $@@EXEEXT@ \
-		$(srcdir)/../demos/dump.cpp libmk4.a
+	$L --tag=CXX $(CXX) $(CXX_SWITCHES) -static -o $@@EXEEXT@ \
+		$(srcdir)/../demos/dump.cpp libmk4.la
 
 myio: $(srcdir)/../demos/myio.cpp libmk4.la
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
+	$L --tag=CXX $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
 		$(srcdir)/../demos/myio.cpp libmk4.la
 
 struct: $(srcdir)/../demos/struct.cpp
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
+	$L --tag=CXX $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
 		$(srcdir)/../demos/struct.cpp -lmk4
 
-regress: $(TSTOBJS) libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -static -o $@@EXEEXT@ $(TSTOBJS) libmk4.a
+regress: $(TSTOBJS) libmk4.la
+	$L $(CXX) -static -o $@@EXEEXT@ $(TSTOBJS) libmk4.la
 
 #---------- Dependencies
 
 mk4tcl.o: $(srcdir)/../tcl/mk4tcl.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_TCL) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_TCL) $?
 mk4too.o: $(srcdir)/../tcl/mk4too.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_TCL) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_TCL) $?
 
 PyProperty.o: $(srcdir)/../python/PyProperty.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_PY) $?
 PyRowRef.o: $(srcdir)/../python/PyRowRef.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_PY) $?
 PyStorage.o: $(srcdir)/../python/PyStorage.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_PY) $?
 PyView.o: $(srcdir)/../python/PyView.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_PY) $?
 PWOImp.o: $(srcdir)/../python/scxx/PWOImp.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_PY) $?
 
 column.o: $(srcdir)/../src/column.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 custom.o: $(srcdir)/../src/custom.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 derived.o: $(srcdir)/../src/derived.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 field.o: $(srcdir)/../src/field.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 fileio.o: $(srcdir)/../src/fileio.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 format.o: $(srcdir)/../src/format.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 handler.o: $(srcdir)/../src/handler.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 persist.o: $(srcdir)/../src/persist.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 remap.o: $(srcdir)/../src/remap.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 std.o: $(srcdir)/../src/std.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 store.o: $(srcdir)/../src/store.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 string.o: $(srcdir)/../src/string.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 table.o: $(srcdir)/../src/table.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 univ.o: $(srcdir)/../src/univ.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 view.o: $(srcdir)/../src/view.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 viewx.o: $(srcdir)/../src/viewx.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES) $?
 
 mk4lua.o: $(srcdir)/../lua/mk4lua.cpp
-	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_LUA) $?
+	$L --tag=CXX $(CXX) -c $(CXX_SWITCHES_LUA) $?
 
 regress.o: $(srcdir)/../tests/regress.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
-tbasics.o: $(srcdir)/../tests/tbasics.cpp
+tbasic1.o: $(srcdir)/../tests/tbasic1.cpp
+	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
+tbasic2.o: $(srcdir)/../tests/tbasic2.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
 tcusto1.o: $(srcdir)/../tests/tcusto1.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
@@ -258,6 +240,8 @@ tstore2.o: $(srcdir)/../tests/tstore2.cpp
 tstore3.o: $(srcdir)/../tests/tstore3.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
 tstore4.o: $(srcdir)/../tests/tstore4.cpp
+	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
+tstore5.o: $(srcdir)/../tests/tstore5.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
 
 #---------- End

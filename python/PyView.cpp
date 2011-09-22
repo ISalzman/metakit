@@ -1,5 +1,5 @@
 // PyView.cpp --
-// $Id: PyView.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: PyView.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -651,8 +651,10 @@ static PyObject *PyView_relocrows(PyView *o, PyObject *_args) {
     if (pos < 0 || pos > dest.GetSize())
       Fail(PyExc_IndexError, "Destination index out of range");
     
-    if (!o->RelocateRows(from, count, dest, pos))
-      Fail(PyExc_TypeError, "Failed to relocate rows");
+    if (!o->IsCompatibleWith(dest))
+      Fail(PyExc_TypeError, "Views are not compatible");
+
+    o->RelocateRows(from, count, dest, pos);
 
     Py_INCREF(Py_None);
     return Py_None;

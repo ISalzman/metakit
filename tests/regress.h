@@ -1,5 +1,5 @@
 // regress.h -- Regression test program, header file
-// $Id: regress.h 1268 2007-03-09 16:53:24Z jcw $
+// $Id: regress.h 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -112,7 +112,8 @@ extern int StartTest(int, const char*, const char*);
 extern void CatchMsg(const char* msg);
 extern void CatchOther();
 
-extern void TestBasics();
+extern void TestBasics1();
+extern void TestBasics2();
 extern void TestCustom1();
 extern void TestCustom2();
 extern void TestDiffer();
@@ -126,6 +127,7 @@ extern void TestStores1();
 extern void TestStores2();
 extern void TestStores3();
 extern void TestStores4();
+extern void TestStores5();
 
   //  The Borland C++ RTL does not want file handle objects to cross
   //  DLL boundaries, so we use special fopen/fclose hooks in the DLL.

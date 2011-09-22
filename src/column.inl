@@ -1,5 +1,5 @@
 // column.inl --
-// $Id: column.inl 1268 2007-03-09 16:53:24Z jcw $
+// $Id: column.inl 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file

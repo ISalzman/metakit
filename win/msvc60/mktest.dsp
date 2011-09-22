@@ -150,7 +150,11 @@ SOURCE=..\..\tests\regress.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\tests\tbasics.cpp
+SOURCE=..\..\tests\tbasic1.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\tests\tbasic2.cpp
 # End Source File
 # Begin Source File
 
@@ -203,6 +207,10 @@ SOURCE=..\..\tests\tstore3.cpp
 # Begin Source File
 
 SOURCE=..\..\tests\tstore4.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\tests\tstore5.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

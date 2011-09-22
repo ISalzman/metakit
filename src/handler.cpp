@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: handler.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -172,13 +172,15 @@ void c4_HandlerSeq::DetachFromStorage(bool full_)
 
       // get rid of all handlers which might do I/O
     for (int c = NumHandlers(); --c >= 0; ) {
+      c4_Handler& h = NthHandler(c);
+
         // all nested fields are detached recursively
       if (IsNested(c))
         for (int r = 0; r < NumRows(); ++r)
-          SubEntry(c, r).DetachFromStorage(full_);
+	  if (h.HasSubview(r))
+	    SubEntry(c, r).DetachFromStorage(full_);
 
       if (c >= limit) {
-        c4_Handler& h = NthHandler(c);
         if (h.IsPersistent()) {
           delete &h;
           _handlers.RemoveAt(c);
@@ -197,9 +199,12 @@ void c4_HandlerSeq::DetachFromStorage(bool full_)
 void c4_HandlerSeq::DetermineSpaceUsage()
 {
   for (int c = 0; c < NumFields(); ++c)
-    if (IsNested(c))
+    if (IsNested(c)) {
+      c4_Handler& h = NthHandler(c);
       for (int r = 0; r < NumRows(); ++r)
-        SubEntry(c, r).DetermineSpaceUsage();
+	if (h.HasSubview(r))
+	  SubEntry(c, r).DetermineSpaceUsage();
+    }
 }
 
 void c4_HandlerSeq::SetNumRows(int numRows_)
@@ -227,9 +232,12 @@ void c4_HandlerSeq::Restructure(c4_Field& field_, bool remove_)
 
     // all nested fields must be set up, before we shuffle them around
   for (int k = 0; k < NumHandlers(); ++k)
-    if (IsNested(k))
+    if (IsNested(k)) {
+      c4_Handler& h = NthHandler(k);
       for (int n = 0; n < NumRows(); ++n)
-        SubEntry(k, n);
+	if (h.HasSubview(n))
+          SubEntry(k, n);
+    }
 
   for (int i = 0; i < field_.NumSubFields(); ++i) {
     c4_Field& nf = field_.SubField(i);
@@ -268,14 +276,17 @@ void c4_HandlerSeq::Restructure(c4_Field& field_, bool remove_)
 
     // all nested fields are restructured recursively
   for (int j = 0; j < NumHandlers(); ++j)
-    if (IsNested(j))
-      for (int n = 0; n < NumRows(); ++n) {
-        c4_HandlerSeq& seq = SubEntry(j, n);
-        if (j < NumFields())
-          seq.Restructure(field_.SubField(j), false);
-        else if (seq._field != 0)
-          seq.Restructure(temp, true);
-      }
+    if (IsNested(j)) {
+      c4_Handler& h = NthHandler(j);
+      for (int n = 0; n < NumRows(); ++n)
+        if (h.HasSubview(n)) {
+	  c4_HandlerSeq& seq = SubEntry(j, n);
+	  if (j < NumFields())
+	    seq.Restructure(field_.SubField(j), false);
+	  else if (seq._field != 0)
+	    seq.Restructure(temp, true);
+	}
+    }
 
   if (_parent == this)
     delete ofld;  // the root table owns its field structure tree
@@ -350,8 +361,6 @@ void c4_HandlerSeq::FlipAllBytes()
   }
 }
 
-#if 0 // implementation doesn't work any more
-
   // New 19990903: swap rows in tables without touching the memo fields 
   // or subviews on disk.  This is used by the new c4_View::RelocateRows.
 
@@ -385,12 +394,12 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
       c4_HandlerSeq& t2 = dst_.SubEntry(col, dstPos_);
 
         // adjust the parents
-      t1._owner = this;
-      t2._owner = &dst_;
+      t1._parent = this;
+      t2._parent = &dst_;
 
         // reattach the proper field structures
-      t1.Restructure(Field(col));
-      t2.Restructure(dst_.Field(col));
+      t1.Restructure(Field(col), false);
+      t2.Restructure(dst_.Field(col), false);
     }
     else
     {
@@ -404,11 +413,11 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
         c4_Column* c1 = h1.GetNthMemoCol(srcPos_, true);
         c4_Column* c2 = h2.GetNthMemoCol(dstPos_, true);
 
-        t4_u32 p1 = c1 ? c1->Position() : 0;
-        t4_u32 p2 = c2 ? c2->Position() : 0;
+        t4_i32 p1 = c1 ? c1->Position() : 0;
+        t4_i32 p2 = c2 ? c2->Position() : 0;
 
-        t4_u32 s1 = c1 ? c1->ColSize() : 0;
-        t4_u32 s2 = c2 ? c2->ColSize() : 0;
+        t4_i32 s1 = c1 ? c1->ColSize() : 0;
+        t4_i32 s2 = c2 ? c2->ColSize() : 0;
 
         d4_assert(false); // broken
         //!h1.SetNthMemoPos(srcPos_, p2, s2, c2);
@@ -425,8 +434,6 @@ void c4_HandlerSeq::ExchangeEntries(int srcPos_, c4_HandlerSeq& dst_, int dstPos
     }
   }
 }
-
-#endif
 
 c4_HandlerSeq& c4_HandlerSeq::SubEntry(int col_, int row_) const
 {
@@ -455,6 +462,27 @@ void c4_HandlerSeq::UnmappedAll()
 {
   for (int i = 0; i < NumFields(); ++i)   
     NthHandler(i).Unmapped();
+}
+
+  // construct meta view from a pre-parsed field tree structure
+  // this will one day be converted to directly parse the description string
+void c4_HandlerSeq::BuildMeta(int parent_, int colnum_, c4_View& meta_,
+    					const c4_Field& field_)
+{
+  c4_IntProp pP ("P"), pC ("C");
+  c4_ViewProp pF ("F");
+  c4_StringProp pN ("N"), pT ("T");
+
+  int n = meta_.Add(pP [parent_] + pC [colnum_]);
+  c4_View fields = pF (meta_[n]);
+
+  for (int i = 0; i < field_.NumSubFields(); ++i) {
+    const c4_Field& f = field_.SubField(i);
+    char type = f.Type();
+    fields.Add(pN [f.Name()] + pT [c4_String (&type, 1)]);
+    if (type == 'V')
+      BuildMeta(n, i, meta_, f);
+  }
 }
 
 /////////////////////////////////////////////////////////////////////////////

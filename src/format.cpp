@@ -1,5 +1,5 @@
 // format.cpp --
-// $Id: format.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: format.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -777,13 +777,14 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
   int rows = _memos.GetSize();
   d4_assert(rows > 0);
 
-  bool full = _recalc;
+  bool full = _recalc || ar_.Serializing();
 
-  for (int i = 0; i < rows; ++i) {
-    c4_Column* col = (c4_Column*) _memos.GetAt(i);
-    if (col != 0 && col->IsDirty())
-      full = true;
-  }
+  if (!full)
+    for (int i = 0; i < rows; ++i) {
+      c4_Column* col = (c4_Column*) _memos.GetAt(i);
+      if (col != 0 && col->IsDirty())
+	full = true;
+    }
   d4_assert(_recalc || _sizeCol.RowCount() == rows);
 
   if (full) {
@@ -850,7 +851,7 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
     // need a way to find out when the data has been committed (on 2nd pass)
     // both _sizeCol and _memoCol will be clean again when it has
     // but be careful because dirty flag is only useful if size is nonzero
-  if (_recalc)
+  if (_recalc && !ar_.Serializing())
     _recalc = _sizeCol.ColSize() > 0 && _sizeCol.IsDirty() ||
       		_memoCol.ColSize() > 0 && _memoCol.IsDirty();
 }
@@ -957,6 +958,7 @@ public:
   virtual void Remove(int index_, int count_);
 
   virtual void Unmapped();
+  virtual bool HasSubview(int index_);
 
   static int DoCompare(const c4_Bytes& b1_, const c4_Bytes& b2_);
 
@@ -1007,8 +1009,19 @@ void c4_FormatV::SetupAllSubviews()
     _data.FetchBytes(0, _data.ColSize(), temp, true);
     const t4_byte* ptr = temp.Contents();
     
-    for (int r = 0; r < _subSeqs.GetSize(); ++r)
-      At(r).Prepare(&ptr, false);
+    for (int r = 0; r < _subSeqs.GetSize(); ++r) {
+      // don't materialize subview if it is empty
+      // duplicates code which is in c4_HandlerSeq::Prepare
+      const t4_byte* p2 = ptr;
+      d4_dbgdef(t4_i32 sias =)
+	c4_Column::PullValue(p2);
+      d4_assert(sias == 0); // not yet
+
+      if (c4_Column::PullValue(p2) > 0)
+	At(r).Prepare(&ptr, false);
+      else
+	ptr = p2;
+    }
 
     d4_assert(ptr == temp.Contents() + temp.Size());
   }
@@ -1066,7 +1079,9 @@ int c4_FormatV::ItemSize(int index_)
   if (!_inited)
     SetupAllSubviews();
 
-  return At(index_).NumRows();
+  // 06-02-2002: avoid creating empty subview
+  c4_HandlerSeq* hs = (c4_HandlerSeq*&) _subSeqs.ElementAt(index_);
+  return hs == 0 ? 0 : hs->NumRows();
 }
 
 const void* c4_FormatV::Get(int index_, int& length_)
@@ -1180,13 +1195,24 @@ void c4_FormatV::Remove(int index_, int count_)
 
 void c4_FormatV::Unmapped()
 {
+  if (_inited)
+    for (int i = 0; i < _subSeqs.GetSize(); ++i)
+      if (HasSubview(i)) {
+	c4_HandlerSeq& hs = At(i);
+	hs.UnmappedAll();
+	if (hs.NumRefs() == 1 && hs.NumRows() == 0)
+	  ForgetSubview(i);
+      }
+
+  _data.ReleaseAllSegments();
+}
+
+bool c4_FormatV::HasSubview(int index_)
+{
   if (!_inited)
     SetupAllSubviews();
 
-  for (int i = 0; i < _subSeqs.GetSize(); ++i)
-    At(i).UnmappedAll();
-
-  _data.ReleaseAllSegments();
+  return _subSeqs.ElementAt(index_) != 0;
 }
 
 void c4_FormatV::ForgetSubview(int index_)
@@ -1213,8 +1239,16 @@ void c4_FormatV::Commit(c4_SaveContext& ar_)
   c4_Column temp (0);
   c4_Column* saved = ar_.SetWalkBuffer(&temp);
   
-  for (int r = 0; r < rows; ++r)
-    ar_.CommitSequence(At(r), false);
+  for (int r = 0; r < rows; ++r) 
+    if (HasSubview(r)) {
+      c4_HandlerSeq& hs = At(r);
+      ar_.CommitSequence(hs, false);
+      if (hs.NumRefs() == 1 && hs.NumRows() == 0)
+	ForgetSubview(r);
+    } else {
+      ar_.StoreValue(0); // sias
+      ar_.StoreValue(0); // row count
+    }
     
   ar_.SetWalkBuffer(saved);
   

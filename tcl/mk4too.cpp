@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1268 2007-03-09 16:53:24Z jcw $
+// $Id: mk4too.cpp 1267 2007-03-09 16:53:02Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -172,7 +172,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     { &MkView::SearchCmd,  4,  4,  "search prop value" },
     { &MkView::SelectCmd,  2,  0,  "select ?..?" },
     { &MkView::SetCmd,     3,  0,  "set cursor prop ?value prop value ...?" },
-    { &MkView::SizeCmd,    2,  2,  "size ?newsize?" },
+    { &MkView::SizeCmd,    2,  3,  "size ?newsize?" },
     { &MkView::LoopCmd,    3,  0,  "loop cursor ?first? ?limit? ?step? body" },
     { &MkView::ViewCmd,    3,  0,  "view option ?args?" },
     { 0,           0,  0,  0 },
