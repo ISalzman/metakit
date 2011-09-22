@@ -1,5 +1,5 @@
 // regress.h -- Regression test program, header file
-// $Id: regress.h 1262 2007-03-09 16:50:55Z jcw $
+// $Id: regress.h 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4.h"

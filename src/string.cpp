@@ -1,5 +1,5 @@
 // string.cpp --
-// $Id: string.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: string.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -23,6 +23,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+#ifdef _AIX
+#include <strings.h>
+#endif
 
 #if !q4_INLINE
 #include "mk4str.inl"

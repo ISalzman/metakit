@@ -1,5 +1,5 @@
 // remap.cpp --
-// $Id: remap.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: remap.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -537,9 +537,13 @@ public:
     for (int i = 0; i < n; i++)
     {
       c4_View bv = _pBlock (_base[i]);
+      d4_assert(bv.GetSize() > 0 || i == 0);
       total += bv.GetSize();
       d4_assert(_offsets.GetAt(i) == total++);
     }
+
+    c4_View be = _pBlock (_base[n]);
+    d4_assert(be.GetSize() == n - 1);
   }
 
 #else
@@ -608,8 +612,10 @@ int c4_BlockedViewer::Slot(int& pos_)
 void c4_BlockedViewer::Split(int bno_, int row_)
 {
   int z = _base.GetSize() - 1;
+  d4_assert(bno_ < z);
   c4_View bz = _pBlock (_base[z]);
   c4_View bv = _pBlock (_base[bno_]);
+  d4_assert(row_ < bv.GetSize());
 
   _offsets.InsertAt(bno_, _offsets.GetAt(bno_) - bv.GetSize() + row_);
   
@@ -761,6 +767,9 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
       bv2.RemoveAt(0, overshoot - 1);
       todo -= overshoot - 1;
 
+      for (int j = i+1; j < z; ++j)
+        _offsets.SetAt(j, _offsets.GetAt(j) - (overshoot - 1));
+
 	// if the next block is filled enough, rotate the separator
 	// this avoids an expensive and unnecessary merge + split
       if (bv2.GetSize() > kLimit / 2) {
@@ -770,7 +779,9 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
 	--todo;
 	d4_assert(pos_ + todo <= bv.GetSize());
 	d4_assert(i < _offsets.GetSize());
-	_offsets.SetAt(i, _offsets.GetAt(i) + overshoot);
+
+        for (int j = i+1; j < z; ++j)
+          _offsets.SetAt(j, _offsets.GetAt(j) - 1);
       }
     }
 

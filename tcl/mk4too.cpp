@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: mk4too.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 

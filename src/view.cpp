@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: view.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -32,8 +32,6 @@ public:
     Hold ();
     ~Hold ();
   };
-
-  static t4_i32 AddRef(t4_i32&, int);
 };
 
 /////////////////////////////////////////////////////////////////////////////
@@ -76,44 +74,29 @@ public:
     LeaveCriticalSection(&gCritSect);
   }
 
-  t4_i32 c4_ThreadLock::AddRef(t4_i32& count_, int diff_)
-  {
-    d4_assert(diff_ == -1 || diff_ == +1);
-
-    return diff_ < 0 ? InterlockedDecrement(&count_)
-             : InterlockedIncrement(&count_);
-  }
-
 #else /* q4_WIN32 */
 
 #include <pthread.h>
 
-  static pthread_mutex_t gMutex;
-  static pthread_mutex_t gMutexInc;
+    static pthread_mutex_t gMutex;
 
   d4_inline c4_ThreadLock::c4_ThreadLock ()
   {
-     ::pthread_mutex_init(&gMutex, 0);
-     ::pthread_mutex_init(&gMutexInc, 0);
+     pthread_mutex_init(&gMutex, 0);
   }
 
   d4_inline c4_ThreadLock::Hold::Hold ()
   {
-      d4_assert(::pthread_mutex_lock(&gMutex) == 0);
+    d4_dbgdef(int r =)
+      pthread_mutex_lock(&gMutex);
+    d4_assert(r == 0);
   }
 
   d4_inline c4_ThreadLock::Hold::~Hold ()
   {
-      d4_assert(::pthread_mutex_unlock(&gMutex) == 0);
-  }
-
-  d4_inline t4_i32 c4_ThreadLock::AddRef(t4_i32& count_, int diff_)
-  {
-      d4_assert(::pthread_mutex_lock(&gMutexInc) == 0);
-      count_ += diff_;
-      t4_i32 return_val = count_;
-      d4_assert(::pthread_mutex_unlock(&gMutexInc) == 0);
-      return return_val;
+    d4_dbgdef(int r =)
+      pthread_mutex_unlock(&gMutex);
+    d4_assert(r == 0);
   }
 
 #endif /* q4_WIN32 */
@@ -132,11 +115,6 @@ public:
 
   d4_inline c4_ThreadLock::Hold::~Hold ()
   {
-  }
-
-  d4_inline t4_i32 c4_ThreadLock::AddRef(t4_i32& count_, int diff_)
-  {
-    return count_ += diff_;
   }
 
 #endif
@@ -1233,6 +1211,8 @@ c4_Property::c4_Property (char type_, const char* name_)
 c4_Property::c4_Property (const c4_Property& prop_)
   : _id (prop_.GetId()), _type (prop_.Type())
 {
+  c4_ThreadLock::Hold lock;
+
   d4_assert(sPropCounts != 0);
   d4_assert(sPropCounts->GetAt(_id) > 0);
 
@@ -1241,11 +1221,15 @@ c4_Property::c4_Property (const c4_Property& prop_)
 
 c4_Property::~c4_Property ()
 {
+  c4_ThreadLock::Hold lock;
+
   Refs(-1);
 }
 
 void c4_Property::operator= (const c4_Property& prop_)
 {
+  c4_ThreadLock::Hold lock;
+
   prop_.Refs(+1);
   Refs(-1);
 
@@ -1256,35 +1240,31 @@ void c4_Property::operator= (const c4_Property& prop_)
   /// Return the name of this property
 const char* c4_Property::Name() const
 {
-  d4_assert(sPropNames != 0);
+  c4_ThreadLock::Hold lock;
 
+  d4_assert(sPropNames != 0);
   return sPropNames->GetAt(_id);
 }
 
 /** Adjust the reference count
  *
  *  This is part of the implementation and shouldn't normally be called.
+ *  This code is only called with the lock held, and always thread-safe.
  */
 void c4_Property::Refs(int diff_) const
 {
   d4_assert(diff_ == -1 || diff_ == +1);
 
-  if (sPropCounts != 0) // race
-    c4_ThreadLock::AddRef((t4_i32&) sPropCounts->ElementAt(_id), diff_);
-  else
-    d4_assert(diff_ < 0); // can only destroy properties once data is gone
+  d4_assert(sPropCounts != 0);
+  sPropCounts->ElementAt(_id) += diff_;
 
 #if q4_CHECK
     // get rid of the cache when the last property goes away
   static t4_i32 sPropTotals;
 
-  if (c4_ThreadLock::AddRef(sPropTotals, diff_) == 0) {
-    c4_ThreadLock::Hold lock; // grabs the lock until end of scope
-
-      // be prepared for a race, so check again after locking
-    if (sPropTotals == 0)
-      CleanupInternalData();
-  }
+  sPropTotals += diff_;
+  if (sPropTotals == 0)
+    CleanupInternalData();
 #endif
 }
 

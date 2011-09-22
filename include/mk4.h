@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1262 2007-03-09 16:50:55Z jcw $
+// $Id: mk4.h 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 249    // 2.4.9.1 release, Mar 3, 2003
+#define d4_MetaKitLibraryVersion 249    // 2.4.9.2 release, Mar 17, 2003
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -99,7 +99,7 @@
 
     // and here's the other end of the scale...
 #if !defined (_WIN32) && !defined (q4_LONG64)
-#if defined (_PA_RISC2_0) || defined (__powerpc64__) || \
+#if defined (_PA_RISC2_0) || defined (__powerpc64__) || defined(__sparcv9) || \
     defined (__x86_64__) || defined (__s390x__) || defined (__alpha) || \
     (defined (__ia64) && (!defined (__HP_aCC) || defined(__LP64__)))
 #define q4_LONG64 1

@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: mk4tcl.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -1736,10 +1736,18 @@ int MkTcl::RowCmd()
         int size = asView(var).GetSize();
         changeIndex(var) = size;
 
+	int oc = objc - 3;
+	Tcl_Obj** ov = (Tcl_Obj**) objv + 3;
+
+	  // 2003-03-16, allow giving all pairs as list
+	if (oc == 1 &&
+	    Tcl_ListObjGetElements(interp, objv[3], &oc, &ov) != TCL_OK)
+	  return TCL_ERROR;
+
           // 2000-06-15: this will not work with custom viewers which
           // take over ordering or uniqueness, because such views can
           // not be resized to create emtpy rows, which get filled in
-        int e = SetValues(asRowRef(var, kExtendRow), objc - 3, objv + 3);
+        int e = SetValues(asRowRef(var, kExtendRow), oc, ov);
         if (e != TCL_OK)
           asView(var).SetSize(size); // 1.1: restore old size on errors
         
@@ -2741,7 +2749,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.1");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.2");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

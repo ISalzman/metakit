@@ -8215,6 +8215,35 @@ case $build_os in
 	fi
     fi
     ;;
+  solaris2.*)
+    # Tested for solaris-2.8.
+
+    if test "x`basename $CXX`" = "xCC"
+    then
+	# Native SUN C++ compiler
+	# Depending on 32/64 mode choose between runtime libraries
+
+	# Stupid which can insert warnings into the output
+	# instad of using stderr. Bah.
+
+	base=`which $CXX 2>/dev/null`    ; # Full path of compiler.
+	basea=`echo "$base" | sed -e 's/^Warning: ridiculously long PATH truncated//'`
+	baseb=`dirname $basea` ; # Strip name of compiler
+	basec=`dirname $baseb` ; # Strip bin directory
+	CCRUNDIR="$basec/lib"
+
+	case $CXXFLAGS in
+	    *xarch=v9*) CCRUNDIR="$CCRUNDIR/v9" ;;
+	    *)          :                       ;;
+	esac
+
+	LDFLAGS="${LDFLAGS} -L${CCRUNDIR} -lCrun"
+    else
+	# Setup not using CC, use -lstdc++, like for case '*' below.
+
+	LDFLAGS="${LDFLAGS} -lstdc++"
+    fi
+    ;;
   *)
     LDFLAGS="${LDFLAGS} -lstdc++"
     ;;

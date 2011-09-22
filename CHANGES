@@ -1,24 +1,56 @@
-2003-02-18    ############################################    MK 2.4.9.1
+2003-03-16    ############################################    MK 2.4.9.2
+
+    Also allow passing pairs to "mk::row append" as a list (Mk4tcl).
+
+2003-03-10    Fixes for sparc64 configure and AIX strcasecmp
+
+    Both changes contributed by Andreas Kupries.
+
+2003-03-07    Fix more bugs in blocked view, add 64-bit Sparc support
+
+    The blocked viewer deletion was STILL incorrect.  Fixed bad offset
+    calculations, added several more assertion checks, and added a new
+    m07 test case which checks for numerous cases of deletion overlap,
+    i.e. cases where multi-row deletions cross subview boundaries.
+
+    Added __sparc9 #define to mk4.h (thanks again, Andreas K)
+
+2003-03-05    Fixed two potential races in C++ threaded build
+
+    There was a serious bug in view.cpp, whereby Unix (p)thread locks
+    were non-functional in release mode (#define NDEBUG).  Yikes!
+
+    In addition the logic was flawed (both Unix and Windows), failing to
+    protect from indexing while sPropNames / sPropCounts were being
+    resized (i.e. a realloc).  Added explicit locking to all affected
+    paths, and removed the now obsolete count locks (i.e. AddRef).
+
+    Thanks to Murat Berk for chasing this and explaining the problem.
+
+    This bug "only" affects C++ builds.  Tcl and Python each have an
+    extra layer on top which means there can be no races inside MK.
+
+2003-03-03    ############################################    MK 2.4.9.1
 
     Moving to a new 4-level bugfix release number.
 
 2003-03-02    Fixes to Mk4py (gmcm)
 
-    Modify some recent patches that were Python 2.2 only so they
-    would still work with 2.1. Add a view.properties() method
-    (returning a dict of propname -> Property) for cases where
-    a property is masked by a method name.
+    Modify some recent patches that were Python 2.2 only so they would
+    still work with 2.1. Add a view.properties() method (returning a
+    dict of propname -> Property) for cases where a property is masked
+    by a method name.
 
-2003-03-01    Reverted changes in Mk4py/scxx, avoid Mk4tcl warnign
+2003-03-01    Reverted changes in Mk4py/scxx, avoid Mk4tcl warning
 
-   One was in SCXX, PWONumber.h - ouch and apologies (jcw).
-   Changed comparison logic in mk4too.cpp (64-bit ints, new code).
+   One was in SCXX, PWONumber.h - ouch and apologies (jcw).  Changed
+   comparison logic in mk4too.cpp (64-bit ints, new code).
 
 2003-02-28    Fixed relaxed layout in Mk4tcl, several Mk4py fixes
 
-   Use list operators to convert a Tcl layout to MK format.
-   This used to crash, Tcl test 6.7 added to verify the fix.
-   Changed test 3.1 to use a different notation for nested defs (^).
+   Use list operators to convert a Tcl layout to MK format.  This used
+   to crash, Tcl test 6.7 added to verify the fix.  Changed test 3.1 to
+   use a different notation for nested defs (^).
 
    Added to ViewerAsSeq, to allow v1+v2+v3 (thanks Michael Scharf).
    Also fixed several mem leaks - thx again!
@@ -31,8 +63,8 @@
 2003-02-26    Added 64-bit int support to Mk4tcl, fix mingw
 
    The "L" type was not exposed, though Tcl >= 8.4 has "wide" ints!
-   Will now support 64-bit ints, if built against a Tcl 8.4+ header,
-   but still defaults to without for use in Tcl's <= 8.3.
+   Will now support 64-bit ints, if built against a Tcl 8.4+ header, but
+   still defaults to without for use in Tcl's <= 8.3.
 
    Fix _strdup #ifdef in univ.cpp when compiled from mingw on win32.
 

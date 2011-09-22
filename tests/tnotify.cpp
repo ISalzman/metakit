@@ -1,5 +1,5 @@
 // tnotify.cpp -- Regression test program, notification tests
-// $Id: tnotify.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: tnotify.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"

@@ -1,8 +1,36 @@
 // tmapped.cpp -- Regression test program, mapped view tests
-// $Id: tmapped.cpp 1262 2007-03-09 16:50:55Z jcw $
+// $Id: tmapped.cpp 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
+
+void TestBlockDel(int pos_, int len_)
+{
+  printf("blockdel pos %d len %d\n", pos_, len_);
+
+  c4_ViewProp p1 ("_B");
+  c4_IntProp p2 ("p2");
+  
+  c4_Storage s1;
+  c4_View v1 = s1.GetAs("v1[_B[p2:I]]");
+
+  int n = 0;
+  static int sizes[] = {999, 999, 999, 2, 0};
+
+  for (int i = 0; sizes[i]; ++i) {
+    c4_View v;
+    v.SetSize(sizes[i]);
+    for (int j = 0; j < sizes[i]; ++j)
+      p2 (v[j]) = ++n;
+    v1.Add(p1 [v]);
+  }
+
+  c4_View v2 = v1.Blocked();
+    A(v2.GetSize() == 2999);
+    
+  v2.RemoveAt(pos_, len_);
+    A(v2.GetSize() == 2999 - len_);
+}
 
 void TestMapped()
 {
@@ -187,4 +215,30 @@ void TestMapped()
     s1.Commit();
 
   } D(m06a); R(m06a); E;
+
+    // 2003/03/07 - still not correct on blocked veiw deletions
+  B(m07, All blocked view multi-deletion cases, 0);
+  {
+    int i, j;
+    for (i = 0; i < 2; ++i) {
+      for (j = 1; j < 4; ++j)
+	TestBlockDel(i, j);
+      for (j = 998; j < 1002; ++j)
+	TestBlockDel(i, j);
+      for (j = 1998; j < 2002; ++j)
+	TestBlockDel(i, j);
+    }
+    for (i = 998; i < 1002; ++i) {
+      for (j = 1; j < 4; ++j)
+	TestBlockDel(i, j);
+      for (j = 998; j < 1002; ++j)
+	TestBlockDel(i, j);
+    }
+    for (i = 1; i < 4; ++i)
+      TestBlockDel(2999 - i, i);
+    for (i = 998; i < 1002; ++i)
+      TestBlockDel(2999 - i, i);
+    for (i = 1998; i < 2002; ++i)
+      TestBlockDel(2999 - i, i);
+  } E;
 }

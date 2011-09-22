@@ -22,7 +22,7 @@
 <P>
 <B>Tcl/Tk</B> - The extension for <A HREF="http://www.scriptics.com/">Tcl</A> is called "Mk4tcl".  It is being used in a number of commercial projects, for in-house use as well as in commercially distributed products.
 <P>
-<B>Mk4tcl 2.4.9.1</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any MetaKit datafile from the command line, and a few more goodies.
+<B>Mk4tcl 2.4.9.2</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any MetaKit datafile from the command line, and a few more goodies.
 <P>
 <B>Changes since 2.01</B> - the MK core has changed substantially:
 <UL>
@@ -466,7 +466,7 @@ Show a list of all people with first name 'John':
     Created a line with some formatted fields:
 
     <PRE>
-    puts [eval format {%-20s %d} [mk::get db.phonebook!2 name date]]</PRE>
+    puts [eval [list format {%-20s %d}] [mk::get db.phonebook!2 name date]]</PRE>
 <P>
 <P><DT><A name="mk_set"><HR size=1></A><H2>mk::set</H2><DD><H3>Store values</H3>
 <P><DT>SYNOPSIS<DD><B>mk::set</B> &nbsp;<I>cursor</I> &nbsp;<I>?prop</I> &nbsp;<I>value</I> &nbsp;<I>...?</I> &nbsp;<BR>

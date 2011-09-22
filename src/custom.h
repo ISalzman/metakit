@@ -1,5 +1,5 @@
 // custom.h --
-// $Id: custom.h 1262 2007-03-09 16:50:55Z jcw $
+// $Id: custom.h 1261 2007-03-09 16:50:28Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
