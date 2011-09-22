@@ -58,6 +58,7 @@ public:
 
     virtual void Define(int, const t4_byte**);
     virtual void OldDefine(char type_, c4_Persist&);
+    virtual void FlipBytes();
 
     virtual int ItemSize(int index_);
     virtual const void* Get(int index_, int& length_);
@@ -104,6 +105,11 @@ void c4_FormatX::OldDefine(char type_, c4_Persist& pers_)
 {
     pers_.FetchOldLocation(_data);
     _data.SetRowCount(Owner().NumRows());
+}
+
+void c4_FormatX::FlipBytes()
+{
+    _data.FlipBytes();
 }
 
 int c4_FormatX::ItemSize(int index_)
@@ -589,7 +595,9 @@ void c4_FormatB::InitOffsets(c4_ColOfInts& sizes_)
 
         for (int r = 0; r < rows; ++r)
         {
-            total += sizes_.GetInt(r);
+            int n = sizes_.GetInt(r);
+	    d4_assert(n >= 0);
+            total += n;
             _offsets.SetAt(r + 1, total);
         }
 
@@ -763,6 +771,8 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
     d4_assert(rows > 0);
 
     c4_ColOfInts sizes (0);
+    if (ar_.IsFlipped())
+        sizes.ForceFlip();
     sizes.SetRowCount(rows);
     
     int skip = 0;
@@ -919,6 +929,8 @@ public:
     virtual void OldDefine(char type_, c4_Persist&);
     virtual void Commit(c4_SaveContext& ar_);
 
+    virtual void FlipBytes();
+
     virtual int ItemSize(int index_);
     virtual const void* Get(int index_, int& length_);
     virtual void Set(int index_, const c4_Bytes& buf_);
@@ -1011,11 +1023,11 @@ void c4_FormatV::OldDefine(char type_, c4_Persist& pers_)
         int n = pers_.FetchOldValue();
         if (n)
         {
-	    // 14-11-2000: do not create again (this causes a mem leak)
-	    // 04-12-2000: but do create if absent (fixes occasional crash)
-	    c4_HandlerSeq* hs = (c4_HandlerSeq*) _subSeqs.GetAt(i);
-	    if (hs == 0)
-	    {
+            // 14-11-2000: do not create again (this causes a mem leak)
+            // 04-12-2000: but do create if absent (fixes occasional crash)
+            c4_HandlerSeq* hs = (c4_HandlerSeq*) _subSeqs.GetAt(i);
+            if (hs == 0)
+            {
 		hs = d4_new c4_HandlerSeq (Owner(), this);
 		_subSeqs.SetAt(i, hs);
 		hs->IncRef();
@@ -1024,6 +1036,15 @@ void c4_FormatV::OldDefine(char type_, c4_Persist& pers_)
 	    hs->OldPrepare();
         }
     }
+}
+
+void c4_FormatV::FlipBytes()
+{
+    if (!_inited)
+        SetupAllSubviews();
+
+    for (int i = 0; i < _subSeqs.GetSize(); ++i)
+        At(i).FlipAllBytes();
 }
 
 int c4_FormatV::ItemSize(int index_)

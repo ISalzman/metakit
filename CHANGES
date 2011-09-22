@@ -1,3 +1,41 @@
+2001-03-29  MK 2.3.4    The "last" release candidate
+
+    Now checked into its *new* CVS home at equi4.com.
+    Mailings list(s) have also been moved to this site.
+
+2001-03-28              Fix Win build, broken on Mar 27
+
+    Dropped kBufMax from mk4.h, it caused compiler errors
+    in MSVC6 - switched to "sizeof" in a couple of places.
+    This error was introduced by the double-fix of 3/27.
+
+2001-03-28              Allow builds of TclKit with Sun CC
+
+    Integrated a few changes provided by D.J. Hagberg. 
+    Note: the M-solaris.sh and M-dyn.sh scripts need to
+    be manually edited when choosing between CC and gcc.
+
+2001-03-27              Double-alignment bug on Solaris
+
+    Two changes (c4_Bytes in mk4.h and src/column.h) to
+    fix an alignment problem for 8-byte doubles on Solaris.
+    This caused tests b17, b23, b24, s22, and s28 to fail.
+
+2001-03-26              Fixed cross-platform commit bug
+
+    There was a nasty bug in the 2.3.x code, which wrote
+    incorrect field sizes when committing to a datafile
+    with a different byte order (i.e. created on a machine
+    using different endian-ness from the one doing commit).
+
+2001-02-14              Removed file events from TclKit
+
+    Changed kit/rechan.cpp to not generate file events.
+    This avoids a bug in TclKit whereby an open file can
+    generate a continuous stream of file events as long
+    as the file is open - the console will seem to be
+    frozen, though "close $file" does work and fixes it.
+
 2000-12-13              Added missing c4_LongRef export
 
     Added a line in mk4dll.h to resolve references to

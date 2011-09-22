@@ -2700,7 +2700,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
     for (int i = 0; cmds[i]; ++i)
         ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-    return Tcl_PkgProvide(interp, "Mk4tcl", "2.3.3");
+    return Tcl_PkgProvide(interp, "Mk4tcl", "2.3.4");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

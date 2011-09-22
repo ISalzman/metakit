@@ -816,10 +816,10 @@ t4_i32 c4_Strategy::EndOfData(t4_i32 end_)
 
 	_rootPos = rootPos;
 	_rootLen = rootLen;
-
-	d4_assert(mark[0] == 'J' || mark[1] == 'J');
-	_bytesFlipped = (char) *(const short*) mark != 'J';
     }
+
+    d4_assert(mark[0] == 'J' || mark[1] == 'J');
+    _bytesFlipped = (char) *(const short*) mark != 'J';
 
     return last;
 }

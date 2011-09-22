@@ -288,6 +288,8 @@ Show a list of all people with first name 'John':
             A <B>string</B> property for storing strings of any size, but no null bytes.
         <DT> <B>:I</B>  <DD>
             An <B>integer</B> property for efficiently storing values as integers (1..32 bits).
+        <DT> <B>:L</B>  <DD>
+            An <B>long</B> property for storing values as 64-bit integers.
         <DT> <B>:F</B>  <DD>
             A <B>float</B> property for storing single-precision floating point values (32 bits).
         <DT> <B>:D</B>  <DD>
@@ -380,7 +382,7 @@ Show a list of all people with first name 'John':
 <P><DT><A name="mk_row"><HR size=1></A><H2>mk::row</H2><DD><H3>Create, insert, and delete rows</H3>
 <P><DT>SYNOPSIS<DD><B>mk::row</B> &nbsp;<B>create</B> &nbsp;<I>?prop</I> &nbsp;<I>value</I> &nbsp;<I>...?</I> &nbsp;<BR>
 <B>mk::row</B> &nbsp;<B>append</B> &nbsp;<I>path</I> &nbsp;<I>?prop</I> &nbsp;<I>value</I> &nbsp;<I>...?</I> &nbsp;<BR>
-<B>mk::row</B> &nbsp;<B>insert</B> &nbsp;<I>cursor</I> &nbsp;<I>cursor2</I> &nbsp;<I>?count?</I> &nbsp;<BR>
+<B>mk::row</B> &nbsp;<B>insert</B> &nbsp;<I>cursor</I> &nbsp;<I>count</I> &nbsp;<I>?cursor2?</I> &nbsp;<BR>
 <B>mk::row</B> &nbsp;<B>delete</B> &nbsp;<I>cursor</I> &nbsp;<I>?count?</I> &nbsp;<BR>
 <B>mk::row</B> &nbsp;<B>replace</B> &nbsp;<I>cursor</I> &nbsp;<I>?cursor2?</I> &nbsp;<BR>
 <P><DT>DESCRIPTION<DD>
@@ -403,7 +405,7 @@ Show a list of all people with first name 'John':
 <P>
     The '<B>mk::row insert</B>' command is similar to the <I>append</I> sub-command,
     inserting the new row in a specified position instead of at the end.
-    The optional <B>count</B> argument can be used to efficiently insert
+    The <B>count</B> argument can be used to efficiently insert
     multiple copies of a row.
 <P>
     The '<B>mk::row delete</B>' command deletes one or more rows from a view, starting
@@ -420,7 +422,7 @@ Show a list of all people with first name 'John':
     Initialize a temporary view with 100 copies of the string "Hello":
     <PRE>
     mk::cursor create cursor 
-    mk::row insert $cursor [mk::row create text Hello] 100</PRE>
+    mk::row insert $cursor 100 [mk::row create text Hello]</PRE>
 <P>
 <P><DT><A name="mk_get"><HR size=1></A><H2>mk::get</H2><DD><H3>Fetch values</H3>
 <P><DT>SYNOPSIS<DD><B>mk::get</B> &nbsp;<I>cursor</I> &nbsp;?-size?<BR>

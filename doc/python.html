@@ -146,7 +146,15 @@ Show a list of all people with first name 'John':
             is specified, otherwise just the specified top-level view.
         <BR><BR><FONT COLOR="#990000"><B>getas</B></FONT> - Side-effects: the structure of the view is changed.<BR>Notes: Normally used to create a new View, or alter the
             structure of an existing one.
-        <BR>A description string looks like:<BR><PRE><FONT COLOR="#000099">     &quot;people[name:S,addr:S,city:S,state:S,zip:S]&quot;</FONT></PRE>That is &quot;&lt;viewname&gt;[&lt;propertyname&gt;:&lt;propertytype&gt;...]&quot;<BR>Where the property type is one of:<BR><TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0><TR><TD WIDTH=40></TD><TD>I</TD><TD WIDTH=20></TD><TD>adaptive integer (becomes Python int)</TD></TR><TR><TD WIDTH=40></TD><TD>F</TD><TD WIDTH=20></TD><TD>C float (becomes Python float)</TD></TR><TR><TD WIDTH=40></TD><TD>D</TD><TD WIDTH=20></TD><TD>C double (is a Python float)</TD></TR><TR><TD WIDTH=40></TD><TD>S</TD><TD WIDTH=20></TD><TD>C null terminated string (becomes Python string)</TD></TR><TR><TD WIDTH=40></TD><TD>B</TD><TD WIDTH=20></TD><TD>C array of bytes (becomes Python string)</TD></TR></TABLE>Careful: do not include white space in the decription string.<BR><BR></DL></BLOCKQUOTE>
+        <BR>A description string looks like:<BR><PRE><FONT COLOR="#000099">     &quot;people[name:S,addr:S,city:S,state:S,zip:S]&quot;</FONT></PRE>That is &quot;&lt;viewname&gt;[&lt;propertyname&gt;:&lt;propertytype&gt;...]&quot;<BR>Where the property type is one of:<BR>
+	<TABLE BORDER=0 CELLSPACING=0 CELLPADDING=0>
+	<TR><TD WIDTH=40></TD><TD>I</TD><TD WIDTH=20></TD><TD>adaptive integer (becomes Python int)</TD></TR>
+	<TR><TD WIDTH=40></TD><TD>L</TD><TD WIDTH=20></TD><TD>64-bit integer (becomes Python long)</TD></TR>
+	<TR><TD WIDTH=40></TD><TD>F</TD><TD WIDTH=20></TD><TD>C float (becomes Python float)</TD></TR>
+	<TR><TD WIDTH=40></TD><TD>D</TD><TD WIDTH=20></TD><TD>C double (is a Python float)</TD></TR>
+	<TR><TD WIDTH=40></TD><TD>S</TD><TD WIDTH=20></TD><TD>C null terminated string (becomes Python string)</TD></TR>
+	<TR><TD WIDTH=40></TD><TD>B</TD><TD WIDTH=20></TD><TD>C array of bytes (becomes Python string)</TD></TR>
+	</TABLE>Careful: do not include white space in the decription string.<BR><BR></DL></BLOCKQUOTE>
 <H3><A NAME="3"></A><A HREF="#0">3.</A> View objects</H3>View implements sequence (list) methods, including slicing, 
             concatentation etc.  They behave as a sequence of &quot;rows&quot;,
             which in turn have &quot;properties&quot;.

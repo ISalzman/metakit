@@ -98,11 +98,11 @@ void c4_Bytes::Swap(c4_Bytes& bytes_)
         // if either one is using its local buffer, swap those too
     if (_contents == bytes_._buffer || p == _buffer)
     {
-        t4_byte t [kMaxBuf];
+        t4_byte t [sizeof _buffer];
         
-        memcpy(t, _buffer, kMaxBuf);
-        memcpy(_buffer, bytes_._buffer, kMaxBuf);
-        memcpy(bytes_._buffer, t, kMaxBuf);
+        memcpy(t, _buffer, sizeof _buffer);
+        memcpy(_buffer, bytes_._buffer, sizeof _buffer);
+        memcpy(bytes_._buffer, t, sizeof _buffer);
 
         if (_contents == bytes_._buffer)
             _contents = _buffer;
@@ -125,7 +125,7 @@ t4_byte* c4_Bytes::SetBuffer(int length_)
     _LoseCopy();
     
     _size = length_;
-    _copy = _size > kMaxBuf;
+    _copy = _size > sizeof _buffer;
 
     return _contents = _copy ? d4_new t4_byte [_size] : _buffer;
 }
@@ -140,7 +140,7 @@ void c4_Bytes::_MakeCopy()
 {
     d4_assert(_contents != 0);
     
-    _copy = _size > kMaxBuf;
+    _copy = _size > sizeof _buffer;
 
     _contents = (t4_byte*) memcpy(_copy ? d4_new t4_byte [_size] : _buffer,
                                                         _contents, _size);

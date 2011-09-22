@@ -111,24 +111,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mktclsql"=.\mktclsql.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name mklib
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name mk4py_s
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "mktest"=.\mktest.dsp - Package Owner=<4>
 
 Package=<5>

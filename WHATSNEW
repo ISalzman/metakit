@@ -1,9 +1,14 @@
-MetaKit 2.3.3 final release candidate
-November, 2000
+MetaKit 2.3.4 - last release candidate
+March, 2001
 
 Welcome to the latest release of the MetaKit embedded database library.
 This is a near-final release, it is functionally 100% done, but a few
-problems/bugs still remain.  Please stick with MK 2.01 for production.
+minor problems/bugs still remain.  Release MK 2.3.4 is essentialy ready
+for production use, with one extremely important disclaimer:
+
+   >>> Do *not* rely on new commit-aside/-extend models, these
+   >>> new features are not good enough for general use yet.
+   >>> Worse still, they will remain experimental in 2.3 final!
 
 This document describes the main changes since 2.01 in some detail:
 
@@ -352,7 +357,7 @@ gratefully accepted - there is a huge amount of work left to do.
 
 CURRENT STATUS
 
-This 2.3.3 build passes all but one of the original regression tests
+This 2.3.4 build passes all but one of the original regression tests
 (the one which does not pass is related to serialized data loading).
 
 There are several performance bottlenecks, despite the fact that the new
@@ -363,15 +368,18 @@ I will start aiming for top speed *after* everything works properly.
 
 The commit logic can be slow for complex datasets, I am looking into it.
 
-A recent change appears to have re-introduced a few memory leaks.
-
 There are some problems when changing keys in hash & ordered views, the
 best workaround is to not change key properties - delete and re-insert
 the row instead if you need this capability.
 
-This MK 2.3.3 final release candidate is quite solid.  Recent versions
-of the 2.3.2 beta preceding it have been in use in a number of active
-projects without major problems.
+This MK 2.3.4 final release candidate is very solid.  Recent versions
+of the beta preceding it have been in use in a wide range of active
+projects without substantial problems.  A byte-order conversion bug has
+recently been found and fixed, as well as double alignment on Solaris.
+
+At this point, I recommend using 2.3.4 as replacement for 2.01, except
+when tweaks for top performance have been done in 2.01 (2.3.4 is not yet
+as highly optimized, and has a slightly different performance behavior).
 
 
 -- Jean-Claude Wippler <jcw@equi4.com>

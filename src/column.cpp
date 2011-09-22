@@ -1128,8 +1128,13 @@ bool c4_ColOfInts::Set_64r(int index_, const t4_byte* item_)
 c4_ColOfInts::c4_ColOfInts (c4_Persist* persist_, int width_)
     : c4_Column (persist_), 
       _getter (&c4_ColOfInts::Get_0b), _setter (&c4_ColOfInts::Set_0b),
-      _currWidth (0), _dataWidth (width_), _numRows (0)
+      _currWidth (0), _dataWidth (width_), _numRows (0), _mustFlip (false)
 {
+}
+
+void c4_ColOfInts::ForceFlip()
+{
+    _mustFlip = true;
 }
 
 int c4_ColOfInts::RowCount() const
@@ -1177,6 +1182,28 @@ void c4_ColOfInts::SetRowCount(int numRows_)
     }
 }
 
+void c4_ColOfInts::FlipBytes()
+{
+    if (_currWidth > 8)
+    {
+        int step = _currWidth >> 3;
+
+        c4_ColIter iter (*this, 0, ColSize());
+        while (iter.Next(step))
+        {
+            t4_byte* data = iter.BufSave();
+            d4_assert(data != 0);
+
+            for (int j = 0; j < step; ++j)
+            {
+                t4_byte c = data[j];
+                data[j] = data[step-j-1];
+                data[step-j-1] = c;
+            }
+        }
+    }
+}
+
 void c4_ColOfInts::SetAccessWidth(int bits_)
 {
     d4_assert((bits_ & (bits_ - 1)) == 0);
@@ -1191,7 +1218,7 @@ void c4_ColOfInts::SetAccessWidth(int bits_)
 
     _currWidth = (1 << l2bp1) >> 1;
 
-    if (l2bp1 > 4 && Persist() != 0 && Strategy()._bytesFlipped)
+    if (l2bp1 > 4 && (_mustFlip || Persist() != 0 && Strategy()._bytesFlipped))
         l2bp1 += 3; // switch to the trailing entries for byte flipping
 
         // Metrowerks Codewarrior 11 is dumb, it requires the "&c4_ColOfInts::"
@@ -1305,7 +1332,7 @@ void c4_ColOfInts::Set(int index_, const c4_Bytes& buf_)
 
             // now repeat the failed call to _setter
         bool f = (this->*_setter)(index_, buf_.Contents());
-        d4_assert(f);
+        //? d4_assert(f);
     }
 }
 

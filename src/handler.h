@@ -33,6 +33,8 @@ public:
 
     virtual void Define(int, const t4_byte**);
         //: Called when the corresponding table has been fully defined.
+    virtual void FlipBytes();
+    	//: Called to reverse the internal byte order of foreign data.
     virtual void Commit(c4_SaveContext& ar_);
         //: Commit the associated column(s) to file.
     virtual void OldDefine(char, c4_Persist&);

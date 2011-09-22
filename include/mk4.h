@@ -47,7 +47,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 233    // 2.3.3 final release candidate
+#define d4_MetaKitLibraryVersion 234    // 2.3.4 last release candidate
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -457,13 +457,12 @@ private:
 
 class c4_Bytes
 {
-    enum { kMaxBuf = 16 };
-    t4_byte _buffer [kMaxBuf];
-
     union {
-        t4_byte* _contents;
+	t4_byte _buffer [16];
         double _aligner; // on a Sparc, the int below wasn't enough...
     };
+
+    t4_byte* _contents;
     int _size;
     bool _copy;
 

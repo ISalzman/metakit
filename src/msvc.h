@@ -31,3 +31,7 @@
 #if defined (_DEBUG) && !defined (q4_CHECK) // use assertions in debug build
 #define q4_CHECK 1
 #endif
+
+#if !q4_STD && !q4_UNIV && !defined (q4_MFC)
+#define d4_FW_H "mfc.h"     // default for MSVC is to use MFC
+#endif

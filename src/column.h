@@ -111,6 +111,8 @@ public:
 
     int RowCount() const;
     void SetRowCount(int numRows_);
+
+    void FlipBytes();
     
     int ItemSize(int index_);
     const void* Get(int index_, int& length_);
@@ -126,6 +128,7 @@ public:
 
     void SetAccessWidth(int bits_);
     void FixSize();
+    void ForceFlip();
 
     static int DoCompare(const c4_Bytes& b1_, const c4_Bytes& b2_);
 
@@ -162,11 +165,15 @@ private:
     tGetter _getter;
     tSetter _setter;
 
-    t4_byte _item[8];   // holds temp result (careful with alignment!)
+    union {
+	t4_byte _item[8]; // holds temp result (careful with alignment!)
+	double _aligner;  // needed for SPARC
+    };
 
     int _currWidth;     // number of bits used for one entry (0..64)
     int _dataWidth;     // number of bytes used for passing a value along
     int _numRows;
+    bool _mustFlip;
 };
 
 /////////////////////////////////////////////////////////////////////////////

@@ -564,7 +564,7 @@ ac_link='${CXX-g++} -o conftest${ac_exeext} $CXXFLAGS $CPPFLAGS $LDFLAGS conftes
 cross_compiling=$ac_cv_prog_cxx_cross
 
 
-VERSION=2.3.3
+VERSION=2.3.4
 
 
 MK_TARGETS="core"

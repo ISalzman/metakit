@@ -57,6 +57,7 @@ public:
     void CommitSequence(c4_HandlerSeq& seq_, bool selfDesc_);
 
     c4_Column* SetWalkBuffer(c4_Column* walk_);
+    bool IsFlipped() const;
     
 private:
     void FlushBuffer();

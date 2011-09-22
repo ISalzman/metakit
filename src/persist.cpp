@@ -509,6 +509,11 @@ c4_SaveContext::~c4_SaveContext ()
         delete _nextSpace;
 }
 
+bool c4_SaveContext::IsFlipped() const
+{
+    return _strategy._bytesFlipped;
+}
+
 void c4_SaveContext::FlushBuffer()
 {
     int n = _curr - _bufPtr;

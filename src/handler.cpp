@@ -354,6 +354,15 @@ void c4_HandlerSeq::OldPrepare()
     }
 }
 
+void c4_HandlerSeq::FlipAllBytes()
+{
+    for (int i = 0; i < NumHandlers(); ++i)     
+    {
+        c4_Handler& h = NthHandler(i);
+        h.FlipBytes();
+    }
+}
+
 #if 0 // implementation doesn't work any more
 
     // New 19990903: swap rows in tables without touching the memo fields 

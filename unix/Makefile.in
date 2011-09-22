@@ -32,7 +32,7 @@ srcdir = @srcdir@
 top_builddir = .
 
 # not normally compiled with -g, but you can specify it in the make command
-CXXFLAGS = -O3 -fomit-frame-pointer
+CXXFLAGS = -O2 -fomit-frame-pointer
 #CXXFLAGS = -fguiding-decls -Wall -pedantic -Wno-unused -g
 
 CXX = @CXX@
@@ -57,6 +57,7 @@ CXX_SWITCHES_PY   = $(CXXFLAGS) -I$(srcdir)/../include \
 				-I/usr/include/python2.0 \
 				-I$(includedir)/python1.5 \
 				-I/usr/include/python1.5
+CXX_SWITCHES_LUA  = $(CXXFLAGS) -I$(srcdir)/../include
 CXX_SWITCHES_TEST = -I$(srcdir)/../include
 
 #---------- The targets normally specified when calling "make"
@@ -162,6 +163,10 @@ libmk4py.la: $(PYOBJS) libmk4.a
 Mk4py.so: $(PYOBJS) libmk4.a
 	$(CXX) -o $@ $(CXX_SWITCHES) -shared $(SPYOBJS) $(SHLOBJS)
 
+Mk4lua.so: mk4lua.o libmk4.a
+	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4lua.lo $(SHLOBJS) \
+		-L$(libdir) -llua -llualib
+
 demo: $(srcdir)/../demos/demo.cpp libmk4.a
 	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@ \
 		$(srcdir)/../demos/demo.cpp libmk4.a
@@ -231,6 +236,9 @@ view.o: $(srcdir)/../src/view.cpp
 	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
 viewx.o: $(srcdir)/../src/viewx.cpp
 	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES) $?
+
+mk4lua.o: $(srcdir)/../lua/mk4lua.cpp
+	$(LIBTOOL) --mode=compile $(CXX) -c $(CXX_SWITCHES_LUA) $?
 
 regress.o: $(srcdir)/../tests/regress.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@

@@ -1,4 +1,4 @@
-The MetaKit Library 2.3.3 final release candidate                November 2000
+The MetaKit Library 2.3.4 - last release candidate                  March 2001
 ==============================================================================
 
 
@@ -24,7 +24,8 @@ PYTHON - The binding for Python is called "Mk4py".  It uses SCXX by Gordon
 
 TCL/TK - The MK extension for Tcl is called "Mk4tcl".  It is being used in a
     number of commercial projects, for in-house use as well as in commercially
-    distributed products.  The source is in directory "tcl/".
+    distributed products.  The source is in directory "tcl/".  The sources to
+    build TclKit, a standalone incorporating Tcl and Tk, are in "tcl/kit/".
 
 LICENSE AND SUPPORT - MetaKit is now distributed as open source software (the
     X/MIT-style license is at the end of this document).  Commercial support
@@ -43,8 +44,9 @@ WEBSITE URLS - The main pages on the world wide web, for news and downloads:
 
 ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend MetaKit,
     i.e. Kyrill Denisenko, Gordon McMillan, Matt Newman, Christian Tismer,
-    John Bushakra, and many people who have reported bugs and helped fix them.
-    Many thanks to all enterprise license customers for funding MetaKit work.
+    John Bushakra, Steve Landers, Jacob Levy, and many more people who have
+    reported bugs and helped fix them.  Last but not least, many thanks to all
+    enterprise license customers and all my clients for funding MetaKit work.
 
 
 INSTALLATION

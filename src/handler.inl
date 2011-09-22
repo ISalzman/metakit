@@ -20,6 +20,10 @@ d4_inline void c4_Handler::Define(int, const t4_byte**)
 {
 }
 
+d4_inline void c4_Handler::FlipBytes()
+{
+}
+
 d4_inline const c4_Property& c4_Handler::Property() const
 {
     return _property;
