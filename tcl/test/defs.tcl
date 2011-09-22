@@ -6,20 +6,20 @@ if {[info procs S] != ""} return
 
 # All commands and globals in this test harness use 1-char uppercase letters:
 #
-# S pre post      define scripts to run before and after each test
-# M msg       message to stdout
-# E msg       flag test as bad, throw exception
-# A cond        assertion check, exception if condition is not met
-# C s1 s2       check that string results are the same
-# F         return a unique id, can be used as filename root
-# R         remove lingering files from last run of this test
-# N script      set script name
+# S pre post        define scripts to run before and after each test
+# M msg             message to stdout
+# E msg             flag test as bad, throw exception
+# A cond            assertion check, exception if condition is not met
+# C s1 s2           check that string results are the same
+# F                 return a unique id, can be used as filename root
+# R                 remove lingering files from last run of this test
+# N script          set script name
 # T num desc body   the main test proc 
-# Q ?num?       end of tests, optional arg is number after final test
+# Q ?num?           end of tests, optional arg is number after final test
 #
-# array V       contains various test variable settings
-# array F       contains lists of failures, per test
-# array N       contains descriptive test names, per test
+# array V           contains various test variable settings
+# array F           contains lists of failures, per test
+# array N           contains descriptive test names, per test
 
 proc S {args} {
   global V F N

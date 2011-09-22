@@ -427,6 +427,11 @@ T 7 {blocked hash view} {
     v4 insert end k $x v v$x
   }
 
+  # check that the entries all get found
+  for {set x 100} {$x <= 999} {incr x} {
+    C [expr {$x-98}] [v4 find k $x]
+  }
+
   C [v2 size] 4
   C [v3 size] 2049
   

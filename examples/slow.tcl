@@ -1,14 +1,14 @@
 # Trying to find out how hash performance degrades as size increases
 
 if [catch {package require Mk4tcl}] {
-  catch {load ./Mk4tcl.so mk4tcl}
+  catch {load ./Mk4tcl[info sharedlibext] mk4tcl}
   catch {load ./Mk4tcl_d.dll mk4tcl}
 }
 
 proc loadwords {step} {
   global warray
-  #set fd [open /usr/share/dict/words]
-  set fd [open words]
+  set fd [open /usr/share/dict/words]
+  #set fd [open words]
   for {set i 0} {$i < $step && [gets $fd line] >= 0} {incr i} {
     set warray($line) $i
   }

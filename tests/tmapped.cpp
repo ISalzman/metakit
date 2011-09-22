@@ -1,5 +1,5 @@
 // tmapped.cpp -- Regression test program, mapped view tests
-// $Id: tmapped.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: tmapped.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -164,4 +164,27 @@ void TestMapped()
     s1.Commit();
 
   } D(m05a); R(m05a); E;
+
+    // 2003/02/14 - assert fails for 2.4.8 in c4_Column::RemoveData
+  B(m06, Blocked view multi-row deletion, 0) W(m06a);
+  {
+    c4_IntProp p1 ("p1");
+    
+    c4_Storage s1 ("m06a", true);
+    c4_View v1 = s1.GetAs("v1[p1:I]");
+    c4_View v2 = s1.GetAs("v2[_B[_H:I,_R:I]]");
+    c4_View v3 = v2.Blocked();
+    c4_View v4 = v1.Hash(v3, 1);
+
+    v4.Add(p1 [1]);
+    v4.Add(p1 [2]);
+    v4.RemoveAt(1);
+
+    for (int i = 100; i < 1000; ++i) {
+      v4.Add(p1 [i]);
+    }
+      
+    s1.Commit();
+
+  } D(m06a); R(m06a); E;
 }

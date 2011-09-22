@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: handler.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -223,7 +223,12 @@ int c4_HandlerSeq::AddHandler(c4_Handler* handler_)
 
 const char* c4_HandlerSeq::Description()
 {
-  return _field != 0 ? UseTempBuffer(Definition().DescribeSubFields()) : 0;
+  // 19-01-2003: avoid too dense code, since Sun CC seems to choke on it
+  //return _field != 0 ? UseTempBuffer(Definition().DescribeSubFields()) : 0;
+  if (_field == 0)
+    return 0;
+  c4_String s = _field->DescribeSubFields(); 
+  return UseTempBuffer(s);
 }
 
 void c4_HandlerSeq::Restructure(c4_Field& field_, bool remove_)
@@ -309,7 +314,9 @@ bool c4_HandlerSeq::IsNested(int index_) const
 
 c4_Field& c4_HandlerSeq::Field(int index_) const
 {
-  return Definition().SubField(index_);
+  d4_assert(_field != 0);
+  
+  return _field->SubField(index_);
 }
 
 void c4_HandlerSeq::Prepare(const t4_byte** ptr_, bool selfDesc_)

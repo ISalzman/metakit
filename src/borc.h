@@ -1,5 +1,5 @@
 // borc.h --
-// $Id: borc.h 1246 2007-03-09 16:29:26Z jcw $
+// $Id: borc.h 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

@@ -1,5 +1,5 @@
 // field.cpp --
-// $Id: field.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: field.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -79,8 +79,8 @@ c4_String c4_Field::Description(bool anonymous_) const
   if (Type() == 'V')
     s += "[" + DescribeSubFields(anonymous_) + "]";
   else {
-    s += ':';
-    s += Type();
+    s += ":";
+    s += (c4_String) Type();
   }
   
   return s;
@@ -98,7 +98,7 @@ c4_String c4_Field::DescribeSubFields(bool) const
   
   for (int i = 0; i < NumSubFields(); ++i) {
     if (c != 0)
-      s += c;
+      s += (c4_String) c;
     s += SubField(i).Description();
     c = ',';
   } 

@@ -1,5 +1,5 @@
 // format.cpp --
-// $Id: format.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: format.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -587,7 +587,9 @@ void c4_FormatB::InitOffsets(c4_ColOfInts& sizes_)
 {
   int rows = Owner().NumRows();
 
-  sizes_.SetRowCount(rows);
+  if (sizes_.RowCount() != rows) {
+    sizes_.SetRowCount(rows);
+  }
 
   _memos.SetSize(rows);
   _offsets.SetSize(rows + 1);

@@ -1,5 +1,5 @@
 // remap.cpp --
-// $Id: remap.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: remap.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -189,14 +189,16 @@ bool c4_HashViewer::KeySame(int row_, c4_Cursor cursor_) const
   return true;
 }
 
+#include <stdio.h>
 /// Create mapped view which is uses a second view for hashing
 t4_i32 c4_HashViewer::CalcHash(c4_Cursor cursor_) const
 {
+  c4_Bytes buffer, buf2;
+  const t4_i32 endian = 0x03020100;
   t4_i32 hash = 0;
 
   for (int i = 0; i < _numKeys; ++i)
   {
-    c4_Bytes buffer;
     c4_Handler& h = cursor_._seq->NthHandler(i);
     cursor_._seq->Get(cursor_._index, h.PropId(), buffer);
   
@@ -205,6 +207,20 @@ t4_i32 c4_HashViewer::CalcHash(c4_Cursor cursor_) const
     if (len > 0)
     {
       const t4_byte* p = buffer.Contents();
+
+	// 20030218: careful to avoid endian-ness sensitivity
+      if ((const t4_byte&) endian) // true on big-endian systems
+	switch (h.Property().Type())
+	{
+	  case 'I': case 'L': case 'F': case 'D':
+	  {
+	    t4_byte* q = buf2.SetBuffer(len);
+	    for (int j = 0; j < len; ++j)
+	      q[len-j-1] = p[j];
+	    p = q;
+	  }
+	}
+
       long x = *p << 7;
       
       // modifications are risky, this code avoid scanning huge blobs
@@ -229,6 +245,7 @@ t4_i32 c4_HashViewer::CalcHash(c4_Cursor cursor_) const
 
   if (hash == 0)
     hash = -1;
+
   return hash;
 }
 
@@ -265,7 +282,7 @@ int c4_HashViewer::LookDict(t4_i32 hash_, c4_Cursor cursor_) const
   {
     i = (i+incr) & mask;
     if (IsUnused(i))
-      return freeslot != -1 ? freeslot : i;
+      break;
     if (Hash(i) == hash_ && KeySame(Row(i), cursor_))
       return i;
     if (freeslot == -1 && IsDummy(i))
@@ -275,6 +292,8 @@ int c4_HashViewer::LookDict(t4_i32 hash_, c4_Cursor cursor_) const
     if (incr > mask)
       incr ^= poly; /* This will implicitely clear the highest bit */
   }
+
+  return freeslot != -1 ? freeslot : i;
 }
 
 void c4_HashViewer::InsertDict(int row_)
@@ -322,11 +341,11 @@ bool c4_HashViewer::DictResize(int minused)
     }
   }
 
-  _map.SetSize(1);
+  _map.SetSize(0);
 
   c4_Row empty;
   _pRow (empty) = -1;
-  _map.InsertAt(0, empty, newsize);
+  _map.InsertAt(0, empty, newsize + 1);
 
   SetPoly(newpoly);
   SetSpare(0);
@@ -489,6 +508,7 @@ class c4_BlockedViewer : public c4_CustomViewer
   int Slot(int& pos_);
   void Split(int block_, int row_);
   void Merge(int block_);
+  void Validate() const;
 
 public:
   c4_BlockedViewer (c4_Sequence& seq_);
@@ -503,6 +523,34 @@ public:
 };
 
 /////////////////////////////////////////////////////////////////////////////
+
+#if q4_CHECK
+
+    // debugging version to verify that the internal data is consistent
+  void c4_BlockedViewer::Validate() const
+  {
+    d4_assert(_base.GetSize() >= 2);
+
+    int n = _base.GetSize() - 1;
+    d4_assert(_offsets.GetSize() == n);
+
+    int total = 0;
+    for (int i = 0; i < n; i++)
+    {
+      c4_View bv = _pBlock (_base[i]);
+      total += bv.GetSize();
+      d4_assert(_offsets.GetAt(i) == total++);
+    }
+  }
+
+#else
+
+    // nothing, so inline this thing to avoid even the calling overhead
+  d4_inline void c4_BlockedViewer::Validate() const
+  {
+  }
+
+#endif
 
 c4_BlockedViewer::c4_BlockedViewer (c4_Sequence& seq_)
   : _base (&seq_), _pBlock ("_B")
@@ -520,6 +568,7 @@ c4_BlockedViewer::c4_BlockedViewer (c4_Sequence& seq_)
     total += bv.GetSize();
     _offsets.SetAt(i, total++);
   }
+  Validate();
 }
 
 c4_BlockedViewer::~c4_BlockedViewer ()
@@ -570,6 +619,8 @@ void c4_BlockedViewer::Split(int bno_, int row_)
 
   bv.RelocateRows(row_ + 1, -1, bn, 0);
   bv.RelocateRows(row_, 1, bz, bno_);
+
+  Validate();
 }
 
 void c4_BlockedViewer::Merge(int bno_)
@@ -585,6 +636,8 @@ void c4_BlockedViewer::Merge(int bno_)
   bv2.RelocateRows(0, -1, bv1, -1);
 
   _base.RemoveAt(bno_+1);
+
+  Validate();
 }
 
 c4_View c4_BlockedViewer::GetTemplate()
@@ -595,7 +648,9 @@ c4_View c4_BlockedViewer::GetTemplate()
 
 int c4_BlockedViewer::GetSize()
 {
-  return _offsets.GetAt(_offsets.GetSize() - 1);
+  int n = _offsets.GetAt(_offsets.GetSize() - 1);
+  d4_assert(n >= 0);
+  return n;
 }
 
 bool c4_BlockedViewer::GetItem(int row_, int col_, c4_Bytes& buf_)
@@ -657,6 +712,8 @@ bool c4_BlockedViewer::InsertRows(int pos_, c4_Cursor value_, int count_)
   if (bv.GetSize() > kLimit )
     Split(i, atEnd ? kLimit - 1 : bv.GetSize() / 2); // 23-3-2002, from MB
 
+  Validate();
+
   return true;
 }
 
@@ -685,11 +742,18 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
 	break;
       todo -= nextsize;
       overshoot -= nextsize;
-      _offsets.RemoveAt(i);
+
+        // drop the block and forget it ever existed
+      for (int j = i+1; j < z; ++j)
+        _offsets.SetAt(j, _offsets.GetAt(j) - nextsize);
+      _offsets.RemoveAt(i+1);
+
       _base.RemoveAt(i+1);
       --z;
       c4_View bz = _pBlock (_base[z]);
-      bz.RemoveAt(i+1);
+      bz.RemoveAt(i);
+      
+      Validate();
     }
       
       // delete before merging, to avoid useless copying
@@ -725,7 +789,7 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
     bv.RemoveAt(pos_, todo);
 
   for (int j = i; j < z; ++j)
-    _offsets.SetAt(j, _offsets.GetAt(j) - count_);
+    _offsets.SetAt(j, _offsets.GetAt(j) - todo);
 
     // if the block underflows, merge it
   if (bv.GetSize() < kLimit / 2) {
@@ -739,6 +803,8 @@ bool c4_BlockedViewer::RemoveRows(int pos_, int count_)
     // if the block overflows, split it
   if (bv.GetSize() > kLimit )
     Split(i, bv.GetSize() / 2);
+
+  Validate();
 
   return true;
 }

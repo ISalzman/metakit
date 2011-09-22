@@ -1,4 +1,141 @@
-2002-05-30    ##############################################    MK 2.4.8
+2003-02-18    ##############################################    MK 2.4.9
+
+   This is mostly a bug fix release (some features added to Mk4tcl).
+
+2003-02-18    Fixed a bug in blocked view deletion, and hash byteorder
+
+   There was an off-by-one error in the deletion of multiple rows
+   which span more than an entire subview block.  Test m06 is ok now.
+   Also added consistency checks (when compiled in debug mode).
+
+   Fixed a too-strict assertion in mk4tcl.cpp, Item destructor.
+
+   Fixed a byte-order sensitivity in hash views for numeric properties.
+
+2003-02-17    Configure tweaks for hpux/ia64
+
+   Re-instated hpux changes by A. Kupries, for ia64, also -lpthread.
+
+2003-02-14    Bug found in blocked viewer modification
+
+   Added test m06 to catch a problem first detected in the Tcl test
+   suite (test 5.7) - recoded to C++.  This is a show-stopper for the
+   upcoming 2.4.9 release - fixing it is now a top priority.
+
+2003-02-14    Some changes to OO interface in Tcl
+
+   The OO "select" cmd now returns a view, not a list of row #'s.
+   Added "product" and "rename" operators, they were not exposed.
+
+2003-02-14    Enable stdio buffering
+
+   On platforms where stdio is used, the setbuf(..., 0) calls have been
+   removed (fileio.cpp).  This improves performance, and lets caller set
+   up whatever buffering they like.
+
+2003-02-07    Tweaks to restore broken MK ports
+
+   Fixes by A. Kupries to fix MK builds I broke (Itanium/HPUX).
+
+2003-02-07    Changed code to avoid compiler warning
+
+   In remap.cpp, LookDict(), add return at end to avoid a mistaken
+   compiler warning (on AIX 5.1).  No effect on runtime behavior.
+
+2003-02-02    Work around optimizer bug in gcc 3.2.1
+
+   The sign-extension in c4_ColOfInts::Get_16r was not being done right
+   with -O2 on Linux.  This only manifests itself with files having
+   reversed bytes (e.g. PowerPC/Mac).  Changed code to use a local temp
+   buffer instead.  This bug was the reason why some starkits failed to
+   load when created on Mac and used on Linux.
+
+2003-01-24    Fixed cleanup order bug in Mk4tcl
+
+   There was a long-standing bug in Mk4tcl, in which cleanup order of
+   MkPath objects caused them to access their MkWorkspace parent even
+   though it was already deleted.  This may have caused some of the
+   crash-on-exit bugs in the past.
+
+2003-01-22    Add missing -lstdc++
+
+   For unknown reasons, the current make failed to produce shared libs
+   with libstdc++ linked in - manually added to LDFLAGS again.
+
+2003-01-19    Tweak to temp object use
+
+   Two changes in handler.cpp to avoid bug in compilers which get the
+   cleanup logic of temp objects wrong (thx, Dan Gregory).
+
+2003-01-17    Add synonym for mk4tcl "info" command
+
+   To avoid a name clash, "$view info" can now also be written as 
+   "$view properties" (or an abbreviation of that).
+
+2003-01-16    Allow access to root view in Mk4tcl
+
+   Access to root view (i.e. the storage object itself) was not
+   allowed - added a small change to allow this (MkPath::AttachView).
+
+2003-01-15    Use strdup
+
+   On Unix, use strdup i.s.o own code for _strdup, see univ.cpp.
+   Perhaps it's time to start reversing the names, and make unix std.
+
+2003-01-10    Build improvements, Mk4py long and Mac improvements
+
+   Merged changes submitted by Nicholas Riley (thanks!) into CVS:
+   - changes to build Mk4py on MacOS X (framework/dylib)
+   - support 'L' fields, handle overflow, throw exceptions
+   - the beginnings of a test suite for Mk4py (in python/test/)
+
+   Separated PPC and 68K projects (Mac classic), because PPC is now
+   built with 8.3 (Carbon support), while 68K requires 6.3.  The x86
+   cross-compile-from-mac projects have been dropped.
+
+2003-01-09    String compare tweak, Mac Carbon runtime mmap code
+
+   Use strcasecmp on unix, instead of own code (string.cpp).
+
+   Added code based on Paul Snively's contributed patch to recognize
+   running under OSX, so carbon apps can benefit from mmapped files.
+   All changes are within fileio.cpp, requires CW8 to build this way.
+   Added "PPC Carbon" target to cw.mcp, derived from "PPC DLL" one.
+
+2002-12-23    Tweak for Borland builder 5 & 6
+
+   Changed #ifdef line 22 in univ.cpp (fix by S. Cusack).
+   
+2002-12-09    Fixed bug in selection view change propagation
+
+   Fixed a bug when a row is inserted in a view on which a selection
+   depends, when the inserted position is not part of the derived one.
+   This looks like an oversight in 2.3/2.4 changes, and must have been
+   in there for quite some time.  Added new n14 test to verify this.
+
+2002-12-02    Fixed bug in MK old-file format conversion
+
+   Fixed bug in on-the-fly conversion of old 1.x/2.0.x format files.
+
+2002-11-24    Fixed Mk4tcl threaded build
+
+   Release and reclaim mutex lock while calling eval inside loops.
+   Added "--enable-threads" option to configure script.
+
+2002-11-22    Configure tweak for HPUX/Itanium
+
+   Removed ia64 check in configure.in, now that libtool has been fixed.
+
+2002-11-16    Tweaks to compile on Mac
+
+   Small changes to the source code to avoid errors from the MWCW 8.x
+   compilers.  Omit stricmp and strdup with CW version >= 8.
+   
+2002-11-04    Fixed typo in Makefile
+
+   This prevented Mk4py from getting installed (thanks F. Majid).
+
+2002-11-03    ##############################################    MK 2.4.8
 
    Reverted non-portable change in Makefile to copy to "Mk4tcl.*".
 

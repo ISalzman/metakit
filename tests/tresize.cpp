@@ -1,5 +1,5 @@
 // trseize.cpp -- Regression test program, resizing tests
-// $Id: tresize.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: tresize.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -34,7 +34,7 @@ private:
 };
 
 CResizer::CResizer (const char* file)
-  : c4_Storage (file, 1), _refSize (0), _seed (0), _prop ("p1")
+  : c4_Storage (file, 1), _refSize (0), _prop ("p1"), _seed (0)
 {
   SetStructure("a[p1:I]");
   

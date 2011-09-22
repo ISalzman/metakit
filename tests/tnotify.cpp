@@ -1,5 +1,5 @@
 // tnotify.cpp -- Regression test program, notification tests
-// $Id: tnotify.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: tnotify.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -415,4 +415,30 @@ void TestNotify()
     A(p1 (v2[4]) == 234);
   } E;
 */
+  // this failed in 2.4.8, reported by S. Selznick, 2002-11-22
+  B(n14, Insert in non-mapped position, 0) W(n14a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_Storage s1 ("n14a", 1);
+    s1.SetStructure("a[p1:I]");
+    c4_View v1 = s1.View("a");
+
+    static int intlist[] = { 0, 1, 2, 0, 1, 2, 0, 1, 2, 0, -1 };
+    for (int c = 0; -1 != intlist[c]; c++)
+      v1.Add(p1 [intlist[c]]);
+
+      A(v1.GetSize() == 10);
+    c4_View v2 = v1.Select(p1 [1]);
+      A(v2.GetSize() == 3);
+
+    v1.InsertAt(3, p1 [6]);
+      A(v1.GetSize() == 11);
+      A(v2.GetSize() == 3);
+
+    v1.InsertAt(7, p1 [1]);
+      A(v1.GetSize() == 12);
+      A(v2.GetSize() == 4);
+
+    s1.Commit();
+  } D(n14a); R(n14a); E;
 }

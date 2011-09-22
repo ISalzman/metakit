@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1246 2007-03-09 16:29:26Z jcw $
+// $Id: mk4.h 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 248    // 2.4.8 release, Nov 2, 2002
+#define d4_MetaKitLibraryVersion 249    // 2.4.9 release, Feb 14, 2003
 
 //---------------------------------------------------------------------------
 // Declarations in this file

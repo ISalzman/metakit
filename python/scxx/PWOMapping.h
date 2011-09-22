@@ -56,7 +56,7 @@ public:
   //PyDict_GetItemString
   PWOMappingMmbr operator [] (const char* key) {
     PyObject* rslt = PyMapping_GetItemString(_obj, (char*) key);
-    if (rslt==0)
+    if (rslt == NULL)
       PyErr_Clear();
     PWOString _key(key);
     return PWOMappingMmbr(rslt, *this, _key);
@@ -64,7 +64,7 @@ public:
   //PyDict_GetItem
   PWOMappingMmbr operator [] (PyObject* key) {
     PyObject* rslt = PyDict_GetItem(_obj, key);
-    //if (rslt==0)
+    //if (rslt == NULL)
     //  Fail(PyExc_KeyError, "Key not found");
     return PWOMappingMmbr(rslt, *this, key);
   };

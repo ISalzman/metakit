@@ -35,7 +35,7 @@ public:
   //PySequence_Concat
   PWOSequence operator+(const PWOSequence& rhs) const {
     PyObject*  rslt = PySequence_Concat(_obj, rhs);
-    if (rslt==0)
+    if (rslt == NULL)
       Fail(PyExc_TypeError, "Improper rhs for +");
     return LoseRef(rslt);
   };
@@ -82,7 +82,7 @@ public:
   //PySequence_Repeat
   PWOSequence operator * (int count) const {
     PyObject* rslt = PySequence_Repeat(_obj, count);
-    if (rslt==0)
+    if (rslt == NULL)
       Fail(PyExc_RuntimeError, "sequence repeat failed");
     return LoseRef(rslt);
   };
@@ -159,7 +159,7 @@ public:
   };
   static PWOString format(const PWOString& fmt, PWOTuple& args){
     PyObject * rslt =PyString_Format(fmt, args);
-    if (rslt==0)
+    if (rslt == NULL)
       Fail(PyExc_RuntimeError, "string format failed");
     return LoseRef(rslt);
   };

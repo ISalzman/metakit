@@ -34,20 +34,24 @@ libdir = @libdir@
 srcdir = @srcdir@
 top_builddir = .
 
-pyincludedir = @includedir@/python2.2
-pylibdir = @libdir@/python2.2/site-packages
+python = python
+pyincludedir = @PY_INCLUDE_DIR@
+pylibdir = @PY_LIB_DIR@
 
 tclsh = tclsh
 tclincludedir = @TCL_INCLUDE_DIR@
-tcllibdir = @TCL_INCLUDE_DIR@/../lib
+tcllibdir = @TCL_LIB_DIR@
+
+CPPFLAGS = @CPPFLAGS@
+LDFLAGS = @LDFLAGS@
 
 # Compiling without frame pointers can play tricks with exception handling
 # (e.g. in Mk4py).  This does not affect standard operation, *only* errors.
 # Happens in gcc 2.95.3, it has been disabled for now (even though slower).
-#CXXFLAGS = -fomit-frame-pointer @CXXFLAGS@
-CXXFLAGS = @CXXFLAGS@
-#CXXFLAGS = -Dq4_CHECK @CXXFLAGS@
-#CXXFLAGS = -Wall -pedantic -Wno-unused @CXXFLAGS@
+#CXXFLAGS = -fomit-frame-pointer @CXXFLAGS@ @MK_THREADS@
+CXXFLAGS = @CXXFLAGS@ @MK_THREADS@
+#CXXFLAGS = -Dq4_CHECK @CXXFLAGS@ @MK_THREADS@
+#CXXFLAGS = -Wall -pedantic -Wno-unused @CXXFLAGS@ @MK_THREADS@
 
 CXX = @CXX@
 L = @LIBTOOL@
@@ -55,7 +59,8 @@ INSTALL = @INSTALL@
 INSTALL_DATA = $L --mode=install @INSTALL_DATA@
 INSTALL_PROGRAM = $L --mode=install @INSTALL_PROGRAM@
 
-LIBTOOL_FLAGS = @LIBTOOL_FLAGS@
+LIBTOOL_SHLIB_FLAGS = $(LDFLAGS) @LIBTOOL_SHLIB_FLAGS@
+LIBTOOL_MODULE_FLAGS = $(LDFLAGS) @LIBTOOL_MODULE_FLAGS@
 
 STRIP_FLAGS = @STRIP_FLAGS@
 
@@ -63,20 +68,20 @@ DESTDIR =
 
 #---------- Do not change, shorthand only
 
-CXX_SWITCHES      = $(CXXFLAGS) \
+CXX_SWITCHES      = $(CPPFLAGS) $(CXXFLAGS) \
 			-I$(srcdir)/../include \
 			-I$(srcdir)/../src -I.
-CXX_SWITCHES_TCL  = $(CXXFLAGS) \
+CXX_SWITCHES_TCL  = $(CPPFLAGS) $(CXXFLAGS) \
 			-I$(srcdir)/../include \
 			-I$(tclincludedir)/generic \
 			-I$(tclincludedir)
-CXX_SWITCHES_PY   = $(CXXFLAGS) \
+CXX_SWITCHES_PY   = $(CPPFLAGS) $(CXXFLAGS) \
 			-I$(srcdir)/../include \
 			-I$(srcdir)/../python/scxx \
 			-I$(pyincludedir)
-CXX_SWITCHES_LUA  = $(CXXFLAGS) \
+CXX_SWITCHES_LUA  = $(CPPFLAGS) $(CXXFLAGS) \
 			-I$(srcdir)/../include
-CXX_SWITCHES_TEST = $(CXXFLAGS) \
+CXX_SWITCHES_TEST = $(CPPFLAGS) $(CXXFLAGS) \
 			-I$(srcdir)/../include
 
 #---------- The targets normally specified when calling "make"
@@ -87,7 +92,7 @@ core: Makefile libmk4.la $(DEMOS)
 
 tcl: Makefile Mk4tcl@SHLIB_SUFFIX@
 
-python: Makefile Mk4py@SHLIB_SUFFIX@
+python: Makefile Mk4py@MODULE_SUFFIX@
 
 test: Makefile libmk4.la regress
 	test -d tests || mkdir tests
@@ -98,6 +103,9 @@ test: Makefile libmk4.la regress
 
 test-tcl: tcl
 	cd $(srcdir)/../tcl/test && $(tclsh) all.tcl
+
+test-python: python
+	$(python) $(srcdir)/../python/test/all.py
 
 install: @MK_INSTALL@
 
@@ -114,9 +122,9 @@ install-tcl: Mk4tcl@SHLIB_SUFFIX@
 	$(INSTALL_PROGRAM) Mk4tcl@SHLIB_SUFFIX@ $(DESTDIR)$(tcllibdir)/Mk4tcl
 	echo 'package ifneeded Mk4tcl 2.4.8 [list load [file join $$dir Mk4tcl@SHLIB_SUFFIX@] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
 
-install-python: Mk4py@SHLIB_SUFFIX@
-	$(INSTALL_PROGRAM) Mk4py@SHLIB_SUFFIX@ $(DESTDIR)$(pylibdir)
-	$(INSTALL_PROGRAM) $(srcdir)/../python/metakit.py $$(DESTDIR)(pylibdir)
+install-python: Mk4py@MODULE_SUFFIX@
+	$(INSTALL_PROGRAM) Mk4py@MODULE_SUFFIX@ $(DESTDIR)$(pylibdir)
+	$(INSTALL_PROGRAM) $(srcdir)/../python/metakit.py $(DESTDIR)$(pylibdir)
 
 clean:
 	$L rm -f *.la *.o *.lo
@@ -138,7 +146,7 @@ $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && autoconf
 
 libmk4.la: $(LIBOBJS) $(LINK_SPECIAL_FILES)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) -avoid-version \
 		-rpath $(libdir) $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
 
 Mk4tcl@SHLIB_SUFFIX@: libmk4tcl.la
@@ -146,15 +154,15 @@ Mk4tcl@SHLIB_SUFFIX@: libmk4tcl.la
 	-strip $(STRIP_FLAGS) $@ 2>/dev/null
 
 libmk4tcl.la: mk4tcl.o mk4too.o $(LIBOBJS) $(LINK_SPECIAL_FILES)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_SHLIB_FLAGS) -avoid-version \
 		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS) $(LINK_SPECIAL_FLAGS)
 
-Mk4py@SHLIB_SUFFIX@: libmk4py.la
-	cp .libs/libmk4py@SHLIB_SUFFIX@ $@
+Mk4py@MODULE_SUFFIX@: libmk4py.la
+	cp .libs/libmk4py@MODULE_SUFFIX@ $@
 	-strip $(STRIP_FLAGS) $@ 2>/dev/null
 
 libmk4py.la: $(PYOBJS) $(LIBOBJS)
-	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_FLAGS) -avoid-version \
+	$L --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBTOOL_MODULE_FLAGS) -avoid-version \
 		-rpath $(libdir) $(SPYOBJS) $(SHLOBJS)
 
 Mk4lua@SHLIB_SUFFIX@: mk4lua.o libmk4.la
@@ -202,8 +210,16 @@ PyStorage.o: $(srcdir)/../python/PyStorage.cpp
 	$L --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
 PyView.o: $(srcdir)/../python/PyView.cpp
 	$L --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
-PWOImp.o: $(srcdir)/../python/scxx/PWOImp.cpp
-	$L --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) $?
+
+PWOImp.o: $(srcdir)/../python/scxx/PWOImp.cpp \
+	  $(srcdir)/../python/scxx/PWOBase.h \
+	  $(srcdir)/../python/scxx/PWOCallable.h \
+	  $(srcdir)/../python/scxx/PWOMSequence.h \
+	  $(srcdir)/../python/scxx/PWOMapping.h \
+	  $(srcdir)/../python/scxx/PWONumber.h \
+	  $(srcdir)/../python/scxx/PWOSequence.h
+	$L --mode=compile $(CXX) -c $(CXX_SWITCHES_PY) \
+	     $(srcdir)/../python/scxx/PWOImp.cpp
 
 column.o: $(srcdir)/../src/column.cpp
 	$L --mode=compile $(CXX) -c $(CXX_SWITCHES) $?

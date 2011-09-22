@@ -1,5 +1,5 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: tstore5.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -117,7 +117,7 @@ void TestStores5()
     v1.Add(p1 [12345]);
     s1.Commit();
     
-      int n = p1 (v1[1]);
+      //int n = p1 (v1[1]);
       A(p1 (v1[1]) == 12345);
 
   } D(s43a); R(s43a); E;

@@ -1,5 +1,5 @@
 // tbasic2.cpp -- Regression test program, basic tests part 2
-// $Id: tbasic2.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: tbasic2.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -209,7 +209,10 @@ void TestBasics2()
       A((const char*) (p1 (v1[1])) == (c4_String) "abc");
 
     // fails in 2.4.0, reported by Jerry McRae, August 2001
-    p1 (v1[0]) = p1 (v1[1]);
-      A((const char*) (p1 (v1[0])) == (c4_String) "abc");
+    p1 (v1[0]) = (const char*) p1 (v1[1]);
+      // MacOS 10.2.3 gcc 3.1 dec 2002 is still weird, inserting the
+      // following code (which should be a noop) *fixes* the assert!
+      //const char* q = p1 (v1[1]);
+      A((c4_String)(const char*) (p1 (v1[0])) == (c4_String) "abc");
   } E;
 }

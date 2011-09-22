@@ -1,5 +1,5 @@
 // univ.cpp --
-// $Id: univ.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: univ.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -19,7 +19,10 @@
   
 /////////////////////////////////////////////////////////////////////////////
 
-#if !q4_MSVC && !q4_WATC && !(q4_MWCW && defined(_WIN32))
+#if q4_UNIX
+#define _strdup strdup
+#elif !q4_BORC && !q4_MSVC && !q4_WATC && !(q4_MWCW && defined(_WIN32)) && \
+		!(q4_MWCW && __MWERKS__ >= 0x3000)
 
   static char* _strdup(const char* p)
   {

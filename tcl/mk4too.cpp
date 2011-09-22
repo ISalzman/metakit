@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: mk4too.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -147,7 +147,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     "exists",
     "find",
     "get",
-    "info",
+    "properties",
     "insert",
     "open",
     "search",
@@ -156,6 +156,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     "size",
     "loop",
     "view",
+    "info", // will be deprecated (use "properties" instead)
     0
   };
   static CmdDef defTab [] =
@@ -166,7 +167,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     { &MkView::ExistsCmd,  3,  0,  "exists cursor ?prop ...?" },
     { &MkView::FindCmd,    2,  0,  "find ?prop value ...?" },
     { &MkView::GetCmd,     3,  0,  "get cursor ?prop ...?" },
-    { &MkView::InfoCmd,    2,  2,  "info" },
+    { &MkView::InfoCmd,    2,  2,  "properties" },
     { &MkView::InsertCmd,  3,  0,  "insert cursor ?prop ...?" },
     { &MkView::OpenCmd,    4,  4,  "open cursor prop" },
     { &MkView::SearchCmd,  4,  4,  "search prop value" },
@@ -175,6 +176,7 @@ int MkView::Execute(int oc, Tcl_Obj* const* ov)
     { &MkView::SizeCmd,    2,  3,  "size ?newsize?" },
     { &MkView::LoopCmd,    3,  0,  "loop cursor ?first? ?limit? ?step? body" },
     { &MkView::ViewCmd,    3,  0,  "view option ?args?" },
+    { &MkView::InfoCmd,    2,  2,  "info" },
     { 0,           0,  0,  0 },
   };
   _error = TCL_OK;
@@ -543,7 +545,10 @@ int MkView::SelectCmd()
   if (_error)
     return _error;
 
-  return sel.DoSelect(tcl_GetObjResult());
+  c4_View nview;
+  sel.DoSelect(0, &nview);
+  MkView *ncmd = new MkView (interp, nview);
+  return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
 }
 
 int MkView::SetCmd()
@@ -601,7 +606,7 @@ int MkView::LoopCmd()
     if (var == 0)
       return Fail();
 
-    _error = Tcl_EvalObj(interp, cmd);
+    _error = Mk_EvalObj(interp, cmd);
 
     if (_error) {
       if (_error == TCL_CONTINUE)
@@ -654,9 +659,11 @@ int MkView::ViewCmd()
     "minus",
     "ordered",
     "pair",
+    "product",
     "project",
     "range",
     "readonly",
+    "rename",
     "restrict",
     "union",
     "unique",
@@ -689,9 +696,11 @@ int MkView::ViewCmd()
     { &MkView::MinusCmd,     3,  3,  "minus view" },
     { &MkView::OrderedCmd,   2,  3,  "ordered ?numkeys?" },
     { &MkView::PairCmd,      3,  3,  "pair view" },
+    { &MkView::ProductCmd,   3,  3,  "product view" },
     { &MkView::ProjectCmd,   3,  0,  "project prop ?prop ...?" },
     { &MkView::RangeCmd,     4,  0,  "range start finish ?step?" },
     { &MkView::ReadOnlyCmd,  2,  2,  "readonly" },
+    { &MkView::RenameCmd,    4,  4,  "rename oprop nprop" },
     { &MkView::RestrictCmd,  2,  0,  "restrict...." },
     { &MkView::UnionCmd,     3,  3,  "union view" },
     { &MkView::UniqueCmd,    2,  2,  "unique" },
@@ -933,6 +942,14 @@ int MkView::PairCmd()
   return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
 }
 
+int MkView::ProductCmd()
+{
+  c4_View nview = View(interp, objv[2]);
+  MkView *ncmd = new MkView( interp, view.Product(nview));
+
+  return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
+}
+
 int MkView::ProjectCmd()
 {
   c4_View nview;
@@ -970,6 +987,21 @@ int MkView::RangeCmd()
 int MkView::ReadOnlyCmd()
 {
   MkView *ncmd = new MkView( interp, view.ReadOnly());
+
+  return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
+}
+
+int MkView::RenameCmd()
+{
+  const c4_Property& oprop = AsProperty(objv[2], view);
+  if (_error)
+    return _error;
+
+  const c4_Property& nprop = AsProperty(objv[3], view);
+  if (_error)
+    return _error;
+
+  MkView *ncmd = new MkView( interp, view.Rename(oprop, nprop));
 
   return tcl_SetObjResult(tcl_NewStringObj(ncmd->CmdName()));
 }

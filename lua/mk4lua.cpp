@@ -1,5 +1,5 @@
 // mk4lua.cpp --
-// $Id: mk4lua.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: mk4lua.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 //
 //  This is the Lua-specific code to turn MetaKit into a Lua extension.

@@ -1,5 +1,5 @@
 // column.cpp --
-// $Id: column.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: column.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -885,10 +885,14 @@ void c4_ColOfInts::Get_16r(int index_)
 
   const t4_byte* vec = LoadNow(off);
 
-  _item[1] = vec[0];
-  _item[0] = vec[1];
-
-  *(t4_i32*) _item = *(const short*) _item;
+  // 2003-02-02 - gcc 3.2.1 on linux (!) fails to compile this
+  // sign-extension trick properly, use a temp buffer instead:
+  //*(t4_i32*) _item = *(const short*) _item;
+ 
+  t4_byte temp[2];
+  temp[1] = vec[0];
+  temp[0] = vec[1];
+  *(t4_i32*) _item = *(const short*) temp;
 }
 
 void c4_ColOfInts::Get_32i(int index_)

@@ -7,6 +7,10 @@
 #include "PWOMapping.h"
 #include "PWOCallable.h"
 
+// dummy exception singleton
+const PWDException PWDPyExceptionObj;
+const PWDException& PWDPyException = PWDPyExceptionObj;
+
   // incref new owner, and decref old owner, and adjust to new owner
 void PWOBase::GrabRef(PyObject* newObj)
 {
@@ -37,24 +41,30 @@ PWOBase PWOCallable::call() const {
   static PWOTuple _empty;
   PyObject *rslt = PyEval_CallObjectWithKeywords(*this, _empty, NULL);
   if (rslt == 0)
-    throw 1;
+    throw PWDPyException;
   return rslt;
 }
 PWOBase PWOCallable::call(PWOTuple& args) const {
   PyObject *rslt = PyEval_CallObjectWithKeywords(*this, args, NULL);
   if (rslt == 0)
-    throw 1;
+    throw PWDPyException;
   return rslt;
 }
 PWOBase PWOCallable::call(PWOTuple& args, PWOMapping& kws) const {
   PyObject *rslt = PyEval_CallObjectWithKeywords(*this, args, kws);
   if (rslt == 0)
-    throw 1;
+    throw PWDPyException;
   return rslt;
 }
 
 void Fail(PyObject* exc, const char* msg)
 {
   PyErr_SetString(exc, msg);
-  throw 1;
+  throw PWDPyException;
+}
+
+void FailIfPyErr()
+{
+  PyObject *exc = PyErr_Occurred();
+  if (exc != NULL) throw PWDPyException;
 }

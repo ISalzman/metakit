@@ -10,7 +10,17 @@
 #include <Python.h>
 #include <limits.h>
 
+// Dummy, minimal exception thrown when a Python exception is generated
+// (after PyErr_Format, PyErr_SetString, etc.)
+class PWDException
+{
+ public:
+  PWDException() {}
+} extern const& PWDPyException;
+
+// functions throw PWDPyException
 void Fail(PyObject*, const char* msg);
+void FailIfPyErr();
 
 class PWOBase  
 {

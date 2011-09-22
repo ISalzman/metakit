@@ -103,7 +103,7 @@ T 5 {set after get} {
   # crashed in 2.3.1 alpha
 
 T 6 {open missing file r/o} {
-  set f [F].dat
+  set f [F].mk
   catch {mk::file open db0 $f -readonly} err
   C $err {file open failed}
 }

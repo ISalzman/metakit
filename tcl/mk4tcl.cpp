@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: mk4tcl.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -43,6 +43,15 @@
     
   TCL_DECLARE_MUTEX(mkMutex)  // use a single monolithic mutex for now
 
+    // put code in this file as a mutex is static in Windows
+  int Mk_EvalObj(Tcl_Interp* ip_, Tcl_Obj* cmd_)
+  {
+    Tcl_MutexUnlock(&mkMutex);
+    int e = Tcl_EvalObj(ip_, cmd_);
+    Tcl_MutexLock(&mkMutex);
+    return e;
+  }
+
   // moved out of member func scope to please HP-UX's aCC:
   
   static const char* getCmds [] =
@@ -56,11 +65,12 @@
     "layout",
     "delete",
     "size",
-    "info",
+    "properties",
     "locate",
     "restrict",
     "open",
     "new",
+    "info",
     0
   };
 
@@ -523,12 +533,12 @@ bool c4_TclStream::Write(const void* buffer_, int length_)
 ///////////////////////////////////////////////////////////////////////////////
 
 MkPath::MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp)
-  : _refs (1), _ws (ws_), _path (path_), _currGen (generation)
+  : _refs (1), _ws (&ws_), _path (path_), _currGen (generation)
 {
     // if this view is not part of any storage, make a new temporary row
   if (_path.IsEmpty())
   {
-    _path = _ws.AllocTempRow();
+    _path = ws_.AllocTempRow();
 
     AttachView(interp);
   }
@@ -547,7 +557,8 @@ MkPath::MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp)
 
 MkPath::~MkPath ()
 {
-  _ws.ForgetPath(this);
+  if (_ws != 0)
+    _ws->ForgetPath(this);
 }
 
   static c4_View OpenMapped(c4_View v_, int col_, int row_)
@@ -590,9 +601,15 @@ int MkPath::AttachView(Tcl_Interp* /*interp*/)
     //
     //  In the second case, the trailing row# is ignored.
 
-  MkWorkspace::Item* ip = _ws.Find(f4_GetToken(p));
-  if (ip != 0 && *p)
+  MkWorkspace::Item* ip = _ws != 0 ? _ws->Find(f4_GetToken(p)) : 0;
+  if (ip != 0)
   {
+    // 16-1-2003: allow path reference to root view (i.e. storage itself)
+    if (*p == 0) 
+    {
+      _view = ip->_storage;
+      return p - base;
+    }
 #if 0
     c4_View root = *ip->_storage;
     int col = root.FindPropIndexByName(f4_GetToken(p));
@@ -665,6 +682,8 @@ MkWorkspace::Item::Item (const char* name_, const char* fileName_, int mode_,
   : _name (name_), _fileName (fileName_),
     _items (items_), _index (index_)
 {
+  ++generation; // make sure all cached paths refresh on next access
+  
   if (*fileName_)
   {
     c4_Storage s (fileName_, mode_);
@@ -696,13 +715,15 @@ MkWorkspace::Item::~Item ()
     path->_view = c4_View ();
     path->_path = "?"; // make sure it never matches
     path->_currGen = -1; // make sure lookup is retried on next use
+    // 24-01-2003: paths should not clean up workspaces once exiting
+    path->_ws = 0;
     // TODO: get rid of generations, use a "_valid" flag instead
   }
   ++generation; // make sure all cached paths refresh on next access
 
   if (_index < _items.GetSize())
   {
-    d4_assert(_items.GetAt(_index) == this);
+    d4_assert(_items.GetAt(_index) == this || _items.GetAt(_index) == 0);
     _items.SetAt(_index, 0);
   }
 
@@ -1377,7 +1398,7 @@ void TclSelector::ExactKeyProps(const c4_RowRef& row_)
   }
 }
 
-int TclSelector::DoSelect(Tcl_Obj* list_)
+int TclSelector::DoSelect(Tcl_Obj* list_, c4_View* result_)
 {
   c4_IntProp pIndex ("index");
 
@@ -1424,19 +1445,23 @@ int TclSelector::DoSelect(Tcl_Obj* list_)
   }
 
     // convert result to a Tcl list of ints
-  for (int i = 0; i < n; ++i)
-  {
-      // sorting means we have to lookup the index of the original again
-    int pos = i;
-    if (sorted)
-      pos = mapView.GetIndexOf(sortResult [i]);
+  if (list_ != 0)
+    for (int i = 0; i < n; ++i) {
+	// sorting means we have to lookup the index of the original again
+      int pos = i;
+      if (sorted)
+	pos = mapView.GetIndexOf(sortResult [i]);
 
-    // set up a Tcl integer which holds the selected row index
-    KeepRef o = Tcl_NewIntObj(pIndex (result[pos]));
+      // set up a Tcl integer which holds the selected row index
+      KeepRef o = Tcl_NewIntObj(pIndex (result[pos]));
 
-    if (Tcl_ListObjAppendElement(_interp, list_, o) != TCL_OK)
-      return TCL_ERROR;
-  }
+      if (Tcl_ListObjAppendElement(_interp, list_, o) != TCL_OK)
+	return TCL_ERROR;
+    }
+
+    // added 2003/02/14: return intermediate view, if requested
+  if (result_ != 0)
+    *result_ = sorted ? sortResult : result;
 
   return TCL_OK;
 }
@@ -2138,7 +2163,8 @@ int MkTcl::ViewCmd()
       }
       break;
 
-    case 3: // info
+    case 3: // properties
+    case 8: // info (will be deprecated)
       {
         c4_View view = asView(objv[2]);
         Tcl_Obj* result = tcl_GetObjResult();
@@ -2293,7 +2319,9 @@ int MkTcl::LoopCmd()
 
     if (!(i < limit && incr > 0 || i > limit && incr < 0)) break;
 
+    Tcl_MutexUnlock(&mkMutex);
     _error = Tcl_EvalObj(interp, cmd);
+    Tcl_MutexLock(&mkMutex);
 
     if (_error == TCL_CONTINUE)
       _error = TCL_OK;
@@ -2747,7 +2775,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.8");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

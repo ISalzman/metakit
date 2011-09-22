@@ -1,5 +1,5 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1246 2007-03-09 16:29:26Z jcw $
+// $Id: mk4tcl.h 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -197,7 +197,6 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
 class MkPath
 {
   int _refs;          // reference count
-  MkWorkspace& _ws;     // avoid globals, but there is usually just one
 
 public:
   MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp);
@@ -206,6 +205,7 @@ public:
   int AttachView(Tcl_Interp* interp);
   int Refs(int diff_);
 
+  MkWorkspace* _ws;     // avoid globals, but there is usually just one
   c4_View _view;        // the view corresponding to this path
   c4_String _path;      // describes view, starting with storage tag
   int _currGen;       // tracks the generation to force reloads
@@ -292,6 +292,9 @@ MkPath& AsPath(Tcl_Obj* obj_);
 int& AsIndex(Tcl_Obj* obj_);
 int SetCursorFromAny(Tcl_Interp* interp, Tcl_Obj* objPtr);
 
+// 24nov02: added to support releasing mutex lock during loop eval's
+int Mk_EvalObj(Tcl_Interp* ip_, Tcl_Obj* cmd_);
+
 ///////////////////////////////////////////////////////////////////////////////
 // Helper class for the mk::select command, stores params and performs select
 
@@ -327,7 +330,7 @@ public:
   bool MatchOneString(int id_, const char* value_, const c4_String& crit_);
   bool Match(const c4_RowRef& row_);
   void ExactKeyProps(const c4_RowRef& row_);
-  int DoSelect(Tcl_Obj* list_);
+  int DoSelect(Tcl_Obj* list_, c4_View* result_ =0);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -462,9 +465,11 @@ public:
   int MinusCmd();     // $obj view minus view
   int OrderedCmd();   // $obj view ordered ?numKeys?
   int PairCmd();      // $obj view pair view
+  int ProductCmd();   // $obj view product view
   int ProjectCmd();   // $obj view project prop ?prop ...?
   int RangeCmd();     // $obj view range start ?limit? ?step?
   int ReadOnlyCmd();  // $obj view readonly
+  int RenameCmd();    // $obj view rename oprop nprop
   int RestrictCmd();  // $obj view restrict cursor pos count
   int UnionCmd();     // $obj view union view
   int UniqueCmd();    // $obj view unique

@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: view.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -1212,11 +1212,13 @@ c4_Property::c4_Property (char type_, const char* name_)
   }
   
   if (_id < 0) {
-    for (_id = 0; _id < sPropCounts->GetSize(); ++_id)
+    int size = sPropCounts->GetSize();
+
+    for (_id = 0; _id < size; ++_id)
       if (sPropCounts->GetAt(_id) == 0)
         break;
 
-    if (_id >= sPropCounts->GetSize()) {
+    if (_id >= size) {
       sPropCounts->SetSize(_id + 1);
       sPropNames->SetSize(_id + 1);
     }

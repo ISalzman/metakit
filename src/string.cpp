@@ -1,5 +1,5 @@
 // string.cpp --
-// $Id: string.cpp 1246 2007-03-09 16:29:26Z jcw $
+// $Id: string.cpp 1263 2007-03-09 16:51:19Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -30,7 +30,9 @@
   
 /////////////////////////////////////////////////////////////////////////////
 
-#if !q4_MSVC && !q4_WATC && !q4_BORC || q4_WINCE
+#if q4_MSVC || q4_WATC || q4_BORC || (q4_MWCW && __MWERKS__ < 0x3000)
+#define strcasecmp stricmp
+#elif q4_WINCE
 
   // MS C/C++ has this handy stricmp: a case-insensitive version of strcmp
   // This version only works with 7-bit ASCII characters 0x00 through 0x7F
@@ -257,7 +259,7 @@ int c4_String::Compare(const char* str) const
 
 int c4_String::CompareNoCase(const char* str) const
 {
-  return Data() == str ? 0 : stricmp(Data(), str);
+  return Data() == str ? 0 : strcasecmp(Data(), str);
 }
 
 int c4_String::Find(char ch) const
