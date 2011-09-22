@@ -1,5 +1,5 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: tstore5.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -121,4 +121,60 @@ void TestStores5()
       A(p1 (v1[1]) == 12345);
 
   } D(s43a); R(s43a); E;
+
+  B(s44, Bad memo free space, 0) W(s44a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_BytesProp p2 ("p2");
+    c4_Storage s1 ("s44a", true);
+    c4_View v1 = s1.GetAs("a[p1:I,p2:B]");
+
+    c4_Bytes data;
+    t4_byte* p = data.SetBuffer(12345);
+    for (int i = 0; i < data.Size(); ++i)
+      p[i] = (t4_byte) i;
+
+    v1.Add(p2 [data]);
+    s1.Commit();
+
+    p1 (v1[0]) = 1;
+    s1.Commit();
+
+    p1 (v1[0]) = 0;
+    s1.Commit();
+
+    c4_Bytes temp = p2 (v1[0]);
+      A(temp == data); // this failed in 2.4.5
+
+  } D(s44a); R(s44a); E;
+
+  B(s45, Bad subview memo free space, 0) W(s45a);
+  {
+    c4_IntProp p1 ("p1");
+    c4_ViewProp p2 ("p2");
+    c4_BytesProp p3 ("p3");
+    c4_Storage s1 ("s45a", true);
+    c4_View v1 = s1.GetAs("a[p1:I,p2[p3:B]]");
+
+    c4_Bytes data;
+    t4_byte* p = data.SetBuffer(12345);
+    for (int i = 0; i < data.Size(); ++i)
+      p[i] = (t4_byte) i;
+
+    v1.SetSize(1);
+    c4_View v2 = p2 (v1[0]);
+    v2.Add(p3 [data]);
+    s1.Commit();
+
+    p1 (v1[0]) = 1;
+    s1.Commit();
+
+    p1 (v1[0]) = 0;
+    s1.Commit();
+
+    c4_View v3 = p2 (v1[0]);
+    c4_Bytes temp = p3 (v3[0]);
+      A(temp == data); // this failed in 2.4.5
+
+  } D(s45a); R(s45a); E;
 }

@@ -1,5 +1,5 @@
 // regress.h -- Regression test program, header file
-// $Id: regress.h 1266 2007-03-09 16:52:46Z jcw $
+// $Id: regress.h 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -13,7 +13,7 @@
 #if !defined (q4_NOTHROW)
 #define q4_NOTHROW 1
 #endif
-#endif        
+#endif
 
 #if _MSC_VER == 800
 #pragma warning (disable: 4703) // function too large for global optimizations
@@ -22,7 +22,31 @@
 #if defined (_QWINVER) && !defined (q4_NOTHROW)
 #define q4_NOTHROW 1    
 #endif
-#endif        
+#endif
+
+#ifdef q4_WINCE
+#include <afx.h>
+#ifdef _DEBUG
+#define remove(x) \
+	TRY { \
+		CFile::Remove(CString(x)); \
+	}CATCH (CFileException, pEx) \
+	{ \
+	    afxDump << "File " << x << " cannot be removed\n"; \
+	} \
+END_CATCH
+#else
+#define remove(x) \
+	TRY { \
+		CFile::Remove(CString(x)); \
+	}CATCH (CFileException, pEx) \
+	{ \
+	} \
+END_CATCH
+#endif
+
+int mainfunc();  //predeclaration of the main function
+#endif
 
 #if q4_NOTHROW
 #define try
@@ -79,6 +103,40 @@ extern const char* msg;
     } \
     fflush(stdout); \
   }
+#elif q4_WINCE
+#ifdef _DEBUG
+#define B(n_,d_,c_) \
+  if (StartTest(c_, #n_, #d_)) \
+  { \
+    afxTraceEnabled = TraceAll; \
+    try \
+    { \
+      {
+#define E \
+      } \
+      _putws(_T("<<< done.")); \
+    } \
+    catch (const TCHAR* msg) { CatchMsg(msg); } \
+    catch (...) { CatchOther(); } \
+    fflush(stdout); \
+    afxTraceEnabled = true; \
+  }
+#else //!_DEBUG
+#define B(n_,d_,c_) \
+  if (StartTest(c_, #n_, #d_)) \
+  { \
+    try \
+    { \
+      {
+#define E \
+      } \
+      _putws(_T("<<< done.")); \
+    } \
+    catch (const TCHAR* msg) { CatchMsg(msg); } \
+    catch (...) { CatchOther(); } \
+    fflush(stdout); \
+  }
+#endif
 #else
 #define B(n_,d_,c_) \
   if (StartTest(c_, #n_, #d_)) \
@@ -99,7 +157,11 @@ extern const char* msg;
 #define A(e_) if (e_) ; else FailExpr(#e_)
 
 #define W(f_) remove(#f_)
-#define R(f_) A(remove(#f_) == 0)
+#ifndef q4_WINCE
+#  define R(f_) A(remove(#f_) == 0)
+#else
+#  define R(f_) W(f_)
+#endif
 //#define R(f_) 
 #define D(f_) DumpFile(#f_, TESTDIR #f_ ".txt")
 

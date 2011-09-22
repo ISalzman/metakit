@@ -1,5 +1,5 @@
 // format.cpp --
-// $Id: format.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: format.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -783,8 +783,10 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
   if (!full)
     for (int i = 0; i < rows; ++i) {
       c4_Column* col = (c4_Column*) _memos.GetAt(i);
-      if (col != 0 && col->IsDirty())
+      if (col != 0) {
 	full = true;
+        break;
+      }
     }
   d4_assert(_recalc || _sizeCol.RowCount() == rows);
 

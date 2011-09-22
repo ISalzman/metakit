@@ -1,5 +1,5 @@
 // regress.cpp -- Regression test program, main code
-// $Id: regress.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: regress.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -24,7 +24,16 @@
   const char* msg;
 #endif
 
-int main()
+#if q4_WINCE
+#include <afxcview.h>
+#endif
+
+int
+#if q4_WINCE
+mainfunc()
+#else
+main()
+#endif
 {
 //  afxMemDF |= allocMemDF | checkAlwaysMemDF;
 
@@ -180,11 +189,26 @@ void DumpFile(const char* in_, const char* out_)
   fclose(fp);
 }
 
+#if q4_WINCE
+  static void ShowString(const CString& str_)
+  {
+    CView* v = ((CFrameWnd*) AfxGetApp()->m_pMainWnd)->GetActiveView();
+    ((CListView*) v)->GetListCtrl().InsertItem(INT_MAX, (LPCTSTR) str_);
+  }
+#endif
+
 void Fail(const char* msg)
 { 
   #if q4_NOTHROW
-    fprintf(stderr, "\t%s\n", msg);
-    printf("*** %s ***\n", msg);
+    #if q4_WINCE
+      CString str;
+      str.Format(_T("*** %s ***"), (LPCTSTR) CString (msg));
+      ShowString(str);
+      ASSERT(0);
+    #else
+      fprintf(stderr, "\t%s\n", msg);
+      printf("*** %s ***\n", msg);
+    #endif
   #else
     throw msg;
   #endif
@@ -213,13 +237,23 @@ int StartTest(int mask_, const char* name_, const char* desc_)
   #if q4_MFC && defined(_DEBUG)
     TRACE("%s - %s\n", name_, desc_);
   #endif
+  #if q4_WINCE
+    CString str;
+    str.Format(_T("%s - %s"), (LPCTSTR) CString (name_),
+				(LPCTSTR) CString (desc_));
+    ShowString(str);
+  #endif
   #if !q4_MWCW_PROFILER
     fprintf(stderr, "%s - %s\n", name_, desc_);
   #endif
 
   char buffer [50];
   sprintf(buffer, "%s%s.txt", TESTDIR, name_);
-  freopen(buffer, TEXTOUT, stdout);
+  #if q4_WINCE
+    //TODO: Fix this to work under CE.
+  #else
+    freopen(buffer, TEXTOUT, stdout);
+  #endif
   printf(">>> %s\n", desc_);
 
   return true;

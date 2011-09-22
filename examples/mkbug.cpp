@@ -1,17 +1,25 @@
 #include <mk4.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 int main(int argc, char **argv)
 {
-  c4_Storage storage("test.dat", false);
-  c4_View v = storage.View("vIcon");
-  v = v.Blocked();
+#ifdef _WIN32
+  system("cmd /c copy bb1 ofile.try");
+#else
+  system("cp bb1 ofile.try");
+#endif
 
-  printf("Before: %d\n", v.GetSize());
+  c4_IntProp pParent ("parent");
 
-  v.RemoveAt(9, 1765);
+  c4_Storage storage ("ofile.try", true);
+  c4_View v = storage.View("dirs");
 
-  printf(" After: %d\n", v.GetSize());
+  pParent (v[0]) = 1;
+  storage.Commit();
+
+  pParent (v[0]) = 1;
+  storage.Commit();
 
   return 0;
 }

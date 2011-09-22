@@ -1,5 +1,5 @@
 // persist.cpp --
-// $Id: persist.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: persist.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -115,6 +115,7 @@ public:
   t4_i32 Allocate(t4_i32 len_);
   void Occupy(t4_i32 pos_, t4_i32 len_);  
   void Release(t4_i32 pos_, t4_i32 len_);
+  void Dump(const char* str_);
 
 private:
   int Locate(t4_i32 pos_) const;
@@ -319,6 +320,23 @@ t4_i32 c4_Allocator::ReduceFrags(int goal_, int sHi_, int sLo_)
   return loss;
 }
 
+#if q4_CHECK
+#include <stdio.h>
+
+void c4_Allocator::Dump(const char* str_)
+{
+  fprintf(stderr, "c4_Allocator::Dump, %d entries <%s>\n", GetSize(), str_);
+  for (int i = 2; i < GetSize(); i += 2)
+    fprintf(stderr, "  %10ld .. %ld\n", GetAt(i-1), GetAt(i));
+  fprintf(stderr, "END\n");
+}
+
+#else
+
+void c4_Allocator::Dump(const char* str_) { }
+
+#endif
+
 /////////////////////////////////////////////////////////////////////////////
 
 class c4_Differ
@@ -508,6 +526,13 @@ bool c4_SaveContext::Serializing() const
   return _fullScan;
 }
 
+void c4_SaveContext::AllocDump(const char* str_, bool next_)
+{
+  c4_Allocator* ap = next_ ? _nextSpace : _space;
+  if (ap != 0)
+    ap->Dump(str_);
+}
+
 void c4_SaveContext::FlushBuffer()
 {
   int n = _curr - _bufPtr;
@@ -590,6 +615,9 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
     }
   }
 
+  //AllocDump("a1", false);
+  //AllocDump("a2", true);
+
     // first pass allocates columns and constructs shallow walks
   c4_Column walk (root_.Persist()); 
   SetWalkBuffer(&walk);
@@ -620,6 +648,9 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
   if (!changed)
     return;
     
+  //AllocDump("b1", false);
+  //AllocDump("b2", true);
+  
   if (_differ != 0) {
     int n = _differ->NewDiffID();
     _differ->CreateDiff(n, walk);

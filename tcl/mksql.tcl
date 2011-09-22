@@ -1,5 +1,5 @@
 # mksql.tcl --
-# $Id: mksql.tcl 1266 2007-03-09 16:52:46Z jcw $
+# $Id: mksql.tcl 1265 2007-03-09 16:52:32Z jcw $
 # This is part of MetaKit, see http://www.equi4.com/metakit/
 # Copyright (C) 2000 by Matt Newman and Jean-Claude Wippler.
 #

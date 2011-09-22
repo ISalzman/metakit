@@ -78,9 +78,10 @@ python: Makefile libmk4py.la
 
 test: Makefile libmk4.la regress
 	test -d tests || mkdir tests
+	test -d tests/CVS || mkdir tests/CVS
 	test -f reversed || cp $(srcdir)/../unix/reversed .
 	./regress
-	diff --exclude=CVS $(srcdir)/../tests/ok tests
+	diff $(srcdir)/../tests/ok tests
 
 test-tcl: tcl
 	cd $(srcdir)/../tcl/test && $(tclsh) all.tcl

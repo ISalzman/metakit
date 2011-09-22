@@ -1,5 +1,5 @@
 // fileio.cpp --
-// $Id: fileio.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: fileio.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -15,9 +15,11 @@
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#if ! defined(q4_WINCE)
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#endif
 #endif
 
 #if q4_UNIX && HAVE_MMAP
@@ -28,6 +30,10 @@
 #if q4_UNIX
 #include <unistd.h>
 #include <fcntl.h>
+#endif
+
+#if q4_WINCE
+#define _get_osfhandle(x) x
 #endif
 
 #include <time.h>
@@ -41,9 +47,14 @@ void f4_AssertionFailed(const char* cond_, const char* file_, int line_)
 {
   fprintf(stderr, "Assertion failed: %s (file %s, line %d)\n",
             cond_, file_, line_);
+#ifdef q4_WINCE
+  exit(0);
+#else
   abort();
-}
 #endif
+}
+
+#endif //q4_CHECK
 
 /////////////////////////////////////////////////////////////////////////////
 // c4_FileStream
@@ -119,7 +130,12 @@ t4_i32 c4_FileStrategy::FileSize()
 
 t4_i32 c4_FileStrategy::FreshGeneration()
 {
-  return time(0);
+#ifndef q4_WINCE
+   return time(0);
+#else
+  CTime ti(NULL);
+  return ti.GetTime();
+#endif //q4_WINCE
 }
 
 void c4_FileStrategy::ResetFileMapping()
@@ -186,7 +202,7 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 {
   d4_assert(!_file);
 
-#if q4_WIN32 && !q4_BORC
+#if q4_WIN32 && !q4_BORC && !q4_WINCE
   int flags = _O_BINARY | _O_NOINHERIT | (mode_ > 0 ? _O_RDWR : _O_RDONLY);
   int fd = _open(fname_, flags);
   if (fd != -1)
@@ -196,17 +212,19 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 #if q4_UNIX
   if (_file != 0)
     fcntl(fileno(_file), F_SETFD, FD_CLOEXEC);
-#endif
-#endif
+#endif //q4_UNIX
+#endif //q4_WIN32 && !q4_BORC && !q4_WINCE
 
   if (_file != 0) {
-    setbuf(_file, 0); // 30-11-2001
+#ifndef q4_WINCE
+	setbuf(_file, 0); // 30-11-2001
+#endif //q4_WINCE
     ResetFileMapping();
     return true;
   }
 
   if (mode_ > 0) {
-#if q4_WIN32 && !q4_BORC
+#if q4_WIN32 && !q4_BORC && !q4_WINCE
     fd = _open(fname_, flags | _O_CREAT, _S_IREAD | _S_IWRITE);
     if (fd != -1)
       _cleanup = _file = _fdopen(fd, "w+b");
@@ -215,12 +233,14 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 #if q4_UNIX
     if (_file != 0)
       fcntl(fileno(_file), F_SETFD, FD_CLOEXEC);
-#endif
-#endif
+#endif //q4_UNIX
+#endif //q4_WIN32 && !q4_BORC && !q4_WINCE
   }
 
+#ifndef q4_WINCE
   if (_file != 0)
     setbuf(_file, 0); // 30-11-2001
+#endif //q4_WINCE
 
   //d4_assert(_file != 0);
   return false;

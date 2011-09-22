@@ -1,5 +1,5 @@
 // mk4str.h --
-// $Id: mk4str.h 1266 2007-03-09 16:52:46Z jcw $
+// $Id: mk4str.h 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

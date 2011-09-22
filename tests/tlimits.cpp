@@ -1,5 +1,5 @@
 // tlimits.cpp -- Regression test program, limit tests
-// $Id: tlimits.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: tlimits.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"

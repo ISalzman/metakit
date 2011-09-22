@@ -1,5 +1,5 @@
 // string.cpp --
-// $Id: string.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: string.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -59,6 +59,8 @@
     return c1 - c2;
   }
   
+#elif q4_WINCE
+#define stricmp _stricmp
 #endif
 
 /////////////////////////////////////////////////////////////////////////////

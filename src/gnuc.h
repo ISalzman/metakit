@@ -1,5 +1,5 @@
 // gnuc.h --
-// $Id: gnuc.h 1266 2007-03-09 16:52:46Z jcw $
+// $Id: gnuc.h 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file

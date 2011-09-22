@@ -1,3 +1,26 @@
+2002-05-06    ##############################################    MK 2.4.6
+
+   Recent bug fix was critical enough to warrant a new revision.
+   It is safest to avoid using versions 2.4.2 .. 2.4.5 altogether.
+
+2002-05-05    Fixed major bug in string/bytes after multiple commits
+
+   Finally found a way to reproduce spurious bugs reported in the
+   latest revisions.  It turns out that one of the optimizations of
+   the past 2 months (no exact details) caused memo's to be tracked
+   incorrectly in their free space use.  This causes trouble with
+   strings over 10 Kb (or smaller if there are over 1000 rows).
+
+   The bug is forced by new (frightfully short) test cases s44 + s45.
+   Fixed by performing a slightly less agressive optimization in the
+   c4_FormatB::Commit (which is also shared with strings, type 'S').
+
+   Removed a "--exclude" from diff, which is not portable enough.
+
+2002-05-01    Added support for Windows CE
+
+   Patches submitted by Joseph Tate (thank you!), with minor tweaks.
+
 2002-04-29    ##############################################    MK 2.4.5
 
    Various bug fixes, fixed a number of platform issues.

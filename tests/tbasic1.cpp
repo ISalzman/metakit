@@ -1,5 +1,5 @@
 // tbasic1.cpp -- Regression test program, basic tests part 1
-// $Id: tbasic1.cpp 1266 2007-03-09 16:52:46Z jcw $
+// $Id: tbasic1.cpp 1265 2007-03-09 16:52:32Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "regress.h"
