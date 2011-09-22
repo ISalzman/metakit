@@ -30,38 +30,40 @@ includedir = @includedir@
 libdir = @libdir@
 srcdir = @srcdir@
 top_builddir = .
+tclsh = tclsh
 
+# Compiling without frame pointers can play tricks with exception handling
+# (e.g. in Mk4py).  This does not affect standard operation, *only* errors.
+# Happens in gcc 2.95.3, it has been disabled for now (even though slower).
+#CXXFLAGS = -O2 -fomit-frame-pointer
+CXXFLAGS = -O2
 # not normally compiled with -g, but you can specify it in the make command
-CXXFLAGS = -O2 -fomit-frame-pointer
 #CXXFLAGS = -g -Dq4_CHECK
 #CXXFLAGS = -Wall -pedantic -Wno-unused -g
 
 CXX = @CXX@
-INSTALL = @LIBTOOL@ @INSTALL@
-INSTALL_DATA = @INSTALL_DATA@
-INSTALL_PROGRAM = @INSTALL_PROGRAM@
 LIBTOOL = @LIBTOOL@
-VERSION = @VERSION@
-TCL_BIN_DIR = @TCL_BIN_DIR@
+INSTALL = @INSTALL@
+INSTALL_DATA = $(LIBTOOL) --mode=install @INSTALL_DATA@
+INSTALL_PROGRAM = $(LIBTOOL) --mode=install @INSTALL_PROGRAM@
+TCL_INCLUDE_DIR = @TCL_INCLUDE_DIR@
 
 #---------- Do not change, shorthand only
 
-CXX_SWITCHES      = $(CXXFLAGS) -I$(srcdir)/../include \
-				-I$(srcdir)/../src -I.
-CXX_SWITCHES_TCL  = $(CXXFLAGS) -I$(srcdir)/../include \
-				-I$(srcdir)/../../include \
-				-I$(TCL_BIN_DIR)/../generic \
-				-DUSE_TCL_STUBS
-CXX_SWITCHES_PY   = $(CXXFLAGS) -I$(srcdir)/../include \
-				-I$(srcdir)/../python/scxx \
-				-I$(includedir)/python2.1 \
-				-I/usr/include/python2.1 \
-				-I$(includedir)/python2.0 \
-				-I/usr/include/python2.0 \
-				-I$(includedir)/python1.5 \
-				-I/usr/include/python1.5
-CXX_SWITCHES_LUA  = $(CXXFLAGS) -I$(srcdir)/../include
-CXX_SWITCHES_TEST = -I$(srcdir)/../include
+CXX_SWITCHES      = $(CXXFLAGS) \
+			-I$(srcdir)/../include \
+			-I$(srcdir)/../src -I.
+CXX_SWITCHES_TCL  = $(CXXFLAGS) \
+			-I$(srcdir)/../include \
+			-I$(TCL_INCLUDE_DIR)
+CXX_SWITCHES_PY   = $(CXXFLAGS) \
+			-I$(srcdir)/../include \
+			-I$(srcdir)/../python/scxx \
+			-I$(includedir)/python2.1
+CXX_SWITCHES_LUA  = $(CXXFLAGS) \
+			-I$(srcdir)/../include
+CXX_SWITCHES_TEST = $(CXXFLAGS) \
+			-I$(srcdir)/../include
 
 #---------- The targets normally specified when calling "make"
 
@@ -74,34 +76,33 @@ tcl: Makefile libmk4tcl.a libmk4tcl.la Mk4tcl.so
 python: Makefile libmk4py.a libmk4py.la Mk4py.so
 
 test: Makefile libmk4.a regress
-	if [ ! -d tests ]; then mkdir tests; fi
+	test -d tests || mkdir tests
+	test -f reversed || cp $(srcdir)/../unix/reversed .
 	./regress
-	diff $(srcdir)/../tests/ok tests
+	-diff $(srcdir)/../tests/ok tests
 
 test-tcl: tcl
-	cd $(srcdir)/../tcl/test && tclsh all.tcl
+	cd $(srcdir)/../tcl/test && $(tclsh) all.tcl
 
 install: @MK_INSTALL@
 
 install-mk: libmk4.a libmk4.la
-	$(INSTALL_DATA) -D $(srcdir)/../include/mk4.h \
-					$(DESTDIR)/$(includedir)/mk4.h
-	$(INSTALL_DATA) -D $(srcdir)/../include/mk4.inl \
-					$(DESTDIR)/$(includedir)/mk4.inl
-	$(INSTALL_DATA) -D $(srcdir)/../include/mk4str.h \
-					$(DESTDIR)/$(includedir)/mk4str.h
-	$(INSTALL_DATA) -D $(srcdir)/../include/mk4str.inl \
-					$(DESTDIR)/$(includedir)/mk4str.inl
-	$(INSTALL_DATA) -Ds libmk4.a $(DESTDIR)/$(libdir)/libmk4.a
-	$(INSTALL_PROGRAM) -Ds libmk4.la $(DESTDIR)/$(libdir)/libmk4.la
+	$(INSTALL) -d $(includedir) $(libdir)
+	$(INSTALL_DATA) $(srcdir)/../include/mk4.h \
+					$(includedir)/mk4.h
+	$(INSTALL_DATA) $(srcdir)/../include/mk4.inl \
+					$(includedir)/mk4.inl
+	$(INSTALL_DATA) $(srcdir)/../include/mk4str.h \
+					$(includedir)/mk4str.h
+	$(INSTALL_DATA) $(srcdir)/../include/mk4str.inl \
+					$(includedir)/mk4str.inl
+	$(INSTALL_PROGRAM) libmk4.la $(libdir)/libmk4.la
 
 install-tcl: libmk4tcl.a libmk4tcl.la
-	$(INSTALL_DATA) -Ds libmk4tcl.a $(DESTDIR)/$(libdir)/libmk4tcl.a
-	$(INSTALL_PROGRAM) -D libmk4tcl.la $(DESTDIR)/$(libdir)/libmk4tcl.la
+	$(INSTALL_PROGRAM) libmk4tcl.la $(libdir)/libmk4tcl.la
 
 install-python: libmk4py.a libmk4py.la
-	$(INSTALL_DATA) -Ds libmk4py.a $(DESTDIR)/$(libdir)/libmk4py.a
-	$(INSTALL_PROGRAM) -D libmk4py.la $(DESTDIR)/$(libdir)/libmk4py.la
+	$(INSTALL_PROGRAM) libmk4py.la $(libdir)/libmk4py.la
 
 clean:
 	rm -f *.a *.la *.o *.lo *.so
@@ -110,8 +111,6 @@ clean:
 
 distclean: clean
 	rm -f Makefile config.h config.status config.log config.cache libtool
-
-dist: dist-tar
 
 #---------- This defines what each of the targets does
 
@@ -123,18 +122,6 @@ config.status: $(srcdir)/configure
 
 $(srcdir)/configure: $(srcdir)/configure.in
 	cd $(srcdir) && autoconf
-
-dist-tar:
-	rm -rf metakit-$(VERSION)
-	mkdir metakit-$(VERSION)
-	cp -pr $(srcdir)/../[^b]* metakit-$(VERSION) # omit "builds"
-	rm -f `find mk_src-$(VERSION) -type f -name '_*'`
-	rm -rf `find metakit-$(VERSION) -type d -name CVS`
-	mkdir -p metakit-$(VERSION)/builds/tests
-	cp $(srcdir)/reversed metakit-$(VERSION)/builds
-	echo "placeholder" >metakit-$(VERSION)/builds/tests/!keepme.txt
-	tar cfz metakit-$(VERSION).tar.gz metakit-$(VERSION)
-	rm -rf metakit-$(VERSION)
 
 libmk4.a: $(LIBOBJS)
 	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(LIBOBJS)
@@ -149,12 +136,10 @@ libmk4tcl.a: mk4tcl.o mk4too.o libmk4.a
 
 libmk4tcl.la: mk4tcl.o mk4too.o libmk4.a
 	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -export-dynamic \
-		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS) \
-		-L$(TCL_BIN_DIR) -ltclstub8.4
+		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS)
 
 Mk4tcl.so: mk4tcl.o mk4too.o libmk4.a
-	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4tcl.lo mk4too.lo $(SHLOBJS) \
-		-L$(TCL_BIN_DIR) -ltclstub8.4
+	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4tcl.lo mk4too.lo $(SHLOBJS)
 
 libmk4py.a: $(PYOBJS) libmk4.a
 	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(PYOBJS) $(LIBOBJS)
@@ -171,23 +156,23 @@ Mk4lua.so: mk4lua.o libmk4.a
 		-L$(libdir) -llua -llualib
 
 demo: $(srcdir)/../demos/demo.cpp libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@ \
+	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
 		$(srcdir)/../demos/demo.cpp libmk4.a
 
 dump: $(srcdir)/../demos/dump.cpp libmk4.la
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -static -o $@ \
+	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -static -o $@@EXEEXT@ \
 		$(srcdir)/../demos/dump.cpp libmk4.a
 
 myio: $(srcdir)/../demos/myio.cpp libmk4.la
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@ \
+	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
 		$(srcdir)/../demos/myio.cpp libmk4.la
 
 struct: $(srcdir)/../demos/struct.cpp
-	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@ \
+	$(LIBTOOL) --mode=link $(CXX) $(CXX_SWITCHES) -o $@@EXEEXT@ \
 		$(srcdir)/../demos/struct.cpp -lmk4
 
 regress: $(TSTOBJS) libmk4.a
-	$(LIBTOOL) --mode=link $(CXX) -static -o $@ $(TSTOBJS) libmk4.a
+	$(LIBTOOL) --mode=link $(CXX) -static -o $@@EXEEXT@ $(TSTOBJS) libmk4.a
 
 #---------- Dependencies
 

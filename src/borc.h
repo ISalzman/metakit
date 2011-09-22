@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// borc.h --
+// $Id: borc.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Configuration header for Borland C++
@@ -6,26 +8,26 @@
 
 #define q4_BORC 1
 
-    // get rid of several common warning messages
+  // get rid of several common warning messages
 #if !q4_STRICT
-#pragma warn -aus   // 'identifier' is assigned a value that is never used
-#pragma warn -par   // Parameter 'parameter' is never used.
-#pragma warn -sig   // Conversion may lose significant digits
-#pragma warn -use   // 'identifier' declared but never used
+#pragma warn -aus // 'identifier' is assigned a value that is never used
+#pragma warn -par // Parameter 'parameter' is never used.
+#pragma warn -sig // Conversion may lose significant digits
+#pragma warn -use // 'identifier' declared but never used
 #endif
 
 #if __BORLANDC__ >= 0x500
-#define q4_BOOL 1           // supports the bool datatype
-    // undo previous defaults, because q4_BOOL is not set early enough
+#define q4_BOOL 1     // supports the bool datatype
+  // undo previous defaults, because q4_BOOL is not set early enough
 #undef false
 #undef true
 #undef bool
 #endif
 
 #if !defined (q4_EXPORT)
-#define q4_EXPORT 1         // requires export/import specifiers
+#define q4_EXPORT 1     // requires export/import specifiers
 #endif
 
 #if defined (__MT__)
-#define q4_MULTI 1          // uses multi-threading
+#define q4_MULTI 1      // uses multi-threading
 #endif

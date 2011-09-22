@@ -3,6 +3,21 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
+Project: "mkbug"=.\mkbug.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name mklib
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "mkdemo"=.\mkdemo.dsp - Package Owner=<4>
 
 Package=<5>
@@ -38,6 +53,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name mktcl
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name mkhash
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -55,6 +73,21 @@ Package=<4>
 ###############################################################################
 
 Project: "mkdump"=.\mkdump.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name mklib
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "mkhash"=.\mkhash.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

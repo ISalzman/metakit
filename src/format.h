@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// format.h --
+// $Id: format.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Encapsulation of all format handlers
@@ -10,11 +12,11 @@
 /////////////////////////////////////////////////////////////////////////////
 // Declarations in this file
 
-    class c4_Handler;                   // not defined here
+  class c4_Handler;         // not defined here
 
-    extern c4_Handler* f4_CreateFormat(const c4_Property&, c4_HandlerSeq&);
-    extern int f4_ClearFormat(char);
-    extern int f4_CompareFormat(char, const c4_Bytes&, const c4_Bytes&);
+  extern c4_Handler* f4_CreateFormat(const c4_Property&, c4_HandlerSeq&);
+  extern int f4_ClearFormat(char);
+  extern int f4_CompareFormat(char, const c4_Bytes&, const c4_Bytes&);
 
 /////////////////////////////////////////////////////////////////////////////
 

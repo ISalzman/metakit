@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mfc.h --
+// $Id: mfc.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Configuration header for MFC-based builds
@@ -21,12 +23,12 @@
 #undef d4_new
 #define d4_new DEBUG_NEW
 
-typedef class CString       c4_String;
-typedef class CPtrArray     c4_PtrArray;
-typedef class CDWordArray   c4_DWordArray;      
-typedef class CStringArray  c4_StringArray;     
+typedef class CString   c4_String;
+typedef class CPtrArray   c4_PtrArray;
+typedef class CDWordArray c4_DWordArray;    
+typedef class CStringArray  c4_StringArray;   
 
-    // MSVC 1.52 thinks a typedef has no constructor, so use a define instead
+  // MSVC 1.52 thinks a typedef has no constructor, so use a define instead
 #if !q4_OK && q4_MSVC && _MSC_VER == 800
 #define c4_String CString
 #endif

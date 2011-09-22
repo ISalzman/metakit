@@ -1,3 +1,7 @@
+// PyRowRef.cpp --
+// $Id: PyRowRef.cpp 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
+//
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
 //  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
@@ -47,11 +51,9 @@ static PyObject* PyRowRef_getattr(PyRowRef *o, char *nm) {
     if (attr)
       return attr;
     PyErr_Clear();
+    return Py_FindMethod(RowRefMethods, (PyObject* )o, nm);
   }
-  catch(PWException e) {
-    return e.toPython();
-  }
-  return Py_FindMethod(RowRefMethods, (PyObject* )o, nm);
+  catch (...) { return 0; }
 }
 
 static int PyRowRef_setattr(PyRowRef *o, char *nm, PyObject* v) {
@@ -68,10 +70,7 @@ static int PyRowRef_setattr(PyRowRef *o, char *nm, PyObject* v) {
     PyErr_SetString(PyExc_AttributeError, "delete of non-existing attribute");
     return -1;
   }
-  catch(PWException e) {
-    e.toPython();
-    return -1;
-  }
+  catch (...) { return -1; }
 }
 PyTypeObject PyRowReftype = {
   PyObject_HEAD_INIT(&PyType_Type)
@@ -109,6 +108,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
 	((const c4_IntProp&) prop) (row) = (long) number;
       }
       break;
+#ifdef HAVE_LONG_LONG
     case 'L':   
       if (PyInt_Check(attr))
 	((const c4_LongProp&) prop) (row) = PyInt_AS_LONG(attr);
@@ -120,6 +120,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
 	  ((const c4_LongProp&) prop) (row) = (long) number;
 	}
       break;
+#endif
     case 'F': 
       if (PyFloat_Check(attr))
         ((const c4_FloatProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
@@ -145,7 +146,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         prop (row).SetData(temp);
       }
       else if (attr != Py_None)
-	throw PWException(PyExc_TypeError, "wrong type for StringProp");
+	Fail(PyExc_TypeError, "wrong type for StringProp");
       break;
     case 'V': 
       if (PyView_Check(attr)) {
@@ -173,7 +174,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         prop (row).SetData(temp);
       }
       else if (attr != Py_None)
-	throw PWException(PyExc_TypeError, "wrong type for ByteProp");
+	Fail(PyExc_TypeError, "wrong type for ByteProp");
   }
 }
 
@@ -182,9 +183,11 @@ void PyRowRef::setDefault(const c4_RowRef& row, const c4_Property& prop) {
     case 'I':
       ((const c4_IntProp&) prop) (row) = 0;
       break;
+#ifdef HAVE_LONG_LONG
     case 'L':
       ((const c4_LongProp&) prop) (row) = 0;
       break;
+#endif
     case 'F': 
       ((const c4_FloatProp&) prop) (row) = 0.0;
       break;
@@ -212,9 +215,11 @@ PyObject* PyRowRef::asPython(const c4_Property& prop) {
       PWONumber rslt(((const c4_IntProp&)prop)(*this));
       return rslt.disOwn();
     }
+#ifdef HAVE_LONG_LONG
     case 'L': {
-      return PyLong_FromLong(((const c4_LongProp&)prop)(*this));
+      return PyLong_FromLong((long) ((const c4_LongProp&)prop)(*this));
     }
+#endif
     case 'F': {
       PWONumber rslt(((const c4_FloatProp&)prop)(*this));
       return rslt.disOwn();
@@ -224,7 +229,6 @@ PyObject* PyRowRef::asPython(const c4_Property& prop) {
       return rslt.disOwn();
     }
     case 'S': {
-      //c4_String tmp = ((c4_StringProp&)prop).Get(*this);
       PWOString rslt(((c4_StringProp&)prop).Get(*this));
       return rslt.disOwn();
     }

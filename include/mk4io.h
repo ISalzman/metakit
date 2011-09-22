@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mk4io.h --
+// $Id: mk4io.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Declaration of the file stream and strategy classes.

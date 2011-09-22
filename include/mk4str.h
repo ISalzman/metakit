@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mk4str.h --
+// $Id: mk4str.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Declarations of the string package.

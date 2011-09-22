@@ -1,15 +1,16 @@
-//  Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
-//
-//  Definitions used by "mk4tcl.cpp" and "mk4too.cpp".
+// mk4tcl.h --
+// $Id: mk4tcl.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
 #include "mk4str.h"
 
+#define USE_TCL_STUBS 1
 #include <tcl.h>
 
 #ifndef d4_assert
 #if q4_INLINE && !q4_CHECK
-    // if inlining is on, assume it's release code and disable assertions
+  // if inlining is on, assume it's release code and disable assertions
 #define d4_assert(x)
 #elif defined (ASSERT)
 #define d4_assert(x) ASSERT(x)
@@ -32,104 +33,119 @@
 ///////////////////////////////////////////////////////////////////////////////
 // Defined in this file:
 
-    class MkPath;
-    class MkWorkspace;
-    class Tcl;
-        class MkTcl;
+  class MkPath;
+  class MkWorkspace;
+  class Tcl;
+    class MkTcl;
 
 /////////////////////////////////////////////////////////////////////////////
 // This code is part of the private classes of MetaKit, unfortunately. 
 // It is not needed on Windows since we can use the MFC classes directly.
 // The proper solution would be to use either public MK stuff or rewrite it.
 
-#if q4_MFC                      // Microsoft Foundation Classes
-    typedef class CPtrArray c4_PtrArray;
+#if q4_MFC            // Microsoft Foundation Classes
+  typedef class CPtrArray c4_PtrArray;
 #else
 
-    class c4_BaseArray
-    {
-    public:
-        c4_BaseArray ();
-        ~c4_BaseArray ();
+  class c4_BaseArray
+  {
+  public:
+    c4_BaseArray ();
+    ~c4_BaseArray ();
 
-        int GetLength() const;
-        void SetLength(int nNewSize);
+    int GetLength() const;
+    void SetLength(int nNewSize);
 
-        const void* GetData(int nIndex) const;
-        void* GetData(int nIndex);
+    const void* GetData(int nIndex) const;
+    void* GetData(int nIndex);
 
-        void Grow(int nIndex);
+    void Grow(int nIndex);
 
-        void InsertAt(int nIndex, int nCount);
-        void RemoveAt(int nIndex, int nCount);
+    void InsertAt(int nIndex, int nCount);
+    void RemoveAt(int nIndex, int nCount);
 
-    private:
-        char* _data;
-        int _size;
-    };
+  private:
+    char* _data;
+    int _size;
+  };
 
-    class c4_PtrArray
-    {
-    public:
-        c4_PtrArray ();
-        ~c4_PtrArray ();
+  class c4_PtrArray
+  {
+  public:
+    c4_PtrArray ();
+    ~c4_PtrArray ();
 
-        int GetSize() const;
-        void SetSize(int nNewSize, int nGrowBy = -1);
+    int GetSize() const;
+    void SetSize(int nNewSize, int nGrowBy = -1);
 
-        void* GetAt(int nIndex) const;
-        void SetAt(int nIndex, const void* newElement);
-        void*& ElementAt(int nIndex);
+    void* GetAt(int nIndex) const;
+    void SetAt(int nIndex, const void* newElement);
+    void*& ElementAt(int nIndex);
 
-        int Add(void* newElement);
+    int Add(void* newElement);
 
-        void InsertAt(int nIndex, void* newElement, int nCount = 1);
-        void RemoveAt(int nIndex, int nCount = 1);
+    void InsertAt(int nIndex, void* newElement, int nCount = 1);
+    void RemoveAt(int nIndex, int nCount = 1);
 
-    private:
-        static int Off(int n_);
+  private:
+    static int Off(int n_);
 
-        c4_BaseArray _vector;
-    };
+    c4_BaseArray _vector;
+  };
 
 #if q4_INLINE
-    d4_inline c4_PtrArray::c4_PtrArray ()
-    { 
-    }
+  d4_inline int c4_BaseArray::GetLength() const
+  {
+    return _size;
+  }
 
-    d4_inline c4_PtrArray::~c4_PtrArray ()
-    { 
-    }
+  d4_inline const void* c4_BaseArray::GetData(int nIndex) const
+  {
+    return _data + nIndex;
+  }
 
-    d4_inline int c4_PtrArray::Off(int n_)
-    {
-        return n_ * sizeof (void*); 
-    }
+  d4_inline void* c4_BaseArray::GetData(int nIndex)
+  {
+    return _data + nIndex;
+  }
 
-    d4_inline int c4_PtrArray::GetSize() const
-    { 
-        return _vector.GetLength() / sizeof (void*); 
-    }
+  d4_inline c4_PtrArray::c4_PtrArray ()
+  { 
+  }
 
-    d4_inline void c4_PtrArray::SetSize(int nNewSize, int)
-    { 
-        _vector.SetLength(Off(nNewSize)); 
-    }
+  d4_inline c4_PtrArray::~c4_PtrArray ()
+  { 
+  }
 
-    d4_inline void* c4_PtrArray::GetAt(int nIndex) const
-    { 
-        return *(void* const*) _vector.GetData(Off(nIndex)); 
-    }
+  d4_inline int c4_PtrArray::Off(int n_)
+  {
+    return n_ * sizeof (void*); 
+  }
 
-    d4_inline void c4_PtrArray::SetAt(int nIndex, const void* newElement)
-    { 
-        *(const void**) _vector.GetData(Off(nIndex)) = newElement; 
-    }
+  d4_inline int c4_PtrArray::GetSize() const
+  { 
+    return _vector.GetLength() / sizeof (void*); 
+  }
 
-    d4_inline void*& c4_PtrArray::ElementAt(int nIndex)
-    { 
-        return *(void**) _vector.GetData(Off(nIndex)); 
-    }
+  d4_inline void c4_PtrArray::SetSize(int nNewSize, int)
+  { 
+    _vector.SetLength(Off(nNewSize)); 
+  }
+
+  d4_inline void* c4_PtrArray::GetAt(int nIndex) const
+  { 
+    return *(void* const*) _vector.GetData(Off(nIndex)); 
+  }
+
+  d4_inline void c4_PtrArray::SetAt(int nIndex, const void* newElement)
+  { 
+    *(const void**) _vector.GetData(Off(nIndex)) = newElement; 
+  }
+
+  d4_inline void*& c4_PtrArray::ElementAt(int nIndex)
+  { 
+    return *(void**) _vector.GetData(Off(nIndex)); 
+  }
 #endif
 #endif
 
@@ -149,10 +165,10 @@ bool MatchOneKeyword(const char* value_, const c4_String& crit_);
 
 class KeepRef
 {
-    Tcl_Obj* _obj;
+  Tcl_Obj* _obj;
 public:
-    KeepRef (Tcl_Obj* obj_) : _obj (obj_)   { Tcl_IncrRefCount(_obj); }
-    ~KeepRef ()                             { Tcl_DecrRefCount(_obj); }
+  KeepRef (Tcl_Obj* obj_) : _obj (obj_) { Tcl_IncrRefCount(_obj); }
+  ~KeepRef ()               { Tcl_DecrRefCount(_obj); }
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -164,7 +180,7 @@ Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_
 // Utility code: set a MetaKit item and convert it from a Tcl object
 
 int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
-                                    const c4_Property& prop_, Tcl_Obj* obj_);
+                  const c4_Property& prop_, Tcl_Obj* obj_);
 
 ///////////////////////////////////////////////////////////////////////////////
 // A path is a view which knows its place, and what workspace it belongs to.
@@ -172,19 +188,19 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
 
 class MkPath
 {
-    int _refs;                  // reference count
-    MkWorkspace& _ws;           // avoid globals, but there is usually just one
+  int _refs;          // reference count
+  MkWorkspace& _ws;     // avoid globals, but there is usually just one
 
 public:
-    MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp);
-    ~MkPath ();                 // don't use explicit destruction, use Refs(-1)
+  MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp);
+  ~MkPath ();         // don't use explicit destruction, use Refs(-1)
 
-    int AttachView(Tcl_Interp* interp);
-    int Refs(int diff_);
+  int AttachView(Tcl_Interp* interp);
+  int Refs(int diff_);
 
-    c4_View _view;              // the view corresponding to this path
-    c4_String _path;            // describes view, starting with storage tag
-    int _currGen;               // tracks the generation to force reloads
+  c4_View _view;        // the view corresponding to this path
+  c4_String _path;      // describes view, starting with storage tag
+  int _currGen;       // tracks the generation to force reloads
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -192,53 +208,53 @@ public:
 
 class MkWorkspace
 {
-    c4_PtrArray _items;         // items, or null if released
-    c4_Bytes _usedBuffer;       // buffer, using 1 byte per entry
-    t4_byte* _usedRows;         // 1 if that row in item 0 is currently in use
-    Tcl_Interp* _interp;
-    c4_PtrArray _commands;
+  c4_PtrArray _items;     // items, or null if released
+  c4_Bytes _usedBuffer;   // buffer, using 1 byte per entry
+  t4_byte* _usedRows;     // 1 if that row in item 0 is currently in use
+  Tcl_Interp* _interp;
+  c4_PtrArray _commands;
 
 public:
-    struct Item
-    {
-        const c4_String _name;  // the alias for this storage
-        const c4_String _fileName;
-        c4_Storage _storage;    // the storage object
-        c4_PtrArray _paths;     // the paths associated with this entry
-        c4_PtrArray& _items;    // array from which this item is referenced
-        int _index;             // position in the _items array
+  struct Item
+  {
+    const c4_String _name;  // the alias for this storage
+    const c4_String _fileName;
+    c4_Storage _storage;  // the storage object
+    c4_PtrArray _paths;   // the paths associated with this entry
+    c4_PtrArray& _items;  // array from which this item is referenced
+    int _index;       // position in the _items array
 
-        //Item ();              // special first entry initializer
-        Item (const char* name_, const char* fileName_, int mode_,
-                    c4_PtrArray& items_, int index_, bool share_ =false);
-        ~Item ();
+    //Item ();        // special first entry initializer
+    Item (const char* name_, const char* fileName_, int mode_,
+          c4_PtrArray& items_, int index_, bool share_ =false);
+    ~Item ();
 
-        void ForceRefresh();    // bump the generation to recreate views
+    void ForceRefresh();  // bump the generation to recreate views
 
-        static c4_PtrArray* _shared; // shared items are also listed here
-    };
+    static c4_PtrArray* _shared; // shared items are also listed here
+  };
 
-    MkWorkspace (Tcl_Interp* ip_);
-    ~MkWorkspace ();
+  MkWorkspace (Tcl_Interp* ip_);
+  ~MkWorkspace ();
 
-    void DefCmd(MkTcl* cmd_);   // 1.2: for cleanup
-    void CleanupCommands();
+  void DefCmd(MkTcl* cmd_); // 1.2: for cleanup
+  void CleanupCommands();
 
-    Item* Define(const char* name_, const char* fileName_, int mode_, bool share_);
+  Item* Define(const char* name_, const char* fileName_, int mode_, bool share_);
 
-    Item* Find(const char* name_) const;
-    int NumItems() const;
-    Item* Nth(int index_) const;
+  Item* Find(const char* name_) const;
+  int NumItems() const;
+  Item* Nth(int index_) const;
 
-        // create a new path if it doesn't exist, else bump the reference count
-    MkPath* AddPath(const char*& name_, Tcl_Interp* interp);
-        // decrease the reference count, delete path if it is no longer used
-    void ForgetPath(const MkPath* path_);
-        // create a path to a temporary row
-    c4_String AllocTempRow();
-    
-        // adjust paths of all subviews if the parent position has changed
-    void Invalidate(const MkPath& path_);
+    // create a new path if it doesn't exist, else bump the reference count
+  MkPath* AddPath(const char*& name_, Tcl_Interp* interp);
+    // decrease the reference count, delete path if it is no longer used
+  void ForgetPath(const MkPath* path_);
+    // create a path to a temporary row
+  c4_String AllocTempRow();
+  
+    // adjust paths of all subviews if the parent position has changed
+  void Invalidate(const MkPath& path_);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -273,37 +289,37 @@ int SetCursorFromAny(Tcl_Interp* interp, Tcl_Obj* objPtr);
 
 class TclSelector
 {
-    c4_PtrArray _conditions;
-    Tcl_Interp* _interp;
-    c4_View _view;
-    Tcl_Obj* _temp;
+  c4_PtrArray _conditions;
+  Tcl_Interp* _interp;
+  c4_View _view;
+  Tcl_Obj* _temp;
 
 public:
-    class Condition
-    {
-    public:
-        int _id;
-        c4_View _view;
-        c4_String _crit;
+  class Condition
+  {
+  public:
+    int _id;
+    c4_View _view;
+    c4_String _crit;
 
-        Condition (int id_, const c4_View& view_, const char* crit_)
-            : _id (id_), _view (view_), _crit (crit_)   { }
-    };
+    Condition (int id_, const c4_View& view_, const char* crit_)
+      : _id (id_), _view (view_), _crit (crit_) { }
+  };
 
-    c4_View _sortProps;
-    c4_View _sortRevProps;
-    int _first;
-    int _count;
+  c4_View _sortProps;
+  c4_View _sortRevProps;
+  int _first;
+  int _count;
 
-    TclSelector (Tcl_Interp* interp_, const c4_View& view_);
-    ~TclSelector ();
+  TclSelector (Tcl_Interp* interp_, const c4_View& view_);
+  ~TclSelector ();
 
-    c4_View GetAsProps( Tcl_Obj* obj_);
-    int AddCondition(int id_, Tcl_Obj* props_, Tcl_Obj* value_);
-    bool MatchOneString(int id_, const char* value_, const c4_String& crit_);
-    bool Match(const c4_RowRef& row_);
-    void ExactKeyProps(const c4_RowRef& row_);
-    int DoSelect(Tcl_Obj* list_);
+  c4_View GetAsProps( Tcl_Obj* obj_);
+  int AddCondition(int id_, Tcl_Obj* props_, Tcl_Obj* value_);
+  bool MatchOneString(int id_, const char* value_, const c4_String& crit_);
+  bool Match(const c4_RowRef& row_);
+  void ExactKeyProps(const c4_RowRef& row_);
+  int DoSelect(Tcl_Obj* list_);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -312,138 +328,139 @@ public:
 class Tcl
 {
 protected:
-    Tcl_Interp* interp;
-    int _error;
+  Tcl_Interp* interp;
+  int _error;
 
 public:
-    Tcl (Tcl_Interp* ip_);
+  Tcl (Tcl_Interp* ip_);
 
-    int Fail(const char* msg_ =0, int err_ =TCL_ERROR);
-    Tcl_Obj* tcl_GetObjResult();
-    int tcl_SetObjResult(Tcl_Obj* obj_);
-    int tcl_ListObjLength(Tcl_Obj* obj_);
-    void tcl_ListObjAppendElement(Tcl_Obj* obj_, Tcl_Obj* value_);
-    bool tcl_GetBooleanFromObj(Tcl_Obj* obj_);
-    int tcl_GetIntFromObj(Tcl_Obj* obj_);
-    long tcl_GetLongFromObj(Tcl_Obj* obj_);
-    double tcl_GetDoubleFromObj(Tcl_Obj* obj_);
-    int tcl_GetIndexFromObj(Tcl_Obj *obj_, char **table_, char *msg_ ="option");
-    long tcl_ExprLongObj(Tcl_Obj *obj_);
+  int Fail(const char* msg_ =0, int err_ =TCL_ERROR);
+  Tcl_Obj* tcl_GetObjResult();
+  int tcl_SetObjResult(Tcl_Obj* obj_);
+  int tcl_ListObjLength(Tcl_Obj* obj_);
+  void tcl_ListObjAppendElement(Tcl_Obj* obj_, Tcl_Obj* value_);
+  bool tcl_GetBooleanFromObj(Tcl_Obj* obj_);
+  int tcl_GetIntFromObj(Tcl_Obj* obj_);
+  long tcl_GetLongFromObj(Tcl_Obj* obj_);
+  double tcl_GetDoubleFromObj(Tcl_Obj* obj_);
+  int tcl_GetIndexFromObj(Tcl_Obj *obj_, char **table_, char *msg_ ="option");
+  long tcl_ExprLongObj(Tcl_Obj *obj_);
 
-    Tcl_Obj* GetValue(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_ =0);
-    Tcl_Obj* tcl_NewStringObj(const char* str_, int len_ =-1);
+  Tcl_Obj* GetValue(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_ =0);
+  Tcl_Obj* tcl_NewStringObj(const char* str_, int len_ =-1);
 };
 
 // The MkTcl class adds MetaKit-specific utilities and all the command procs.
 
 class MkTcl : public Tcl
 {
-    int id;
-    int objc;
-    Tcl_Obj* const* objv;
-    c4_String msg;
-    MkWorkspace& work;
+  int id;
+  int objc;
+  Tcl_Obj* const* objv;
+  c4_String msg;
+  MkWorkspace& work;
 
-    static int Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov);
+  static int Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov);
 
 public:
-    enum { kAnyRow, kExistingRow, kLimitRow, kExtendRow };
+  enum { kAnyRow, kExistingRow, kLimitRow, kExtendRow };
 
-    MkTcl (MkWorkspace* ws_, Tcl_Interp* ip_, int id_, const char* cmd_);
-    ~MkTcl ();
+  MkTcl (MkWorkspace* ws_, Tcl_Interp* ip_, int id_, const char* cmd_);
+  ~MkTcl ();
 
-    c4_View asView(Tcl_Obj* obj_);
-    int& changeIndex(Tcl_Obj* obj_);
-    c4_RowRef asRowRef(Tcl_Obj* obj_, int type_ =kExistingRow);
-    int GetCmd();
-    int SetValues(const c4_RowRef& row_, int objc, Tcl_Obj* const* objv);
-    int SetCmd();
-    int RowCmd();
-    int FileCmd();
-    int ViewCmd();
-    int LoopCmd();
-    int CursorCmd();
-    int SelectCmd();
-    int ChannelCmd();
-    int NewCmd();
-    int Try1Cmd();
-    int Try2Cmd();
-    int Try3Cmd();
+  c4_View asView(Tcl_Obj* obj_);
+  int& changeIndex(Tcl_Obj* obj_);
+  c4_RowRef asRowRef(Tcl_Obj* obj_, int type_ =kExistingRow);
+  int GetCmd();
+  int SetValues(const c4_RowRef& row_, int objc, Tcl_Obj* const* objv);
+  int SetCmd();
+  int RowCmd();
+  int FileCmd();
+  int ViewCmd();
+  int LoopCmd();
+  int CursorCmd();
+  int SelectCmd();
+  int ChannelCmd();
+  int NewCmd();
+  int Try1Cmd();
+  int Try2Cmd();
+  int Try3Cmd();
 #if MKSQL
-    int SqlAuxCmd();
+  int SqlAuxCmd();
 #endif
-    int Execute(int oc, Tcl_Obj* const* ov);
+  int Execute(int oc, Tcl_Obj* const* ov);
 };
 
 ///////////////////////////////////////////////////////////////////////////////
 
 class MkView : public Tcl
 {
-    int objc;
-    Tcl_Obj* const* objv;
-    Tcl_Command cmdToken;
-    c4_String msg;
-    MkWorkspace& work;
-    c4_View view;
-    c4_String cmd;
+  int objc;
+  Tcl_Obj* const* objv;
+  Tcl_Command cmdToken;
+  c4_String msg;
+  MkWorkspace& work;
+  c4_View view;
+  c4_String cmd;
 
-    static int Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov);
-    static void DeleteProc(ClientData cd);
-    
+  static int Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov);
+  static void DeleteProc(ClientData cd);
+  
 public:
 
-    MkView (Tcl_Interp* ip_, c4_View view_, const char *name = 0);
-    MkView (Tcl_Interp* ip_, const char *name = 0);
-    ~MkView ();
+  MkView (Tcl_Interp* ip_, c4_View view_, const char *name = 0);
+  MkView (Tcl_Interp* ip_, const char *name = 0);
+  ~MkView ();
 
-    void    Register(const char *name);
+  void  Register(const char *name);
 
-    static c4_View  View(Tcl_Interp *interp, Tcl_Obj *obj);
+  static c4_View  View(Tcl_Interp *interp, Tcl_Obj *obj);
 
-    c4_String CmdName() { return cmd; }
+  c4_String CmdName() { return cmd; }
 
-    int asIndex(c4_View& view, Tcl_Obj* obj_, bool mayExceed_);
-    int SetValues(const c4_RowRef& row_, int objc, Tcl_Obj* const* objv, c4_View&);
+  int asIndex(c4_View& view, Tcl_Obj* obj_, bool mayExceed_);
+  int SetValues(const c4_RowRef& row_, int objc, Tcl_Obj* const* objv, c4_View&);
 
-    c4_View& View() { return view; }
+  c4_View& View() { return view; }
 
-    int CloseCmd();     // $obj close
-    int DeleteCmd();    // $obj delete cursor ?count?
-    int FindCmd();      // $obj find ?prop value ...?
-    int GetCmd();       // $obj get cursor ?prop prop ...?
-    int ExistsCmd();    // $obj exists cursor
-    int InfoCmd();      // $obj info
-    int InsertCmd();    // $obj insert cursor ?prop prop ...?
-    int OpenCmd();      // $obj open cursor prop
-    int SearchCmd();    // $obj search prop value
-    int SelectCmd();    // $obj select ....
-    int SetCmd();       // $obj set cursor ?prop value ...?
-    int SizeCmd();      // $obj size
-    int ViewCmd();	// $obj view option ?args?
+  int CloseCmd();     // $obj close
+  int DeleteCmd();    // $obj delete cursor ?count?
+  int FindCmd();      // $obj find ?prop value ...?
+  int GetCmd();       // $obj get cursor ?prop prop ...?
+  int ExistsCmd();    // $obj exists cursor
+  int InfoCmd();      // $obj info
+  int InsertCmd();    // $obj insert cursor ?prop prop ...?
+  int OpenCmd();      // $obj open cursor prop
+  int SearchCmd();    // $obj search prop value
+  int SelectCmd();    // $obj select ....
+  int SetCmd();       // $obj set cursor ?prop value ...?
+  int SizeCmd();      // $obj size ?newsize?
+  int LoopCmd();      // $obj loop cursor ?first? ?limit? ?step? {cmds}
+  int ViewCmd();      // $obj view option ?args?
 
-    int CloneCmd();     // $obj view clone
-    int ConcatCmd();    // $obj view concat view
-    int CopyCmd();      // $obj view copy
-    int DifferentCmd(); // $obj view different view
-    int BlockedCmd();   // $obj view blocked
-    int FlattenCmd();   // $obj view flatten prop
-    int GroupByCmd();   // $obj view groupby subview prop ?prop ...?
-    int HashCmd();      // $obj view hash view ?numkeys?
-    int IndexedCmd();	// $obj view indexed map unique prop ?prop ...?
-    int IntersectCmd(); // $obj view intersect view
-    int JoinCmd();      // $obj view join view prop ?prop ...?
-    int MapCmd();       // $obj view map view
-    int MinusCmd();     // $obj view minus view
-    int OrderedCmd();   // $obj view ordered ?numKeys?
-    int PairCmd();      // $obj view pair view
-    int ProjectCmd();   // $obj view project prop ?prop ...?
-    int RangeCmd();     // $obj view range start ?limit? ?step?
-    int ReadOnlyCmd();  // $obj view readonly
-    int RestrictCmd();  // $obj view restrict cursor pos count
-    int UnionCmd();     // $obj view union view
-    int UniqueCmd();    // $obj view unique
+  int CloneCmd();     // $obj view clone
+  int ConcatCmd();    // $obj view concat view
+  int CopyCmd();      // $obj view copy
+  int DifferentCmd(); // $obj view different view
+  int BlockedCmd();   // $obj view blocked
+  int FlattenCmd();   // $obj view flatten prop
+  int GroupByCmd();   // $obj view groupby subview prop ?prop ...?
+  int HashCmd();      // $obj view hash view ?numkeys?
+  int IndexedCmd();   // $obj view indexed map unique prop ?prop ...?
+  int IntersectCmd(); // $obj view intersect view
+  int JoinCmd();      // $obj view join view prop ?prop ...?
+  int MapCmd();       // $obj view map view
+  int MinusCmd();     // $obj view minus view
+  int OrderedCmd();   // $obj view ordered ?numKeys?
+  int PairCmd();      // $obj view pair view
+  int ProjectCmd();   // $obj view project prop ?prop ...?
+  int RangeCmd();     // $obj view range start ?limit? ?step?
+  int ReadOnlyCmd();  // $obj view readonly
+  int RestrictCmd();  // $obj view restrict cursor pos count
+  int UnionCmd();     // $obj view union view
+  int UniqueCmd();    // $obj view unique
 
-    int Execute(int oc, Tcl_Obj* const* ov);
+  int Execute(int oc, Tcl_Obj* const* ov);
 };
 
 ///////////////////////////////////////////////////////////////////////////////

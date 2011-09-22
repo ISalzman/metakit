@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Intermediate_Dir "..\..\builds\msvc60\mklib\Release"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /YX /FD /c
-# ADD CPP /nologo /MD /W4 /GX /O2 /Ob2 /I "..\..\include" /I ".." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /FD /c
+# ADD CPP /nologo /MD /W4 /GX /O2 /Ob2 /I "..\..\include" /I ".." /D "WIN32" /D "NDEBUG" /D "_MBCS" /D "_LIB" /D "q4_INLINE" /FD /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -91,7 +91,7 @@ LIB32=link.exe -lib
 # PROP Intermediate_Dir "..\..\builds\msvc60\mklib\Debug_MFC"
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MDd /W3 /Gm /GX /Zi /Od /I "..\..\include" /I ".." /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "_LIB" /FR /YX /FD /GZ /c
-# ADD CPP /nologo /MTd /W3 /Gm /GX /Zi /Od /I "..\..\include" /I ".." /D "_LIB" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "q4_MFC" /FR /FD /GZ /c
+# ADD CPP /nologo /MTd /W4 /Gm /GX /Zi /Od /I "..\..\include" /I ".." /D "_LIB" /D "WIN32" /D "_DEBUG" /D "_MBCS" /D "q4_MFC" /FR /FD /GZ /c
 # SUBTRACT CPP /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"

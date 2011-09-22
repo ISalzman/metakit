@@ -1,3 +1,159 @@
+2001-12-12  MK 2.4.2    Better portability, hashing improved
+
+   This release marks the consolidation of a number of changes,
+   mostly relating to better portability & hashing.  The speed
+   of commits with many strings and subviews should be notably
+   better.  The Tcl extension no longer needs a "stub" library 
+   to compile (it now has that code itself), just std headers.
+
+2001-12-08              Changes to commit cleanup, Mac stuff
+
+   Changed the logic of how ReleaseAllSegments gets called at
+   the end of commits.  There was at least one case of leaving
+   a column pointing into mapped file space when it was about to
+   be remapped.  This should fix a very long-tanding bug which
+   shows itself as freeing unallocated memory during commit or
+   cleanup of the storage object.
+
+   Changes to test coding and PyRowRef.cpp to deal with builds
+   on Macintosh (different issues for MacOS 9 and MacOS X).
+   The mac/cw.sea.hqx project has been upgraded to MW CW 6.3.
+   Verified Tcl 8.3.2 and Python 2.1.1 builds with CW6 on Mac.
+
+2001-12-06              Tweaks to Tcl interface
+
+   More robust, added "$vw loop var ... {body}" object command.
+   The "$vw size" command now takes an optional newsize arg.
+
+2001-12-04              Tweaks to makefile and configure
+
+   Tweaks, in preparation of an upcoming 2.4.2 release.
+
+2001-12-03              Changes in M4py, avoid gcc problem, hash
+
+   The "-fomit-frame-pointer" option for gcc has been turned off,
+   because it causes problems with exception handling in Mk4py.
+   All failures in Mk4py now propagate properly to Python AFAIK.
+
+   Simplified Mk4py - by removing a layer of exception handler
+   classes in scxx.  Errors now set info and throw a plain int.
+
+   The mkhash.cpp sample program exposed a problem with multi-key
+   hashing: the order of properties in the search key must match 
+   exactly the order in the hash view itself.  For now, this has
+   been left as is (it's easy to do, once you are aware of it).
+
+2001-11-30              Win MT fix, commit tweak, indent cleanup
+
+   Drop static buffer in fileio.cpp (DataWrite), uses stack now,
+   so the code can be used in MT context even on Win 95/98.
+   It does more copying than would be needed for NT (2K?), alas.
+
+   More changes in c4_FormatB::Commit to properly detect memo use
+   in blocked views.  The recent changes introduced a bug which
+   shows up only with blocked views and large string/bytes items.
+   Reported by Steve Baxter with demo, new "m02" regression test.
+
+   Changed fileio.cpp to turn off file buffering, this avoids a
+   few reads when writing and seeking a lot.  It does not have as
+   big an impact as one might expect, but every little bit helps.
+
+   Cleaned up new 2-space indentation in several source files.
+
+   Added new "mk::file space" in Mk4tcl, to inspect the current
+   file space usage.  This is only intended for internal testing.
+
+2001-11-28              Fixed memory leak in string/memo cleanup
+
+   There was a mem-leak in c4_FormatB::Commit which showed up due
+   to yesterday's more extensive testing.  Only showed up after a
+   commit, in string columns with widely varying item sizes.
+   This caused regression test s37 to fail in MFC-debug compile.
+
+2001-11-27              Major performance bug fix, and MT strings
+
+   A serious problem has been resolved, which slowed down commits,
+   and prevented blocked views from committing efficiently.  The 
+   reason was that for string props, the string size was always
+   being saved anew, even if no changes in that view took place.
+   This did not affect proper operation, just speed, and was most
+   noticeable with many (sub-)views containing many string props.
+
+   The solution is in src/format.cpp, the examples/mkhash.cpp code
+   was further adjusted to better expose and measure the effects.
+   Thanks to P. Baspeyras and S. Baxter for helping me resolve it.
+
+   Another change was to alter the way empty strings are allocated
+   in the src/string.cpp code, making it compatible with multi-
+   threaded use and removing the remaining memory leak.
+
+2001-11-26              Fix in assertion check (blocked view)
+
+   Corrected an off-by-one bug.  Only shows up with debugging on,
+   since it's inside an assert().  Thanks to Steve Baxter.
+
+2001-11-25              More arg checking in Mk4py, locate
+
+   Added more checks against incorrect usage, based on sample code
+   by Mitch Chapman.  The "throw" code appears to be inconsistent
+   when called at top of *some* calls, using a workaround for now.
+
+   Added "view.locate(key)" wrapper, returns (pos,count) tuple.
+
+   Various source code formatting adjustments (indents and such).
+
+2001-11-04              Added alternate calls to c4_CustomViewer
+
+   Added extra defs to "mk4.h" of Lookup and InsertRows which take
+   a "const c4_RowRef&" i.s.o. a c4_Cursor.  Inlined in "mk4.inl".
+   The "c4_Cursor" datatype might one day become obsolete.
+
+2001-11-03              Removed tcl/kit/ and copyright notices
+
+   Removed the entire tcl/kit/ tree, TclKit will be distributed as
+   separate package from now on (the 2.4.1 release still builds ok).
+
+   Also replaced all copyright notices by version Id's and an URL.
+
+2001-11-02              Fixed partial memo commit bug, makefile fix
+
+   Modifying a small item as memo (i.e. through Modify) properly
+   committed a change, but subsequently left an incorrect pointer
+   after the commit.  Fixed, and added test s37 to catch this case.
+
+   Don't strip symbols from installed static libs (whoops!).
+   
+2001-10-31              Fixed Mk4py error flag clear on delete
+
+   When deleting rows, a slice was constructed from a PWOSequence,
+   which generates an otherwise harmless error when its length is
+   checked.  The flag was not cleared, causing errors in subsequent
+   Python statements.  Changed to a PWOTuple in PyView.cpp (2x).
+
+2001-10-26              Fixed Mk4tcl re-open test
+
+   The tcl/test/mk1basic.tcl test #6 was reporting open failure on
+   non-Linux systems.  Fixed, the code works, the message was wrong.
+
+2001-10-19              Rearranged some demo files, Lua binding
+
+   Rearranged some of the demos/samples from the python/ and tcl/
+   areas, and placed them in examples/ instead, for consistency.
+
+   Added "selmap.tcl" to illustrate how to turn select into a view.
+
+   Added a basic Lua binding (incomplete, but it's a start) in lua/.
+
+2001-10-18              Fixed recent hash bug, and add to ordered
+
+   The recent "fix" to deal with hash misses introduced a huge bug,
+   causing the mapping to be recalculated on each insertion.
+
+   Adding to an ordered view did not always work, because the code
+   was based on SetAtGrow, which is not suitable for an ordered
+   view in which the row position is determined implicitly.  Fixed
+   by changing c4_View::Add to use c4_View::InsertAt instead.
+
 2001-10-14  MK 2.4.1    Custom-extended TclKit, and threading
 
    Minor kitInit.c change allows wrapping apps as a "custom-extended"
@@ -44,7 +200,7 @@
 
 2001-06-22              Changes to the Mk4py interface
 
-    Modifications and fixes gratefuly accepted from John Barnard:
+    Modifications and fixes gratefully accepted from John Barnard:
     - c4_LongProp support ('L' datatype)
     - row.__attrs__ returns the list of all properties
     - row.__view__ returns the container view of the row

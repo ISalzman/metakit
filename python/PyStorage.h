@@ -1,3 +1,7 @@
+// PyStorage.h --
+// $Id: PyStorage.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
+//
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
 //  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
@@ -16,17 +20,17 @@ class SiasStrategy;
 
 class PyStorage : public PyHead, public c4_Storage {
 public:
-	PyStorage() 
-		: PyHead(PyStoragetype) { }
-	PyStorage(c4_Strategy& strategy_, bool owned_ =false, int mode_ =1)
-		: PyHead(PyStoragetype), c4_Storage(strategy_, owned_, mode_) { }
-	PyStorage(const char *fnm, int mode)
-		: PyHead(PyStoragetype), c4_Storage(fnm, mode) { }
-	PyStorage(const c4_Storage& storage_)
-		: PyHead(PyStoragetype), c4_Storage(storage_) { }
-//	PyStorage(const char *fnm, const char *descr) 
-//		: PyHead(PyStoragetype), c4_Storage(fnm, descr) { }
-	~PyStorage() { }
+  PyStorage() 
+    : PyHead(PyStoragetype) { }
+  PyStorage(c4_Strategy& strategy_, bool owned_ =false, int mode_ =1)
+    : PyHead(PyStoragetype), c4_Storage(strategy_, owned_, mode_) { }
+  PyStorage(const char *fnm, int mode)
+    : PyHead(PyStoragetype), c4_Storage(fnm, mode) { }
+  PyStorage(const c4_Storage& storage_)
+    : PyHead(PyStoragetype), c4_Storage(storage_) { }
+//  PyStorage(const char *fnm, const char *descr) 
+//    : PyHead(PyStoragetype), c4_Storage(fnm, descr) { }
+  ~PyStorage() { }
 };
 
 #endif

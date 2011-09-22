@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mk4.h --
+// $Id: mk4.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Main MetaKit library include file
@@ -17,12 +19,6 @@
 //                                
 //      Structured data storage with commit / rollback and on-demand loading.
 //  
-//  LICENSE
-//
-//      This software is distributed as open source software.  For details
-//      on what you may and may not do with this software, see the license
-//      details at the end of the "README" file in the parent directory.
-//            
 //  ACKNOWLEDGEMENTS
 //                                                                        
 //      To Liesbeth and Myra, for making this possible.
@@ -47,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 241    // 2.4.1 final release October 2001
+#define d4_MetaKitLibraryVersion 242    // 2.4.2 release, December 12, 2001
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -186,7 +182,7 @@ typedef int t4_i32;             // if longs are 64b, then int must be 32b
 typedef long t4_i32;            // if longs aren't 64b, then they are 32b
 #endif
 
-#if q4_LONG64			// choose a way to represent 64b integers
+#if q4_LONG64           // choose a way to represent 64b integers
 typedef long t4_i64;
 #elif defined (LONG_LONG)
 typedef LONG_LONG t4_i64;
@@ -314,7 +310,7 @@ protected:
     void _IncSeqRef();
     void _DecSeqRef();
 
-    	/// View references are allowed to peek inside view objects
+        /// View references are allowed to peek inside view objects
     friend class c4_ViewRef;
 
     // DROPPED: Structure() const;
@@ -459,7 +455,7 @@ private:
 class c4_Bytes
 {
     union {
-	t4_byte _buffer [16];
+    t4_byte _buffer [16];
         double _aligner; // on a Sparc, the int below wasn't enough...
     };
 
@@ -502,7 +498,7 @@ public:
     c4_Storage (c4_Strategy&, bool =false, int =1); 
         /// Construct a storage object, keeping the current structure
     c4_Storage (const char*, int);
-    	/// Reconstruct a storage object from a suitable view
+        /// Reconstruct a storage object from a suitable view
     c4_Storage (const c4_View&);
         /// Destructor, usually closes file, but does not commit by default
     ~c4_Storage ();
@@ -736,10 +732,12 @@ public:
     virtual c4_View GetTemplate() = 0;
         /// Return the number of rows in this view
     virtual int GetSize() = 0;
+    int Lookup(const c4_RowRef&, int&);
     virtual int Lookup(c4_Cursor, int&);
         /// Fetch one data item, return it as a generic data value
     virtual bool GetItem(int, int, c4_Bytes&) = 0;
     virtual bool SetItem(int, int, const c4_Bytes&);
+    bool InsertRows(int, const c4_RowRef&, int =1);
     virtual bool InsertRows(int, c4_Cursor, int =1);
     virtual bool RemoveRows(int, int =1);
 };
@@ -786,11 +784,11 @@ public:
     const t4_byte* _mapStart;
         /// Number of bytes filled with active data
     t4_i32 _dataSize;
-	/// All file positions are relative to this offset
+    /// All file positions are relative to this offset
     t4_i32 _baseOffset;
-	/// The root position of the shallow tree walks
+    /// The root position of the shallow tree walks
     t4_i32 _rootPos;
-	/// The size of the root column
+    /// The size of the root column
     t4_i32 _rootLen;
 };
 

@@ -1,4 +1,4 @@
-The MetaKit Library 2.4.1                                         October 2001
+The MetaKit Library 2.4.2                                        December 2001
 ==============================================================================
 
 
@@ -11,9 +11,9 @@ WHAT IT IS - MetaKit is an embeddable database which runs on Unix, Windows,
 
 TECHNOLOGY - Everything is stored variable-sized yet with efficient positional
     row access.  Changing an existing datafile structure is as simple as re-
-    opening it with that new structure.  All changes are transacted.  You can
-    mix and match software written in C++, Python, and Tcl.  Things can't get
-    much more flexible...
+    opening it with that new structure.  All changes are transacted, including
+    restructuring.  You can mix and match software written in C++, Python,
+    and Tcl.  Things can't get much more flexible...
 
 CORE - The Metakit core library is written in C++.  It has a code footprint of
     just over 100 Kb on Windows.  It can be used as DLL, or linked statically.
@@ -24,8 +24,7 @@ PYTHON - The binding for Python is called "Mk4py".  It uses SCXX by Gordon
 
 TCL/TK - The MK extension for Tcl is called "Mk4tcl".  It is being used in a
     number of commercial projects, for in-house use as well as in commercially
-    distributed products.  The source is in directory "tcl/".  The sources to
-    build TclKit, a standalone incorporating Tcl and Tk, are in "tcl/kit/".
+    distributed products.  The source is in directory "tcl/".
 
 LICENSE AND SUPPORT - MetaKit is now distributed as open source software (the
     X/MIT-style license is at the end of this document).  Commercial support
@@ -43,11 +42,11 @@ WEBSITE URLS - The main pages on the world wide web, for news and downloads:
     Contact info:   http://www.equi4.com/contact.html
 
 ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend MetaKit,
-    i.e. Kyrill Denisenko, Gordon McMillan, Matt Newman, Christian Tismer,
-    John Bushakra, Steve Landers, Jacob Levy, John Barnard, and many more
-    people who have reported bugs and helped fix them.  Last but not least,
-    many thanks to all enterprise license customers and all my clients for
-    funding MetaKit work.
+    including Kyrill Denisenko, Mark Roseman, Gordon McMillan, Matt Newman,
+    Christian Tismer, John Bushakra, Steve Landers, Jacob Levy, John Barnard,
+    and many more people who have reported bugs and helped fix them.  Last
+    but not least, many thanks to all enterprise license customers and all
+    my clients for funding MetaKit work.
 
 
 INSTALLATION
@@ -76,6 +75,12 @@ UNIX
 
     To build with STL containers and strings, you can do the following:
         make CXXFLAGS='-Dq4_STD' test   # add -O3 etc, as needed
+
+    To build the Mk4py extension on Unix, change the configure to:
+        % ../unix/configure --enable-python     (tweak if not Python 2.1)
+
+    To build the Mk4tcl extension on Unix, change the configure to:
+        % ../unix/configure --with-tcl=<dir-where-tclConfig.sh-is>
 
     See below for some platform-specific build notes.
 
@@ -134,10 +139,19 @@ PLATFORM-SPECIFIC NOTES
     The core MK libs end up as ".libs/libmk4.a" and ".libs/libmk4.so.0.0.0".
     The .0.0.0 stuff comes from libtool, I usually rename it to "libmk4.so".
 
+* FreeBSD 4.4-RELEASE
+
+    Builds should now work out of the box (thanks Dirk Meyer).  If you first
+    install Tcl 8.3 and Python 2.1, then you can build and test it all with:
+    	cd builds
+	../unix/configure --with-tcl=/usr/local/lib/tcl8.3 --enable-python
+	make test test-tcl
+    The "make install" command has the same messiness for Mk4*.so as Linux.
+
 * Solaris 2.6 / gcc 2.8.1
 
     The gcc 2.8.1 optimizer appears to be buggy, I have had to turn off the
-    default "-O3" flag to prevent compiler crashes (several files).
+    default "-O3" flag to prevent compiler crashes (for a number of files).
     This problems appears to be resolved with gcc 2.95.
 
 * Other Unix systems

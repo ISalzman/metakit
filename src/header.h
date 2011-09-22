@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// header.h --
+// $Id: header.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * The internal header included in all source files
@@ -50,7 +52,9 @@
 // You can either use '#define q4_xxx 1' to flag the choice of an OS, or
 // use a '#define d4_OS_H "file.h"' to force inclusion of a header later.
 
-#if defined (MSDOS) && defined (__GNUC__)
+#if defined (__MINGW32__)
+#define d4_OS_H "win.h"
+#elif defined (MSDOS) && defined (__GNUC__)
 #define q4_DOS 1
 #elif defined(unix) || defined(__unix__) || defined(__GNUC__) || defined(_AIX)
 #define q4_UNIX 1
@@ -112,6 +116,7 @@
 
 #if !q4_CHECK                   // disable assertions
 #undef d4_assert
+#define d4_dbgdef(x)
 #define d4_assert(x)
 #endif
 
@@ -151,6 +156,14 @@ typedef long t4_i32;            // longs aren't 64b, so they are 32b
 #ifndef d4_assert               // assertion macro
 #include <assert.h>
 #define d4_assert assert
+#endif
+
+#ifndef d4_dbgdef               // conditionally compiled
+#ifdef NDEBUG
+#define d4_dbgdef(x)
+#else
+#define d4_dbgdef(x) x
+#endif
 #endif
 
 #ifndef d4_new                  // heap allocator

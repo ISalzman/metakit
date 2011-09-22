@@ -20,7 +20,7 @@
 <P>
 <B>Python</B> - The extension for <A HREF="http://www.python.org/">Python</A> is called "Mk4py".  It provides a lower-level API for the Metakit C++ core extension than an earlier version of this interface, and uses <A HREF="http://starship.python.net/crew/gmcm/scxx.html">SCXX</A> by Gordon McMillan as C++ glue interface.
 <P>
-<B>Mk4py 2.4.1</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using MetaKit memo fields, and a few more goodies.
+<B>Mk4py 2.4.2</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4py C++ source code, a "MkMemoIO.py" class which provides efficient and fail-safe I/O (therefore also pickling) using MetaKit memo fields, and a few more goodies.
 <P>
 <B>Changes since 2.01</B> - the MK core has changed substantially:
 <UL>
@@ -29,7 +29,7 @@
 <li>The "M" (memo) datatype is gone, use "B" instead, it now handles huge items
 <li>Internal changes to take advantage of the hash/ordered/blocked viewers
 <li>Mk4py members storage, view, and property are now lower-case
-<li>Added Mk4py.version (currently the string "2.4.1")
+<li>Added Mk4py.version (currently the string "2.4.2")
 <li>Added "metakit.py" as new main wrapper, use as "import metakit"
 </UL>
 <P>
@@ -193,7 +193,43 @@ Show a list of all people with first name 'John':
             Modifications of rows in the
             derived view are reflected in the base view
         <BR><BR><FONT COLOR="#990000"><B>sort</B></FONT> - Example, returning the sorted permutation:<BR><PRE><FONT COLOR="#000099">     result = inventory.sort(inventory.shoesize)</FONT></PRE>See notes for select concerning changes to the sorted view<BR><BR></DL></BLOCKQUOTE>
-<H3><A NAME="5"></A><A HREF="#0">5.</A> View operations</H3><B><FONT SIZE=-1>SYNOPSYS</FONT></B><BLOCKQUOTE><DL><DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>flatten</B>(<I>subprop</I>, <I>outer</I>=0)</font><DD>Produces one 'flat' view from a nested view<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>join</B>(<I>view</I>, <I>property</I>...,<I>outer</I>=0)</font><DD>Both views must have a property (column) of that name and type<DT><FONT COLOR="#990000"><I>ix</I> = <I>view</I>.<B>find</B>(<I>criteria</I>..., <I>start</I>=0)</font><DD>Returns the index of the found row, or -1<DT><FONT COLOR="#990000"><I>ix</I> = <I>view</I>.<B>search</B>(<I>criteria</I>...)</font><DD>Binary search (native view order), returns match or insertion point<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>unique</B>()</font><DD>Returns a new view without duplicate rows (a set)<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>union</B>(<I>view2</I>)</font><DD>Returns a new view which is the set union of view and view2<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>intersect</B>(<I>view2</I>)</font><DD>Returns a new view which is the set intersection of view and view2<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>different</B>(<I>view2</I>)</font><DD>Returns a new view which is the set XOR of view and view2<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>minus</B>(<I>view2</I>)</font><DD>Returns a new view which is (in set terms) view - view.intersect(view2)<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>remapwith</B>(<I>view2</I>)</font><DD>Remap rows according to the first (int) property in view2<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>pair</B>(<I>view2</I>)</font><DD>Concatenate rows pairwise, side by side<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>rename</B>('<I>oldname</I>', '<I>newname</I>')</font><DD>Returns a derived view with one property renamed<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>product</B>(<I>view</I>)</font><DD>Returns the cartesian product of both views<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>groupby</B>(<I>property</I>..., '<I>subname</I>')</font><DD>Groups on specified properties, with subviews to hold groups<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>counts</B>(<I>property</I>..., '<I>name</I>')</font><DD>Groups on specified properties, replacing rest with a count field</DL></BLOCKQUOTE><B><FONT SIZE=-1>ADDITIONAL DETAILS</FONT></B><BLOCKQUOTE><DL><FONT COLOR="#990000"><B>find</B></FONT> - view[view.find(firstname='Joe')] is the same as
+<H3><A NAME="5"></A><A HREF="#0">5.</A> View operations</H3><B><FONT SIZE=-1>SYNOPSYS</FONT></B><BLOCKQUOTE>
+<DL>
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>flatten</B>(<I>subprop</I>, <I>outer</I>=0)</font>
+<DD>Produces one 'flat' view from a nested view
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>join</B>(<I>view</I>, <I>property</I>...,<I>outer</I>=0)</font>
+<DD>Both views must have a property (column) of that name and type
+<DT><FONT COLOR="#990000"><I>ix</I> = <I>view</I>.<B>find</B>(<I>criteria</I>..., <I>start</I>=0)</font>
+<DD>Returns the index of the found row, or -1
+<DT><FONT COLOR="#990000"><I>ix</I> = <I>view</I>.<B>search</B>(<I>criteria</I>...)</font>
+<DD>Binary search (native view order), returns match or insertion point
+<DT><FONT COLOR="#990000"><I>ix, cnt</I> = <I>view</I>.<B>locate</B>(<I>criteria</I>...)</font>
+<DD>Binary search, returns position and count as tuple (count can be zero)
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>unique</B>()</font>
+<DD>Returns a new view without duplicate rows (a set)
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>union</B>(<I>view2</I>)</font>
+<DD>Returns a new view which is the set union of view and view2
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>intersect</B>(<I>view2</I>)</font>
+<DD>Returns a new view which is the set intersection of view and view2
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>different</B>(<I>view2</I>)</font>
+<DD>Returns a new view which is the set XOR of view and view2
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>minus</B>(<I>view2</I>)</font>
+<DD>Returns a new view which is (in set terms) view - view.intersect(view2)
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>remapwith</B>(<I>view2</I>)</font>
+<DD>Remap rows according to the first (int) property in view2
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>pair</B>(<I>view2</I>)</font>
+<DD>Concatenate rows pairwise, side by side
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>rename</B>('<I>oldname</I>', '<I>newname</I>')</font>
+<DD>Returns a derived view with one property renamed
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>product</B>(<I>view</I>)</font>
+<DD>Returns the cartesian product of both views
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>groupby</B>(<I>property</I>..., '<I>subname</I>')</font>
+<DD>Groups on specified properties, with subviews to hold groups
+<DT><FONT COLOR="#990000"><I>vw</I> = <I>view</I>.<B>counts</B>(<I>property</I>..., '<I>name</I>')</font>
+<DD>Groups on specified properties, replacing rest with a count field
+</DL></BLOCKQUOTE>
+<B><FONT SIZE=-1>ADDITIONAL DETAILS</FONT></B><BLOCKQUOTE>
+<DL><FONT COLOR="#990000"><B>find</B></FONT> - view[view.find(firstname='Joe')] is the same as
               view.select(firstname='Joe')[0] but much faster
             Subsequent finds use the &quot;start&quot; keyword:
               view.find(firstname='Joe', start=3)

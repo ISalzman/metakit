@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// remap.h --
+// $Id: remap.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Encapsulation of the (re)mapping viewers
@@ -10,14 +12,14 @@
 /////////////////////////////////////////////////////////////////////////////
 // Declarations in this file
 
-    class c4_Sequence;                  // not defined here
+  class c4_Sequence;          // not defined here
 
-    extern c4_CustomViewer* f4_CreateReadOnly(c4_Sequence&);
-    extern c4_CustomViewer* f4_CreateHash(c4_Sequence&, int, c4_Sequence* =0);
-    extern c4_CustomViewer* f4_CreateBlocked(c4_Sequence&);
-    extern c4_CustomViewer* f4_CreateOrdered(c4_Sequence&, int);
-    extern c4_CustomViewer* f4_CreateIndexed(c4_Sequence&, c4_Sequence&,
-	    					const c4_View&, bool =false);
+  extern c4_CustomViewer* f4_CreateReadOnly(c4_Sequence&);
+  extern c4_CustomViewer* f4_CreateHash(c4_Sequence&, int, c4_Sequence* =0);
+  extern c4_CustomViewer* f4_CreateBlocked(c4_Sequence&);
+  extern c4_CustomViewer* f4_CreateOrdered(c4_Sequence&, int);
+  extern c4_CustomViewer* f4_CreateIndexed(c4_Sequence&, c4_Sequence&,
+              const c4_View&, bool =false);
 
 /////////////////////////////////////////////////////////////////////////////
 

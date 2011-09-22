@@ -1,3 +1,6 @@
+# mksql.tcl --
+# $Id: mksql.tcl 1269 2007-03-09 16:53:45Z jcw $
+# This is part of MetaKit, see http://www.equi4.com/metakit/
 # Copyright (C) 2000 by Matt Newman and Jean-Claude Wippler.
 #
 # This is an experimental wrapper around the new MkSQL engine.
@@ -8,7 +11,7 @@
 # set db [mk::sql #auto data.mk -readonly]
 #
 # foreach row [$db "select * from serves"] {
-#     puts $row
+#   puts $row
 # }
 #
 # OR using read:
@@ -16,58 +19,58 @@
 # $db read likes "select * from likes"
 # puts $likes(joe,beer)
 # puts $likes(joe,perday)
-#
+
 package provide mk.sql 0.1
 
 # Public name
 proc mk::sql {args} {
-    # invoke private namespace - retain relative stack level
-    uplevel 1 [linsert $args 0 mksql::new db]
+  # invoke private namespace - retain relative stack level
+  uplevel 1 [linsert $args 0 mksql::new db]
 }
 #
 # Private
 #
 namespace eval mksql {
-    variable prefix	[namespace current]
-    variable debug	1
-    variable uid	0
+  variable prefix   [namespace current]
+  variable debug    1
+  variable uid    0
 
-    variable options		;# maps $this,option -> value
-    variable sto		;# maps $this -> c4_Storage name
-    variable sqlcmd		;# maps $this -> SQL processor
-    variable dbfile		;# maps $this -> open file
-    variable stmt		;# maps $this -> SQL Query
-    variable results		;# maps $this -> SQL Results
-    variable columns		;# maps $this -> SQL Columns
-    #
-    #
-    # colinfo maps c4_Property name ->
-    # DATA_TYPE TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS
-    #
-    # Should really have this contained inside mk4tcl as a fake (in-memory)
-    # c4_View called systypes or some-such....
-    variable typeinfo
-    array set typeinfo {
-	M {-4 image 2147483647 2147483647 {} {} 1 {}}
-	B {-3 varbinary 255 255 {} {} 1 {}}
-	I {4 int 10 4 0 10 0 {}}
-	F {6 float 10 8 0 10 0 {}}
-	D {7 real 10 8 0 10 0 {}}
-	D {8 double 10 8 0 10 0 {}}
-	T {11 datetime 23 16 3 10 1 {unsupported}}
-	S {12 varchar 255 255 {} {} 1 {}}
-    }
-    # Note: actually metakit doesn't have a 'T' (datetime)
+  variable options      ;# maps $this,option -> value
+  variable sto        ;# maps $this -> c4_Storage name
+  variable sqlcmd       ;# maps $this -> SQL processor
+  variable dbfile       ;# maps $this -> open file
+  variable stmt       ;# maps $this -> SQL Query
+  variable results      ;# maps $this -> SQL Results
+  variable columns      ;# maps $this -> SQL Columns
+  #
+  #
+  # colinfo maps c4_Property name ->
+  # DATA_TYPE TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS
+  #
+  # Should really have this contained inside mk4tcl as a fake (in-memory)
+  # c4_View called systypes or some-such....
+  variable typeinfo
+  array set typeinfo {
+    M {-4 image 2147483647 2147483647 {} {} 1 {}}
+    B {-3 varbinary 255 255 {} {} 1 {}}
+    I {4 int 10 4 0 10 0 {}}
+    F {6 float 10 8 0 10 0 {}}
+    D {7 real 10 8 0 10 0 {}}
+    D {8 double 10 8 0 10 0 {}}
+    T {11 datetime 23 16 3 10 1 {unsupported}}
+    S {12 varchar 255 255 {} {} 1 {}}
+  }
+  # Note: actually metakit doesn't have a 'T' (datetime)
 }
 #
 #
 # Private Module
 #
 proc mksql::log {this msg {lvl 1}} {
-    variable debug
-    if {$lvl <= $debug} {
-	tclLog "$this: $msg"
-    }
+  variable debug
+  if {$lvl <= $debug} {
+    tclLog "$this: $msg"
+  }
 }
 #
 # Object Constructor/Destructor - a bit overblow, but
@@ -77,162 +80,162 @@ proc mksql::log {this msg {lvl 1}} {
 # protected methods are class-name
 #
 proc mksql::new {Class this args} {
-    variable prefix
-    variable uid
+  variable prefix
+  variable uid
 
-    if {$this == "#auto"} {
-	while 1 {
-	    set this ${prefix}[incr uid]
-	    if {[info commands $this] == ""} break
-	}
-    } else {
-	#
-	# this may contain namespace components
-	#
-	if {![string match ::* $this]} {
-	    set ns [uplevel 1 namespace current]
-	    if {$ns == "::"} {
-		set this ::$this
-	    } else {
-		set this ${ns}::$this
-	    }
-	}
-	incr uid
+  if {$this == "#auto"} {
+    while 1 {
+      set this ${prefix}[incr uid]
+      if {[info commands $this] == ""} break
     }
-    # simple OO framework, shared between "database" and "statement" commands
-    variable usage
-    variable class
+  } else {
+    #
+    # this may contain namespace components
+    #
+    if {![string match ::* $this]} {
+      set ns [uplevel 1 namespace current]
+      if {$ns == "::"} {
+        set this ::$this
+      } else {
+        set this ${ns}::$this
+      }
+    }
+    incr uid
+  }
+  # simple OO framework, shared between "database" and "statement" commands
+  variable usage
+  variable class
 
-    set class($this) $Class
+  set class($this) $Class
 
-    # set usage string...
-    set tmp [lsort [info commands ${prefix}::$class($this).*]]
-    regsub -all "${prefix}::$class($this)." $tmp {} tmp 
-    set usage($this) "ambiguous option \"%s\": must be [join $tmp ", "]"
+  # set usage string...
+  set tmp [lsort [info commands ${prefix}::$class($this).*]]
+  regsub -all "${prefix}::$class($this)." $tmp {} tmp 
+  set usage($this) "ambiguous option \"%s\": must be [join $tmp ", "]"
 
-    # execute constructor...
-    eval [linsert $args 0 $class($this)-constructor $this]
+  # execute constructor...
+  eval [linsert $args 0 $class($this)-constructor $this]
 
-    proc $this {option args} [format {
-	set this %s
-	set prefix %s
-	set class %s
+  proc $this {option args} [format {
+    set this %s
+    set prefix %s
+    set class %s
 
-	# support extending the "methods"
-	set match [info commands ${prefix}::${class}.${option}*]
+    # support extending the "methods"
+    set match [info commands ${prefix}::${class}.${option}*]
 
-	if {[llength $match] == 1} {
+    if {[llength $match] == 1} {
 
-	    return [uplevel 1 [linsert $args 0 [lindex $match 0] $this]]
+      return [uplevel 1 [linsert $args 0 [lindex $match 0] $this]]
 
-	} else {
-	    variable ${prefix}::unknown
-	    variable ${prefix}::usage
+    } else {
+      variable ${prefix}::unknown
+      variable ${prefix}::usage
 
-	    if {[llength $match] == 0 && [info exists unknown($this)]} {
-		uplevel 1 [linsert $args 0 $unknown($this) $this $option]
-	    } else {
-		return -code error [format $usage($this) $option]
-	    }
-	}
-    } [list $this] [list $prefix] [list $class($this)]]
+      if {[llength $match] == 0 && [info exists unknown($this)]} {
+        uplevel 1 [linsert $args 0 $unknown($this) $this $option]
+      } else {
+        return -code error [format $usage($this) $option]
+      }
+    }
+  } [list $this] [list $prefix] [list $class($this)]]
 
-    return $this
+  return $this
 }
 
 proc mksql::destroy {this} {
-    variable prefix
-    variable options
-    variable class
+  variable prefix
+  variable options
+  variable class
 
-    $class($this)-destructor $this
+  $class($this)-destructor $this
 
-    foreach v {class usage unknown} {
-	variable $v
-	if {[info exists ${v}($this)]} {
-	    unset ${v}($this)
-	}
+  foreach v {class usage unknown} {
+    variable $v
+    if {[info exists ${v}($this)]} {
+      unset ${v}($this)
     }
-    foreach key [array names options $this,*] {
-	unset options($key)
-    }
-    rename $this ""
+  }
+  foreach key [array names options $this,*] {
+    unset options($key)
+  }
+  rename $this ""
 }
 #
 # Database class - call-compatibable with TclODBC
 #
 proc mksql::db-constructor {this {file ""} args} {
-    # core vars
-    variable prefix
-    variable uid
-    variable unknown
-    variable usage
+  # core vars
+  variable prefix
+  variable uid
+  variable unknown
+  variable usage
 
-    eval [linsert $args 0 mk::file open sql$uid $file]
+  eval [linsert $args 0 mk::file open sql$uid $file]
 
-    stmt-constructor $this sql$uid $file ""
+  stmt-constructor $this sql$uid $file ""
 
-    # override...
-    set unknown($this) ${prefix}::db-execute
-    append usage($this) ", or an sql statement"
+  # override...
+  set unknown($this) ${prefix}::db-execute
+  append usage($this) ", or an sql statement"
 }
 
 proc mksql::db-destructor {this} {
-    variable sto
+  variable sto
 
-    set db $sto($this)
+  set db $sto($this)
 
-    stmt-destructor $this
+  stmt-destructor $this
 
-    mk::file close $db
+  mk::file close $db
 }
 
 #
 # SQL Operations
 #
 proc mksql::db.disconnect {this} {
-    destroy $this
+  destroy $this
 }
 
 proc mksql::db.eval {this command sql {argspec ""} args} {
-    variable prefix
+  variable prefix
 
-    stmt-compile $this $sql $argspec
+  stmt-compile $this $sql $argspec
 
-    # Execute the "Compiled" statement
-    eval [linsert $args 0 stmt.execute $this]
+  # Execute the "Compiled" statement
+  eval [linsert $args 0 stmt.execute $this]
 
-    uplevel 1 [linsert $args 0 ${prefix}::stmt.eval $this $command]
+  uplevel 1 [linsert $args 0 ${prefix}::stmt.eval $this $command]
 }
 #
 # called as default method for "database" instances
 #
 proc mksql::db-execute {this sql {argspec ""} args} {
 
-    stmt-compile $this $sql $argspec
+  stmt-compile $this $sql $argspec
 
-    eval [linsert $args 0 stmt.run $this]
+  eval [linsert $args 0 stmt.run $this]
 }
 
 proc mksql::db.read {this arrspec sql {argspec ""} args} {
-    variable prefix
+  variable prefix
 
-    stmt-compile $this $sql $argspec
+  stmt-compile $this $sql $argspec
 
-    # Execute the "Compiled" statement
-    eval [linsert $args 0 stmt.execute $this]
+  # Execute the "Compiled" statement
+  eval [linsert $args 0 stmt.execute $this]
 
-    # Need uplevel due to array scoping
-    return [uplevel 1 [linsert $args 0 ${prefix}::stmt.read $this $arrspec]]
+  # Need uplevel due to array scoping
+  return [uplevel 1 [linsert $args 0 ${prefix}::stmt.read $this $arrspec]]
 }
 
 proc mksql::db.statement {this name sql {argspec ""}} {
-#    return -code error "method \"statement\" not implemented"
-    variable dbfile
-    variable sto
+#  return -code error "method \"statement\" not implemented"
+  variable dbfile
+  variable sto
 
-    set cmd [list mksql::new stmt $name $sto($this) $dbfile($this) $sql $argspec]
-    set name [uplevel 1 $cmd]
+  set cmd [list mksql::new stmt $name $sto($this) $dbfile($this) $sql $argspec]
+  set name [uplevel 1 $cmd]
 }
 
 #
@@ -240,420 +243,420 @@ proc mksql::db.statement {this name sql {argspec ""}} {
 #
 proc mksql::db.columns {this {pattern *}} {
 
-    stmt-compile $this columns
+  stmt-compile $this columns
 
-    return [stmt.run $this $pattern]
+  return [stmt.run $this $pattern]
 }
 
 proc mksql::db.indexes {this table} {
-    # Who needs them <grin>
-    return {}
+  # Who needs them <grin>
+  return {}
 }
 
 proc mksql::db.tables {this {pattern *}} {
 
-    stmt-compile $this tables
+  stmt-compile $this tables
 
-    return [stmt.run $this $pattern]
+  return [stmt.run $this $pattern]
 }
 
 proc mksql::db.typeinfo {this {typeid ignored}} {
 
-    stmt-compile $this typeinfo
+  stmt-compile $this typeinfo
 
-    return [stmt.run $this $typeid]
+  return [stmt.run $this $typeid]
 }
 #
 # Options
 #
 proc mksql::db.get {this option} {
-    return [stmt.get $this $option]
+  return [stmt.get $this $option]
 }
 
 proc mksql::db.set {this option value} {
-    return [stmt.set $this $option $value]
+  return [stmt.set $this $option $value]
 }
 #
 # Commit/Rollback
 #
 proc mksql::db.commit {this} {
-    variable sto
+  variable sto
 
-    mk::file commit $sto($this)
-    return
+  mk::file commit $sto($this)
+  return
 }
 
 proc mksql::db.rollback {this} {
-    variable sto
+  variable sto
 
-    mk::file rollback $sto($this)
-    return
+  mk::file rollback $sto($this)
+  return
 }
 #
 # Statement Support - should fix the above code to work
 # like this and turn eveything back-to-front
 #
 proc mksql::stmt-constructor {this db file sql {argspec ""}} {
-    # core vars
-    variable prefix
-    variable options
-    variable uid
+  # core vars
+  variable prefix
+  variable options
+  variable uid
 
-    # initialize variables...
-    foreach v {columns dbfile results stmt sqlcmd sto} {
-	variable $v
-	set ${v}($this) ""
-    }
-    set options($this,autocommit) 0
-    set options($this,maxrows) 0
+  # initialize variables...
+  foreach v {columns dbfile results stmt sqlcmd sto} {
+    variable $v
+    set ${v}($this) ""
+  }
+  set options($this,autocommit) 0
+  set options($this,maxrows) 0
 
-    set dbfile($this)	$file
-    set sqlcmd($this)	${prefix}::Q$uid
-    set sto($this)	$db
+  set dbfile($this) $file
+  set sqlcmd($this) ${prefix}::Q$uid
+  set sto($this)    $db
 
 log $this "db=$db, file=$file, sql=$sql, argspec=$argspec"
-    mk::Q $sto($this) $sqlcmd($this)
+  mk::Q $sto($this) $sqlcmd($this)
 
-    if {$sql != ""} {
-	stmt-compile $this $sql $argspec
-    }
+  if {$sql != ""} {
+    stmt-compile $this $sql $argspec
+  }
 }
 
 proc mksql::stmt-destructor {this} {
-    variable prefix
-    variable class
-    variable sqlcmd
+  variable prefix
+  variable class
+  variable sqlcmd
 
-    log $this "rename $sqlcmd($this) {}"
+  log $this "rename $sqlcmd($this) {}"
 # Fails when the mk::Q command is deleted, needs to be fixed, JCW
-#   rename $sqlcmd($this) ""
+# rename $sqlcmd($this) ""
 
-    foreach v {columns dbfile results stmt sqlcmd sto} {
-	variable $v
-	unset ${v}($this)
-    }
+  foreach v {columns dbfile results stmt sqlcmd sto} {
+    variable $v
+    unset ${v}($this)
+  }
 }
 
 proc mksql::stmt-compile {this sql {argspec ""}} {
-    variable columns
-    variable results
-    variable stmt
+  variable columns
+  variable results
+  variable stmt
 
-    # Discard old information
-    set columns($this) {}
-    set results($this) {}
+  # Discard old information
+  set columns($this) {}
+  set results($this) {}
 
-    # "Compile" the statement
-    set stmt($this) $sql
+  # "Compile" the statement
+  set stmt($this) $sql
 
-    log $this "compiled $sql"
+  log $this "compiled $sql"
 }
 
 proc mksql::stmt.run {this args} {
-    variable results
+  variable results
 
-    eval [linsert $args 0 stmt.execute $this]
-    set data $results($this)
-    set results($this) {}
-    return $data
+  eval [linsert $args 0 stmt.execute $this]
+  set data $results($this)
+  set results($this) {}
+  return $data
 }
 
 proc mksql::stmt.execute {this args} {
-    variable options
-    variable columns
-    variable results
-    variable sqlcmd
-    variable stmt
-    variable sto
+  variable options
+  variable columns
+  variable results
+  variable sqlcmd
+  variable stmt
+  variable sto
 
-    # Physically "Execute" the "Compiled" statement...
-    log $this "executing ..." 2
+  # Physically "Execute" the "Compiled" statement...
+  log $this "executing ..." 2
 
-    switch -- $stmt($this) {
-    columns	{ set data [eval stmt-columns $this $args] ; set hdr 1 }
-    tables	{ set data [eval stmt-tables $this $args] ; set hdr 1 }
-    typeinfo	{ set data [eval stmt-typeinfo $this $args] ; set hdr 1 }
-    default	{ set data [$sqlcmd($this) $stmt($this)] ;set hdr 0 }
+  switch -- $stmt($this) {
+  columns   { set data [eval stmt-columns $this $args] ; set hdr 1 }
+  tables    { set data [eval stmt-tables $this $args] ; set hdr 1 }
+  typeinfo  { set data [eval stmt-typeinfo $this $args] ; set hdr 1 }
+  default   { set data [$sqlcmd($this) $stmt($this)] ;set hdr 0 }
+  }
+
+  if {$options($this,autocommit)} {
+    # Yuck - should fix metakit to optimize the commit - i.e. 
+    # have it know if anything changed.....
+    if {![regexp -nocase "^\[ \t\]*select" $stmt($this)]} {
+      log $this "commiting ..."
+
+      mk::file commit $sto($this)
     }
+  }
+  #
+  # Setup column and typeinfo for result set....
+  #
+  set row0 [lindex $data 0]
 
-    if {$options($this,autocommit)} {
-	# Yuck - should fix metakit to optimize the commit - i.e. 
-	# have it know if anything changed.....
-	if {![regexp -nocase "^\[ \t\]*select" $stmt($this)]} {
-	    log $this "commiting ..."
-
-	    mk::file commit $sto($this)
-	}
+  if {$hdr} {# XXX - NEED TO CHANGE mk::Q to return props ...Soon...
+    set columns($this) $row0
+    set results($this) [lrange $data 1 end]
+  } else {# Fake...
+    set columns($this) {}
+    for {set i 0} {$i < [llength $row0]} {incr i} {
+      lappend columns($this) noname${i}
     }
-    #
-    # Setup column and typeinfo for result set....
-    #
-    set row0 [lindex $data 0]
+    set results($this) $data
+  }
+  # Row LIMIT?
+  if {$options($this,maxrows) > 0} {
+    set results($this) [lrange $results($this) 0 [expr {$options($this,maxrows)-1}]]
+  }
+  log $this "returned [llength $results($this)] rows, [llength $columns($this)] cols"
+  log $this "columns: $columns($this)" 2
 
-    if {$hdr} {# XXX - NEED TO CHANGE mk::Q to return props ...Soon...
-	set columns($this) $row0
-	set results($this) [lrange $data 1 end]
-    } else {# Fake...
-	set columns($this) {}
-	for {set i 0} {$i < [llength $row0]} {incr i} {
-	    lappend columns($this) noname${i}
-	}
-	set results($this) $data
-    }
-    # Row LIMIT?
-    if {$options($this,maxrows) > 0} {
-	set results($this) [lrange $results($this) 0 [expr {$options($this,maxrows)-1}]]
-    }
-    log $this "returned [llength $results($this)] rows, [llength $columns($this)] cols"
-    log $this "columns: $columns($this)" 2
-
-    return OK
+  return OK
 }
 
 proc mksql::stmt.fetch {this {arr ""} {cols ""}} {
-    variable results
+  variable results
 
-    set row [lindex $results($this) 0]
-    set results($this) [lrange $results($this) 1 end]
+  set row [lindex $results($this) 0]
+  set results($this) [lrange $results($this) 1 end]
 
-    if {$arr != ""} {
-	return $row
-    } else {
-	if {[llength $row] == 0} {
-	    return 0
-	}
-	upvar 1 $arr a
-
-	if {[llength $cols] == 0} {
-	    variable columns
-	    set cols $columns($this)
-	}
-	foreach val $row fld $cols {
-	    set a($fld) $val
-	}
-	return 1
+  if {$arr != ""} {
+    return $row
+  } else {
+    if {[llength $row] == 0} {
+      return 0
     }
+    upvar 1 $arr a
+
+    if {[llength $cols] == 0} {
+      variable columns
+      set cols $columns($this)
+    }
+    foreach val $row fld $cols {
+      set a($fld) $val
+    }
+    return 1
+  }
 }
 
 proc mksql::stmt.rowcount {this} {
-    # this doesn't seem to work for MS Access or SqlServer
-    # Returns the rowcount for thw number of rows effected by
-    # the last insert/update/delete/select
-    return -1
+  # this doesn't seem to work for MS Access or SqlServer
+  # Returns the rowcount for thw number of rows effected by
+  # the last insert/update/delete/select
+  return -1
 }
 
 # XXX WRONG
 proc mksql::stmt.columns {this} {
-    variable columns
-    variable dbfile
-    variable typeinfo
+  variable columns
+  variable dbfile
+  variable typeinfo
 
-    # Should return:
-    # (TABLE_QUALIFIER TABLE_OWNER TABLE_NAME COLUMN_NAME DATA_TYPE
-    # TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS ORDINAL)*
+  # Should return:
+  # (TABLE_QUALIFIER TABLE_OWNER TABLE_NAME COLUMN_NAME DATA_TYPE
+  # TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS ORDINAL)*
 
-    set result {}
-    set ord 0
-    foreach prop $columns($this) {
-	set sp [split $prop :]
-	if {[llength $sp] == 1} {
-	    set type S
-	} else {
-	    set type [lindex $sp 1]
-	}
-	set col [lindex $sp 0]
-	# XXX - no way of knowing the "table name"
-	set row [list $dbfile($this) {} ??? $col]
-    
-	lappend result [concat $row $typeinfo($type) [incr ord]]
+  set result {}
+  set ord 0
+  foreach prop $columns($this) {
+    set sp [split $prop :]
+    if {[llength $sp] == 1} {
+      set type S
+    } else {
+      set type [lindex $sp 1]
     }
-    return $result
+    set col [lindex $sp 0]
+    # XXX - no way of knowing the "table name"
+    set row [list $dbfile($this) {} ??? $col]
+  
+    lappend result [concat $row $typeinfo($type) [incr ord]]
+  }
+  return $result
 }
 
 proc mksql::stmt.set {this option value} {
-    variable options
+  variable options
 
-    if {![info exists options($this,$option)]} {
-	set tmp [array names options $this,*]
-	regsub -all "$this," $tmp {} tmp
-	set opts [join [lsort [split $tmp]] ", "]
-	return -code error "bad option \"$option\": should be $opts"
+  if {![info exists options($this,$option)]} {
+    set tmp [array names options $this,*]
+    regsub -all "$this," $tmp {} tmp
+    set opts [join [lsort [split $tmp]] ", "]
+    return -code error "bad option \"$option\": should be $opts"
+  }
+  #
+  # XXX - not strictly correct - autocommit it not a valid
+  # option for a "statement" since it is really a "property" of
+  # the underlying "database" object.
+  #
+  switch -- $option {
+  autocommit {
+    switch -- $value {
+    1 - true - yes - on {
+      return [set options($this,autocommit) 1]
     }
-    #
-    # XXX - not strictly correct - autocommit it not a valid
-    # option for a "statement" since it is really a "property" of
-    # the underlying "database" object.
-    #
-    switch -- $option {
-    autocommit {
-	switch -- $value {
-	1 - true - yes - on {
-	    return [set options($this,autocommit) 1]
-	}
-	0 - false - no - off {
-	    return [set options($this,autocommit) 0]
-	}
-	default {
-	    return -code error "bad boolean \"$value\""
-	}
-	};#sw
+    0 - false - no - off {
+      return [set options($this,autocommit) 0]
     }
-    default { set options($this,$option) $value }
+    default {
+      return -code error "bad boolean \"$value\""
+    }
     };#sw
+  }
+  default { set options($this,$option) $value }
+  };#sw
 }
 
 proc mksql::stmt.get {this option} {
-    variable options
+  variable options
 
-    if {![info exists options($this,$option)]} {
-	set tmp [array names options $this,*]
-	regsub -all "$this," $tmp {} tmp
-	set opts [join [lsort [split $tmp]] ", "]
-	return -code error "bad option \"$option\": should be $opts"
-    }
-    return $options($this,$option)
+  if {![info exists options($this,$option)]} {
+    set tmp [array names options $this,*]
+    regsub -all "$this," $tmp {} tmp
+    set opts [join [lsort [split $tmp]] ", "]
+    return -code error "bad option \"$option\": should be $opts"
+  }
+  return $options($this,$option)
 }
 
 proc mksql::stmt.drop {this} {
-    destroy $this
+  destroy $this
 }
 
 proc mksql::stmt.eval {this command} {
-    variable results
-    #
-    # This would be a good example of the power of mk if
-    # the sql layer returned a c4_View.... because it would look
-    # like:
-    # set view [...sql2view $sql]
-    # mk::loop cur $view {
-    #    uplevel 1 [concat $command [mk::get $cur]]
-    # }
-    # $view release (or drop or destory etc. )
-    # Well almost, we would need mk::get to take an
-    # option to return a positional list instead of
-    # key value, but you get the point....
-    #
-    foreach row $results($this) {
-	tclLog [concat $command $row]
-	uplevel 1 [concat $command $row]
-    }
-    set results($this) {}
+  variable results
+  #
+  # This would be a good example of the power of mk if
+  # the sql layer returned a c4_View.... because it would look
+  # like:
+  # set view [...sql2view $sql]
+  # mk::loop cur $view {
+  #  uplevel 1 [concat $command [mk::get $cur]]
+  # }
+  # $view release (or drop or destory etc. )
+  # Well almost, we would need mk::get to take an
+  # option to return a positional list instead of
+  # key value, but you get the point....
+  #
+  foreach row $results($this) {
+    tclLog [concat $command $row]
+    uplevel 1 [concat $command $row]
+  }
+  set results($this) {}
 }
 
 proc mksql::stmt.read {this arrspec args} {
-    variable columns
-    variable results
+  variable columns
+  variable results
 
-    if {[llength $results($this)] == 0} {
-	return ""
+  if {[llength $results($this)] == 0} {
+    return ""
+  }
+  set row0 [lindex $results($this) 0]
+  if {[llength $row0] < 2} {
+    return -code error "read is undefined when query contains only one column"
+  }
+  set arrlen [llength $arrspec]
+
+  if {($arrlen + 1) == [llength $row0]} {
+    # multiple arrays
+    set i 1
+    foreach arr $arrspec {
+      upvar 1 $arr a$i
+      incr i
     }
-    set row0 [lindex $results($this) 0]
-    if {[llength $row0] < 2} {
-	return -code error "read is undefined when query contains only one column"
+    foreach row $results($this) {
+      set key [lindex $row 0]
+
+      set i 0
+      foreach val $row {
+        set a${i}($key) $val
+        incr i
+      }
     }
-    set arrlen [llength $arrspec]
+  } elseif {$arrlen == 1} {
+    upvar 1 $arrspec a
 
-    if {($arrlen + 1) == [llength $row0]} {
-	# multiple arrays
-	set i 1
-	foreach arr $arrspec {
-	    upvar 1 $arr a$i
-	    incr i
-	}
-	foreach row $results($this) {
-	    set key [lindex $row 0]
-
-	    set i 0
-	    foreach val $row {
-		set a${i}($key) $val
-		incr i
-	    }
-	}
-    } elseif {$arrlen == 1} {
-	upvar 1 $arrspec a
-
-	set i 0 
-	foreach col $columns($this) {
-	    set c($i) $col
-	    incr i
-	}
-
-	foreach row $results($this) {
-	    set key [lindex $row 0]
-
-	    set i 0
-	    foreach val $row {
-		set a($key,$c($i)) $val
-		incr i
-	    }
-	}
-    } else {
-	return -code error "mismatch between arrspec and query results"
+    set i 0 
+    foreach col $columns($this) {
+      set c($i) $col
+      incr i
     }
-    set results($this) {}
+
+    foreach row $results($this) {
+      set key [lindex $row 0]
+
+      set i 0
+      foreach val $row {
+        set a($key,$c($i)) $val
+        incr i
+      }
+    }
+  } else {
+    return -code error "mismatch between arrspec and query results"
+  }
+  set results($this) {}
 }
 #
 # dynamic views
 #
 proc mksql::stmt-columns {this {pattern *}} {
-    variable dbfile
-    variable sto
-    variable typeinfo
+  variable dbfile
+  variable sto
+  variable typeinfo
 
-    set cols "TABLE_QUALIFIER TABLE_OWNER TABLE_NAME COLUMN_NAME DATA_TYPE \
-	TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS ORDINAL"
+  set cols "TABLE_QUALIFIER TABLE_OWNER TABLE_NAME COLUMN_NAME DATA_TYPE \
+    TYPE_NAME PRECISION LENGTH SCALE RADIX NULLABLE REMARKS ORDINAL"
 
-    set result [list $cols]
-    foreach view [mk::file views $sto($this)] {
-	if {![string match $pattern $view]} { continue }
+  set result [list $cols]
+  foreach view [mk::file views $sto($this)] {
+    if {![string match $pattern $view]} { continue }
 
-	set ord 0
-	foreach prop [mk::view info $sto($this).$view] {
-	    set sp [split $prop :]
-	    if {[llength $sp] == 1} {
-		set type S
-	    } else {
-		set type [lindex $sp 1]
-	    }
-	    set col [lindex $sp 0]
-	    set row [list $dbfile($this) {} $view $col]
-	
-	    lappend result [concat $row $typeinfo($type) [incr ord]]
-	}
+    set ord 0
+    foreach prop [mk::view info $sto($this).$view] {
+      set sp [split $prop :]
+      if {[llength $sp] == 1} {
+        set type S
+      } else {
+        set type [lindex $sp 1]
+      }
+      set col [lindex $sp 0]
+      set row [list $dbfile($this) {} $view $col]
+    
+      lappend result [concat $row $typeinfo($type) [incr ord]]
     }
-    return $result
+  }
+  return $result
 }
 
 proc mksql::stmt-tables {this {pattern *}} {
-    variable sto
-    variable dbfile
+  variable sto
+  variable dbfile
 
-    # Returns:
-    set cols {TABLE_QUALIFIER TABLE_OWNER TABLE_NAME TABLE_TYPE REMARKS}
+  # Returns:
+  set cols {TABLE_QUALIFIER TABLE_OWNER TABLE_NAME TABLE_TYPE REMARKS}
 
-    set result [list $cols]
-    foreach view [mk::file views $sto($this)] {
-	if {![string match $pattern $view]} { continue }
+  set result [list $cols]
+  foreach view [mk::file views $sto($this)] {
+    if {![string match $pattern $view]} { continue }
 
-	set layout [mk::view layout $sto($this).$view]
+    set layout [mk::view layout $sto($this).$view]
 
-	lappend result [list $dbfile($this) {} $view table $layout]
-    }
-    return $result
+    lappend result [list $dbfile($this) {} $view table $layout]
+  }
+  return $result
 }
 
 proc mksql::stmt-typeinfo {this {typeid ignored}} {
-    # Does the phrase YUCK ring able bells?
-    #
-    # Should really have this contained inside mk4tcl as a fake (in-memory)
-    # c4_View called systypes or some-such....
-    # This data was captured from SqlServer and represents static
-    # type info usually supplied via ODBC
-    # 
-    # Given Metakit's adaptive integer support it can claim to support all
-    # of the int variations....
-    #
-    return {
+  # Does the phrase YUCK ring able bells?
+  #
+  # Should really have this contained inside mk4tcl as a fake (in-memory)
+  # c4_View called systypes or some-such....
+  # This data was captured from SqlServer and represents static
+  # type info usually supplied via ODBC
+  # 
+  # Given Metakit's adaptive integer support it can claim to support all
+  # of the int variations....
+  #
+  return {
 {TYPE_NAME DATA_TYPE COLUMN_SIZE LITERAL_PREFIX LITERAL_SUFFIX CREATE_PARAMS NULLABLE CASE_SENSITIVE SEARCHABLE UNSIGNED_ATTRIBUTE FIXED_PREC_SCALE AUTO_UNIQUE_VALUE LOCAL_TYPE_NAME MINIMUM_SCALE MAXIMUM_SCALE SQL_DATA_TYPE SQL_DATETIME_SUB NUM_PREC_RADIX INTERVAL_PRECISION USERTYPE}
 {bit -7 1 {} {} {} 0 0 2 {} 0 {} bit 0 0 -7 {} 2 {} 16}
 {tinyint -6 3 {} {} {} 1 0 2 1 0 0 tinyint 0 0 -6 {} 10 {} 5}
@@ -675,5 +678,5 @@ proc mksql::stmt-typeinfo {this {typeid ignored}} {
 {datetime 11 23 ' ' {} 1 0 3 {} 0 {} datetime 3 3 9 3 10 {} 12}
 {smalldatetime 11 16 ' ' {} 1 0 3 {} 0 {} smalldatetime 0 0 9 3 10 {} 22}
 {varchar 12 255 ' ' {max length} 1 0 3 {} 0 {} varchar {} {} 12 {} {} {} 2}
-     }
+   }
 }

@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mk4.inl --
+// $Id: mk4.inl 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Public definitions which are usually inlined
@@ -806,6 +808,16 @@ d4_inline bool c4_Strategy::IsValid() const
 
 d4_inline c4_CustomViewer::c4_CustomViewer()
 {
+}
+
+d4_inline int c4_CustomViewer::Lookup(const c4_RowRef& r_, int& n_)
+{
+    return Lookup(&r_, n_); // c4_Cursor
+}
+
+d4_inline bool c4_CustomViewer::InsertRows(int p_, const c4_RowRef& r_, int n_)
+{
+    return InsertRows(p_, &r_, n_); // c4_Cursor
 }
 
 /////////////////////////////////////////////////////////////////////////////

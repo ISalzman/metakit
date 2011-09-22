@@ -10,10 +10,10 @@ S
 unset F
 
 foreach f [lsort $files] {
-	M "  [N $f]"
-	if {[catch {source $f} err]} {
-		E $err
-	}
+  M "  [N $f]"
+  if {[catch {source $f} err]} {
+    E $err
+  }
 }
 
 Q

@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// mwcw.h --
+// $Id: mwcw.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
  * Configuration header for Metrowerks CodeWarrior
@@ -16,7 +18,7 @@
 
 #if __option(bool)
 #define q4_BOOL 1
-    // undo previous defaults, because q4_BOOL is not set early enough
+  // undo previous defaults, because q4_BOOL is not set early enough
 #undef false
 #undef true
 #undef bool

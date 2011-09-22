@@ -1,4 +1,6 @@
-//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
+// msvc.h --
+// $Id: msvc.h 1269 2007-03-09 16:53:45Z jcw $
+// This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
  * Configuration header for Microsoft Visual C++
@@ -6,7 +8,7 @@
 
 #define q4_MSVC 1
 
-    // get rid of several common warning messages
+  // get rid of several common warning messages
 #if !q4_STRICT
 //#pragma warning(disable: 4244) // conversion ..., possible loss of data
 //#pragma warning(disable: 4135) // conversion between diff. integral types
@@ -19,13 +21,13 @@
 #endif
 
 #if _MSC_VER >= 1100
-#define q4_BOOL 1           // 5.0 supports the bool datatype
+#define q4_BOOL 1     // 5.0 supports the bool datatype
 #else
-#define q4_NO_NS 1          // 4.x doesn't use namespaces for STL
+#define q4_NO_NS 1      // 4.x doesn't use namespaces for STL
 #endif
 
 #if defined (_MT)
-#define q4_MULTI 1          // uses multi-threading
+#define q4_MULTI 1      // uses multi-threading
 #endif
 
 #if defined (_DEBUG) && !defined (q4_CHECK) // use assertions in debug build
@@ -33,5 +35,5 @@
 #endif
 
 #if !q4_STD && !q4_UNIV && !defined (q4_MFC)
-#define d4_FW_H "mfc.h"     // default for MSVC is to use MFC
+#define d4_FW_H "mfc.h"   // default for MSVC is to use MFC
 #endif
