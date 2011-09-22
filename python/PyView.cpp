@@ -1,5 +1,5 @@
 // PyView.cpp --
-// $Id: PyView.cpp 1248 2007-03-09 16:30:30Z jcw $
+// $Id: PyView.cpp 1259 2007-03-09 16:49:19Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //

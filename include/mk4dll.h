@@ -1,5 +1,5 @@
 // mk4dll.h --
-// $Id: mk4dll.h 1248 2007-03-09 16:30:30Z jcw $
+// $Id: mk4dll.h 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 //
 //  Import declarations for DLLs

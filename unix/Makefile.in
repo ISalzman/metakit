@@ -16,7 +16,7 @@ TSTOBJS = regress.o tbasic1.o tbasic2.o tcusto1.o tcusto2.o tdiffer.o \
 
 DEMOS   = demo dump myio
 
-LINK_SPECIAL_FLAGS	=	@LINK_SPECIAL_FLAGS@
+LINK_SPECIAL_FLAGS	=	@LINK_SPECIAL_FLAGS@ @LIBS@
 LINK_SPECIAL_FILES	=	@LINK_SPECIAL_FILES@
 
 #---------- Autoconf settings, can be overriden as "make" args
@@ -98,11 +98,13 @@ install-mk: libmk4$(LIBEXT)
 			$(srcdir)/../include/mk4str.h \
 			$(srcdir)/../include/mk4str.inl $(DESTDIR)$(includedir)
 	$(INSTALL_PROGRAM) libmk4$(LIBEXT) $(DESTDIR)$(libdir)
+	if [ '${LIBEXT}' = '.a' ]; then ranlib $(DESTDIR)$(libdir)/libmk4.a; fi
 
 install-tcl: Mk4tcl$(LIBEXT)
 	mkdir -p $(DESTDIR)$(tcllibdir)/Mk4tcl
 	$(INSTALL_PROGRAM) Mk4tcl$(LIBEXT) $(DESTDIR)$(tcllibdir)/Mk4tcl
-	echo 'package ifneeded Mk4tcl 2.4.9.3 [list load [file join $$dir Mk4tcl$(LIBEXT)] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
+	if [ '${LIBEXT}' = '.a' ]; then ranlib $(DESTDIR)$(tcllibdir)/Mk4tcl/Mk4tcl.a; fi
+	echo 'package ifneeded Mk4tcl 2.4.9.5 [list load [file join $$dir Mk4tcl$(LIBEXT)] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
 
 install-python: Mk4py$(LIBEXT)
 	$(INSTALL_PROGRAM) Mk4py$(LIBEXT) $(DESTDIR)$(pylibdir)
@@ -153,22 +155,22 @@ Mk4lua$(SHLIB_SUFFIX): mk4lua.o $(LOBJS) $(LINK_SPECIAL_FILES)
 
 demo: $(srcdir)/../demos/demo.cpp libmk4$(LIBEXT)
 	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) \
-		$(srcdir)/../demos/demo.cpp libmk4$(LIBEXT)
+		$(srcdir)/../demos/demo.cpp libmk4$(LIBEXT) @LIBS@
 
 dump: $(srcdir)/../demos/dump.cpp libmk4$(LIBEXT)
 	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) \
-		$(srcdir)/../demos/dump.cpp libmk4$(LIBEXT)
+		$(srcdir)/../demos/dump.cpp libmk4$(LIBEXT) @LIBS@
 
 myio: $(srcdir)/../demos/myio.cpp libmk4$(LIBEXT)
 	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) \
-		$(srcdir)/../demos/myio.cpp libmk4$(LIBEXT)
+		$(srcdir)/../demos/myio.cpp libmk4$(LIBEXT) @LIBS@
 
 struct: $(srcdir)/../demos/struct.cpp
 	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) \
-		$(srcdir)/../demos/struct.cpp -lmk4
+		$(srcdir)/../demos/struct.cpp -lmk4 @LIBS@
 
 regress: $(TSTOBJS) libmk4$(LIBEXT)
-	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) $(TSTOBJS) libmk4$(LIBEXT)
+	$(CXX) $(CXX_SWITCHES) -o $@$(EXEEXT) $(TSTOBJS) libmk4$(LIBEXT) @LIBS@
 
 #---------- Dependencies
 

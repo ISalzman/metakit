@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1248 2007-03-09 16:30:30Z jcw $
+// $Id: mk4.h 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetakitLibraryVersion 249    // 2.4.9.4 release, Jun 10, 2005
+#define d4_MetakitLibraryVersion 249    // 2.4.9.5 release, Nov 22, 2005
 #define d4_MetaKitLibraryVersion d4_MetakitLibraryVersion // compat, yuck
 
 //---------------------------------------------------------------------------
@@ -1031,7 +1031,7 @@ public:
   c4_BytesRef& operator= (const c4_Bytes&);
 
       /// Fetch data from the memo field, up to end if length is zero
-  c4_Bytes Access(t4_i32, int =0) const;
+  c4_Bytes Access(t4_i32, int =0, bool =false) const;
       /// Store data, resize by diff_ bytes, return true if successful
   bool Modify(const c4_Bytes&, t4_i32, int =0) const;
 };

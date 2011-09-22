@@ -1,5 +1,5 @@
 // persist.cpp --
-// $Id: persist.cpp 1248 2007-03-09 16:30:30Z jcw $
+// $Id: persist.cpp 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -684,6 +684,15 @@ void c4_SaveContext::SaveIt(c4_HandlerSeq& root_, c4_Allocator** spacePtr_,
     _nextSpace->Release(end0, 8);
     end0 -= 16; // overwrite existing tail markers
   } else {
+    /* 18-11-2005 write new end marker and flush it before *anything* else! */
+    if (!_fullScan && end0 < limit) {
+      c4_FileMark mark1 (limit, 0);
+      _strategy.DataWrite(limit, &mark1, sizeof mark1);
+      _strategy.DataCommit(0);
+      if (_strategy._failure != 0)
+	return;
+    }
+
     c4_FileMark head (limit + 16 - end, _strategy._bytesFlipped, end > 0);
     _strategy.DataWrite(end, &head, sizeof head);
     

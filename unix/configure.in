@@ -117,7 +117,7 @@ fi
 if test $SHARED_BUILD = 1; then
   SHLIB_FLAGS="-shared"
   SHLIB_CFLAGS="-fPIC"
-  SHLIB_LD="gcc -shared"
+  SHLIB_LD="g++ -shared"
 else
   SHLIB_FLAGS=""
   SHLIB_CFLAGS=""
@@ -157,6 +157,11 @@ case $build_os in
     STRIP_FLAGS=-S
     ;;
   HP-UX*)
+    case "`uname -r`" in
+      B.11.00|B.10*)
+	CXXFLAGS="$CXXFLAGS -DNO_MMAP"
+	;;
+    esac
     SHLIB_SUFFIX=".sl"
     ;;
   cyg*)
@@ -170,6 +175,8 @@ if test $SHARED_BUILD = 1; then
 else
   LIBEXT=$LIB_SUFFIX
 fi
+
+AC_CHECK_LIB(pthread, pthread_mutex_init, [LIBS="$LIBS -lpthread"])
 
 # ---------------------------------------------------------
 # Special hackery for hpux machines to allow usage of the

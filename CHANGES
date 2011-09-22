@@ -1,3 +1,61 @@
+2005-11-22    ############################################    MK 2.4.9.5
+
+    Main reason for this release is the 11-18 disk-full handling fix.
+
+2005-11-21    Optimization for access via c4_BytesRef::Access
+
+    Added a noCopy flag (default remains as before), by A. Stigsen:
+    When I first looked at c4_BytesRef::Access() I noticed that
+    FetchBytes had the forceCopy option set. So I tried removing that,
+    and that gave some improvement. But it still often happened that the
+    item was in several segments, forcing a copy. So I have added a
+    noCopy option to Access() to ensure that I do not get any uneeded
+    memcopies. It gave a huge performance boost in my application, so it
+    might be useful for others as well.
+
+2005-11-18    Fixed incorrect case of handling disk-full on commit
+
+    This is a potentially serious bug (though all data can still be
+    recovered if dealt with right away).  When an I/O error occurs
+    under specific circumstances in the commit, the resulting file
+    may be left in an improper state.  Full details are desribed in
+    http://www.equi4.com/pipermail/metakit/2005-November/002144.html
+
+2005-11-16    Ranlib called too early
+
+    Fixed call to ranlib when installing Mk4tcl.a - this was copied
+    incorrectly by my from the 11-11 patches.  Thx A. Kupries.
+
+2005-11-15    Version number fixed
+
+    Fixed version number mismatch (2.4.9.3, should now be 2.4.9.4).
+
+2005-11-11    Build fixes for Tcl (by Matt Newman)
+
+    Added logic to disable mmap calls on some HP-UX versions.
+    Plus other tweaks for the Tcl build.  Mods by Matt Newman.
+    
+2005-10-01    The HP-UX fix did not work on macosx.
+
+    Made the 2005-09-06 change below conditional on __hpux, so that
+    builds on Mac OS X don't break, i.e. revert it.  Thx D. Steffen.
+
+2005-09-26    Linking with g++ i.s.o. gcc
+
+    Fixed SHARED_LD to use G++ instead of gcc.  This caused problems
+    when using the shared library from a gcc-compiled main.
+
+2005-09-06    Tweak Tcl binding to avoid compiler problems
+
+    Made some changes to let HP-UX's aCC compile mk4tcl.{h,cpp}
+    properly (no static inits with function ptrs?).  Thx Bob T.
+    Also got rid of some warnings caused by const-ness mismatches.
+
+2005-09-05    Fix potential Tcl close problem
+
+    Bug if a Tcl channel is still open on exit in mk::channel.  Fix
+    thanks to Matt Newman.  Also cleaned up some old unused code.
+
 2005-06-10    ############################################    MK 2.4.9.4
 
     Maintenance release, consolidates over a year of changes/tweaks.

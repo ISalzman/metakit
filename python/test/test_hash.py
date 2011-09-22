@@ -1,5 +1,5 @@
 # test_hash.py -- Test Metakit Python bindings for hashed views
-# $Id: test_hash.py 1248 2007-03-09 16:30:30Z jcw $
+# $Id: test_hash.py 1259 2007-03-09 16:49:19Z jcw $
 # This is part of Metakit, see http://www.equi4.com/metakit/
 
 from mktestsupport import *

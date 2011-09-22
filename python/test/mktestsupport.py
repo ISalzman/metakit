@@ -1,5 +1,5 @@
 # mktestsupport.py -- Support code used by multiple test modules
-# $Id: mktestsupport.py 1248 2007-03-09 16:30:30Z jcw $
+# $Id: mktestsupport.py 1259 2007-03-09 16:49:19Z jcw $
 # This is part of Metakit, see http://www.equi4.com/metakit/
 
 from test.test_support import TestFailed, verbose

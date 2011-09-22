@@ -1,5 +1,5 @@
 // fileio.cpp --
-// $Id: fileio.cpp 1248 2007-03-09 16:30:30Z jcw $
+// $Id: fileio.cpp 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -289,7 +289,7 @@ void c4_FileStrategy::ResetFileMapping()
       }
     }
   }
-#elif HAVE_MMAP
+#elif HAVE_MMAP && !NO_MMAP
   if (_mapStart != 0) {
     _mapStart -= _baseOffset;
     munmap((char*) _mapStart, _baseOffset + _dataSize); // also loses const

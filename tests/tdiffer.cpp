@@ -1,5 +1,5 @@
 // tdiffer.cpp -- Regression test program, differential commit tests
-// $Id: tdiffer.cpp 1248 2007-03-09 16:30:30Z jcw $
+// $Id: tdiffer.cpp 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "regress.h"

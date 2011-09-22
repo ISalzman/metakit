@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in 1248 2007-03-09 16:30:30Z jcw $
+# RCS: @(#) $Id: configure.in 1259 2007-03-09 16:49:19Z jcw $
 
 #-----------------------------------------------------------------------
 # This initializes the environment with PACKAGE_NAME and PACKAGE_VERSION
@@ -11,7 +11,7 @@ dnl	to configure the system for the local environment.
 # so you can encode the package version directly into the source files.
 #-----------------------------------------------------------------------
 
-AC_INIT([Mk4tcl], [2.4.9.3])
+AC_INIT([Mk4tcl], [2.4.9.5])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.

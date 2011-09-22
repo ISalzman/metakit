@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1248 2007-03-09 16:30:30Z jcw $
+// $Id: mk4tcl.cpp 1259 2007-03-09 16:49:19Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -256,34 +256,6 @@ mkEventProc(Tcl_Event *evPtr, int flags)
   return 1;
 }
 
-static void
-mkCheckProc(ClientData instanceData, int flags)
-{
-  MkChannel* chan = (MkChannel*) instanceData;
-
-  if (!(flags & TCL_FILE_EVENTS))
-    return;
-
-  MkEvent *evPtr = (MkEvent*)Tcl_Alloc(sizeof(MkEvent));
-  evPtr->header.proc = mkEventProc;
-  evPtr->chan = chan;
-
-  Tcl_QueueEvent( (Tcl_Event*)evPtr, TCL_QUEUE_TAIL);
-}
-
-static void
-mkSetupProc(ClientData instanceData, int flags)
-{
-  MkChannel* chan = (MkChannel*) instanceData;
-  Tcl_Time blockTime = { 0, 0};
-
-  if (!(flags & TCL_FILE_EVENTS))
-    return;
-
-  if (chan->_watchMask)
-    Tcl_SetMaxBlockTime(&blockTime);
-}
-
 static int
 mkEventFilter( Tcl_Event *evPtr, ClientData instanceData)
 {
@@ -297,8 +269,8 @@ mkClose (ClientData instanceData, Tcl_Interp* interp)
 {
   MkChannel* chan = (MkChannel*) instanceData;
 
-//  Tcl_DeleteEventSource(mkSetupProc, mkCheckProc, (ClientData) chan);
   Tcl_DeleteEvents(mkEventFilter, (ClientData) chan);
+  chan->_chan = 0;
   delete chan;
 
   return TCL_OK;
@@ -502,7 +474,7 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
       break;
 
     default:
-      Tcl_SetResult(interp, "unsupported property type", TCL_STATIC);
+      Tcl_SetResult(interp, (char*) "unsupported property type", TCL_STATIC);
       e = TCL_ERROR;
   }
 
@@ -1043,7 +1015,7 @@ SetPropertyFromAny(Tcl_Interp*, Tcl_Obj*)
 
 static Tcl_ObjType mkPropertyType =
 {
-  "mkProperty",       // name
+  (char*) "mkProperty",       // name
   FreePropertyInternalRep,  // freeIntRepProc
   DupPropertyInternalRep,   // dupIntRepProc
   UpdateStringOfProperty,   // updateStringProc
@@ -1108,7 +1080,7 @@ FreePropertyInternalRep(Tcl_Obj* propPtr)
 
 static Tcl_ObjType mkCursorType =
 {
-  "mkCursor",         // name
+  (char*) "mkCursor",         // name
   FreeCursorInternalRep,    // freeIntRepProc
   DupCursorInternalRep,   // dupIntRepProc
   UpdateStringOfCursor,   // updateStringProc
@@ -1489,7 +1461,7 @@ double Tcl::tcl_GetDoubleFromObj(Tcl_Obj* obj_)
   return value;
 }
 
-int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, char *msg_)
+int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, const char *msg_)
 {
   int index = -1;
   if (!_error)
@@ -1550,7 +1522,7 @@ int MkTcl::Dispatcher(ClientData cd, Tcl_Interp* ip, int oc, Tcl_Obj* const* ov)
 
   if (self == 0 || self->interp != ip)
   {
-    Tcl_SetResult(ip, "Initialization error in dispatcher", TCL_STATIC);
+    Tcl_SetResult(ip, (char*) "Initialization error in dispatcher", TCL_STATIC);
     return TCL_ERROR;
   }
 
@@ -2539,8 +2511,6 @@ int MkTcl::ChannelCmd()
   if (id == 2)
     Tcl_Seek(mkChan->_chan, 0, SEEK_END);
 
-//  Tcl_CreateEventSource(mkSetupProc, mkCheckProc, (ClientData)mkChan);
-
   Tcl_RegisterChannel(interp, mkChan->_chan);
 
   if (_error)
@@ -2571,7 +2541,7 @@ int MkTcl::ChannelCmd()
       c4_View v = Execute(statement);
       if (_error)
       {
-        Tcl_SetResult(_interp, "execute failed",
+        Tcl_SetResult(_interp, (char*) "execute failed",
                       TCL_STATIC);
         return TCL_ERROR;
       }
@@ -2642,7 +2612,9 @@ int MkTcl::Execute(int oc, Tcl_Obj* const* ov)
 {
   struct CmdDef
   {
+#ifndef __hpux
     int (MkTcl::*proc)();
+#endif
     int min;
     int max;
     const char* desc;
@@ -2650,6 +2622,7 @@ int MkTcl::Execute(int oc, Tcl_Obj* const* ov)
 
   static CmdDef defTab [] =
   {
+#ifndef __hpux
   // the "&MkTcl::" stuff is required for Mac cwpro2
     { &MkTcl::GetCmd,     2, 0, "get cursor ?prop ...?" },
     { &MkTcl::SetCmd,     3, 0, "set cursor prop ?value prop value ...?" },
@@ -2663,7 +2636,23 @@ int MkTcl::Execute(int oc, Tcl_Obj* const* ov)
 #if MKSQL
     { &MkTcl::SqlAuxCmd,  3, 3, "cmd db" },
 #endif
-    { 0,          0,  0,  0 },
+    { 0,		  0, 0, 0 },
+#else // __hpux
+  // on HP-UX, the above seems to break aCC
+    { 2, 0, "get cursor ?prop ...?" },
+    { 3, 0, "set cursor prop ?value prop value ...?" },
+    { 3, 5, "cursor option cursorname ?...?" },
+    { 2, 0, "row option ?cursor ...?" },
+    { 2, 0, "view option view ?arg?" },
+    { 2, 6, "file option ?tag ...?" },
+    { 3, 7, "loop cursor ?path first limit incr? {cmds}" },
+    { 2, 0, "select path ?...?" },
+    { 3, 4, "channel path prop ?mode?" },
+#if MKSQL
+    { 3, 3, "cmd db" },
+#endif
+    { 0, 0, 0 },
+#endif // __hpux
   };
 
   _error = TCL_OK;
@@ -2683,7 +2672,25 @@ int MkTcl::Execute(int oc, Tcl_Obj* const* ov)
   }
 
   Tcl_MutexLock(&mkMutex);
+#ifndef __hpux
   int result = (this->*cd.proc)();
+#else // __hpux
+  int result;
+  switch (id) {
+    case 0: result = GetCmd();
+    case 1: result = SetCmd();
+    case 2: result = CursorCmd();
+    case 3: result = RowCmd();
+    case 4: result = ViewCmd();
+    case 5: result = FileCmd();
+    case 6: result = LoopCmd();
+    case 7: result = SelectCmd();
+    case 8: result = ChannelCmd();
+#if MKSQL
+    case 9: result = SqlAuxCmd();
+#endif
+  }
+#endif // __hpux
   Tcl_MutexUnlock(&mkMutex);
   return result;
 }
@@ -2751,7 +2758,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.4");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.5");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
