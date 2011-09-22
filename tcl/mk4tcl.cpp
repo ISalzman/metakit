@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  This is the Tcl-specific code to turn MetaKit into a Tcl extension.
 
@@ -87,7 +87,7 @@ bool MatchOneKeyword(const char* value_, const c4_String& crit_)
 class SiasStrategy : public c4_Strategy
 {
 public:
-    c4_Storage& _storage;
+    c4_Storage _storage;
     c4_View _view;
     c4_BytesProp _memo;
     int _row;
@@ -551,7 +551,7 @@ int MkPath::AttachView(Tcl_Interp* /*interp*/)
         int col = root.FindPropIndexByName(f4_GetToken(p));
         _view = OpenMapped(root, col, 0);
 #else
-        _view = ip->_storage->View(f4_GetToken(p));
+        _view = ip->_storage.View(f4_GetToken(p));
 #endif
         while (*p)
         {
@@ -615,21 +615,16 @@ int MkPath::Refs(int diff_)
 
 MkWorkspace::Item::Item (const char* name_, const char* fileName_, int mode_,
                             c4_PtrArray& items_, int index_, bool share_)
-    : _name (name_), _fileName (fileName_), _storage (0), 
+    : _name (name_), _fileName (fileName_),
       _items (items_), _index (index_)
 {
     if (*fileName_)
     {
-        _storage = new c4_Storage (fileName_, mode_);
-        if (!_storage->Strategy().IsValid())
-	{
-	    delete _storage;
-	    _storage = 0;
-            return;
-	}
+        c4_Storage s (fileName_, mode_);
+        if (!s.Strategy().IsValid())
+	    return;
+	_storage = s;
     }
-    else
-        _storage = new c4_Storage;
 
     if (_index >= _items.GetSize())
         _items.SetSize(_index + 1);
@@ -666,8 +661,6 @@ MkWorkspace::Item::~Item ()
 	    _shared = 0;
 	}
     }
-
-    delete _storage;
 }
 
 void MkWorkspace::Item::ForceRefresh()
@@ -721,7 +714,7 @@ MkWorkspace::Item* MkWorkspace::Define(const char* name_, const char* fileName_,
                 break;
 
         ip = new Item (name_, fileName_, mode_, _items, n, share_);
-        if (ip->_storage == 0)
+        if (!ip->_storage.Strategy().IsValid())
         {
             delete ip;
             return 0;
@@ -1313,8 +1306,10 @@ void TclSelector::ExactKeyProps(const c4_RowRef& row_)
 	    for (int j = 0; j < cond._view.NumProperties(); ++j)
 	    {
 		const c4_Property& prop = cond._view.NthProperty(j);
-		SetAsObj(_interp, row_, prop,
-			Tcl_NewStringObj(cond._crit, -1));
+		Tcl_Obj* o = Tcl_NewStringObj(cond._crit, -1);
+		// 2001-05-30: inc/decref to clean up the string object
+		KeepRef keeper (o);
+		SetAsObj(_interp, row_, prop, o);
 	    }
 	}
     }
@@ -1844,7 +1839,7 @@ int MkTcl::FileCmd()
                     return Fail("file open failed");
 
                 if (*file && mode != 0 && !nocommit)
-                    np->_storage->AutoCommit();
+                    np->_storage.AutoCommit();
             }
             break;
         
@@ -1872,27 +1867,27 @@ int MkTcl::FileCmd()
         
         case 3: // commit
             {
-                if (!np->_storage->Strategy().IsValid())
+                if (!np->_storage.Strategy().IsValid())
                     return Fail("cannot commit temporary dataset");
 
                 np->ForceRefresh(); // detach first
 
                     // 1-Mar-1999: check commit success
                 bool full = objc > 3 && strcmp(Tcl_GetStringFromObj(objv[3], 0), "-full") == 0;
-                if (!np->_storage->Commit(full))
+                if (!np->_storage.Commit(full))
                     return Fail("I/O error during commit");
             }
             break;
 
         case 4: // rollback
             {
-                if (!np->_storage->Strategy().IsValid())
+                if (!np->_storage.Strategy().IsValid())
                     return Fail("cannot rollback temporary dataset");
 
                 np->ForceRefresh(); // detach first
 
                 bool full = objc > 3 && strcmp(Tcl_GetStringFromObj(objv[3], 0), "-full") == 0;
-                np->_storage->Rollback(full);
+                np->_storage.Rollback(full);
             }
             break;
 
@@ -1911,7 +1906,7 @@ int MkTcl::FileCmd()
                 np->ForceRefresh(); // detach first
 
                 c4_TclStream stream (cp);
-                np->_storage->LoadFrom(stream);
+                np->_storage.LoadFrom(stream);
             }
             break;
         
@@ -1928,13 +1923,13 @@ int MkTcl::FileCmd()
                     return Fail();
 
                 c4_TclStream stream (cp);
-                np->_storage->SaveTo(stream);
+                np->_storage.SaveTo(stream);
             }
             break;
 
         case 7: // views
             {
-                c4_View view = *np->_storage;
+                c4_View view = np->_storage;
                 Tcl_Obj* result = tcl_GetObjResult();
 
                 for (int i = 0; i < view.NumProperties() && !_error; ++i)
@@ -1956,7 +1951,7 @@ int MkTcl::FileCmd()
                 if (np2 == 0)
                     return Fail("no storage with this name");
 
-                np->_storage->SetAside(*np2->_storage);
+                np->_storage.SetAside(np2->_storage);
             }
 	    break;
 
@@ -1965,7 +1960,7 @@ int MkTcl::FileCmd()
                 if (objc != 3)
                     return Fail("mk::file autocommit: too many args");
                 
-                np->_storage->AutoCommit();
+                np->_storage.AutoCommit();
             }
     }
 
@@ -2005,9 +2000,9 @@ int MkTcl::ViewCmd()
                 if (np == 0)
                     return Fail("no storage with this name");
 
-                c4_Storage* s = np->_storage;
+                c4_Storage& s = np->_storage;
 
-                c4_String desc = KitToTclDesc(s->Description(f4_GetToken(string)));
+                c4_String desc = KitToTclDesc(s.Description(f4_GetToken(string)));
                 return tcl_SetObjResult(tcl_NewStringObj(desc)); // different result
             }
                 // else fall through
@@ -2027,15 +2022,15 @@ int MkTcl::ViewCmd()
                 {
                     const char* desc = Tcl_GetStringFromObj(objv[3], 0);
                     if (desc && *desc)
-                        np->_storage->GetAs(s + TclToKitDesc(desc));
+                        np->_storage.GetAs(s + TclToKitDesc(desc));
                 }
                 else
                 {
-                    c4_View v = *np->_storage;
+                    c4_View v = np->_storage;
                     if (v.FindPropIndexByName(s) < 0)
                         return Fail("no view with this name");
                     
-                    np->_storage->GetAs(s);
+                    np->_storage.GetAs(s);
                 }
 
                 np->ForceRefresh(); // make sure views are re-attached
@@ -2469,7 +2464,7 @@ int MkTcl::ChannelCmd()
                id == 1 ? TCL_WRITABLE :
                          TCL_READABLE | TCL_WRITABLE;
 
-    MkChannel* mkChan = new MkChannel (*ip->_storage, path._view, memo, index);
+    MkChannel* mkChan = new MkChannel (ip->_storage, path._view, memo, index);
     d4_assert(mkChan != 0);
 
     static int mkChanSeq = 0;
@@ -2571,7 +2566,7 @@ int MkTcl::SqlAuxCmd()
     if (np == 0)
         return Fail("no storage with this name");
 
-    TclSQL* sql = new TclSQL (interp, *np->_storage);
+    TclSQL* sql = new TclSQL (interp, np->_storage);
     if (sql == 0 || sql->_error)
         return Fail("connect failed");
 
@@ -2700,7 +2695,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
     for (int i = 0; cmds[i]; ++i)
         ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-    return Tcl_PkgProvide(interp, "Mk4tcl", "2.3.4");
+    return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.0");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

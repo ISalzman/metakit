@@ -1,4 +1,4 @@
-//  Copyright (C) 2000 by Matt Newman and Jean-Claude Wippler.
+//  Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 //
 //  Tcl object command interface to MetaKit.
 

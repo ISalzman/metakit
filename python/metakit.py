@@ -1,6 +1,6 @@
 # metakit.py - Utility code for the Python interface to MetaKit
 # 
-# Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+# Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 # 
 # This wraps the raw Mk4py compiled extension interface.
 # To use MetaKit through this interface, simply do:

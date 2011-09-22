@@ -1,3 +1,46 @@
+2001-06-29  MK 2.4.0    More changes to the Mk4py interface
+
+    - allow setting a row to a value if the row has a single property
+    - there is an unexplained crash when setting slices with wrong type
+    - view.delete(N) has been reported to crash (interactive mode only)
+
+2001-06-22              Changes to the Mk4py interface
+
+    Modifications and fixes gratefuly accepted from John Barnard:
+    - c4_LongProp support ('L' datatype)
+    - row.__attrs__ returns the list of all properties
+    - row.__view__ returns the container view of the row
+    - row.__index__ returns current position in view
+    - view.setsize(n) added, extends/truncates number of rows
+    - generalized makerow to allow any sequence, not just lists
+    
+    Changed PyRowRef to inc/dec the reference it has to the underlying
+    view.  Should prevent dangling pointer problems, such as deleting a
+    storage while rows are still in use.  This adds a little overhead.
+
+    Fixed a PyErr_Clear issue when accessing non-existent properties.
+
+2001-06-12              Close DB filedesc on exec
+
+    Added an fcntl call to fileio.cpp, so that on Unix database file
+    decriptors are closed on exec (relevant when doing "exec ... &").
+
+2001-05-30              Fixed mem-leak in Mk4tcl
+
+    A long-standing bug, in TclSelector::ExactKeyProps.
+
+2001-05-28              Security fix in TclKit
+
+    See end of the tcl/kit/README file for deatils.
+
+2001-03-30              Fixed long-standing commit bug
+
+    There was an intermittent bug in c4_Persist::Commit,
+    when properties were "restructured away" (dropped).
+    The bug was hard to track down, because it depended
+    on what address ranges the O/S assigned to mem-maps.
+    Might also fix other spurious commit/exit crashes.
+
 2001-03-29  MK 2.3.4    The "last" release candidate
 
     Now checked into its *new* CVS home at equi4.com.

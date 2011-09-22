@@ -1,5 +1,5 @@
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  Storage class header
 

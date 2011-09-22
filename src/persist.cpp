@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 
 /** @file
  * Implementation of the main file management classes
@@ -912,12 +912,13 @@ bool c4_Persist::Commit(bool full_)
         return false; // note that _strategy._failure is *zero* in this case
 
     c4_SaveContext ar (_strategy, false, _mode, full_ ? 0 : _differ, _space);
-    ar.SaveIt(*_root, &_space, _rootWalk);
 
 	// get rid of temp properties which still use the datafile
     if (_mode == 1)
         _root->DetachFromStorage(false);
 
+        // 30-3-2001: moved down, fixes "crash every 2nd call of mkdemo/dbg"
+    ar.SaveIt(*_root, &_space, _rootWalk);
     return _strategy._failure == 0;
 }
 

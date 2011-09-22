@@ -1,7 +1,8 @@
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  View class implementation
+//  setsize method added by J. Barnard
 
 #include "PyView.h"
 #include "PyProperty.h"
@@ -11,88 +12,103 @@
 #include <PWOMapping.h>
 #include <PWOCallable.h>
 
+static char *setsize__doc =
+"setsize(nrows) -- adjust the number of rows in a view";
+
+static PyObject *PyView_setsize(PyView *o, PyObject *_args) {
+  try {
+    PWOSequence args(_args);
+    PWONumber nrows = PWONumber(args[0]);
+    o->SetSize((int) nrows);
+    return nrows.disOwn();
+  }
+  catch (PWException e) {
+    return e.toPython();
+  }
+}
+
 static char* structure__doc = 
 "structure() -- return list of properties";
 
 static PyObject* PyView_structure(PyView *o, PyObject* _args) {
-    try {
-        return o->structure();
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    return o->structure();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* insert__doc = 
 "insert(position, obj) -- coerce obj to row and insert";
 
 static PyObject* PyView_insert(PyView *o, PyObject* _args, PyObject* kwargs) {
-    try {
-        PWOSequence args(_args);
-        if (args.len() == 1)
-            o->insertAt(PWONumber(args[0]), kwargs);
-        else
-            o->insertAt(PWONumber (args[0]), args[1]);
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (args.len() == 1)
+      o->insertAt(PWONumber(args[0]), kwargs);
+    else
+      o->insertAt(PWONumber (args[0]), args[1]);
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* append__doc = 
 "append(obj) -- coerce obj (or keyword args) to row and append, returns pos";
 
 static PyObject* PyView_append(PyView *o, PyObject* _args, PyObject* kwargs) {
-    try {
-        PWOSequence args(_args);
-        PWONumber ndx(o->GetSize());
-        if (args.len() == 0)
-            o->insertAt(ndx, kwargs);
-        else
-            o->insertAt(ndx, args[0]);
-        return ndx.disOwn();
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    PWONumber ndx(o->GetSize());
+    if (args.len() == 0)
+      o->insertAt(ndx, kwargs);
+    else
+      o->insertAt(ndx, args[0]);
+    return ndx.disOwn();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* delete__doc = 
 "delete(position) -- delete row at specified position";
 
 static PyObject* PyView_delete(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        int ndx = PWONumber (args[0]);
-	//o->RemoveAt(ndx);
-        PWOSequence seq;
-	o->setSlice(ndx, ndx+1, seq);
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    int ndx = PWONumber (args[0]);
+    //o->RemoveAt(ndx);
+    PWOSequence seq;
+    o->setSlice(ndx, ndx+1, seq);
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* addproperty__doc = 
 "addproperty(property) -- add temp column to view, use getas() for persistent columns";
 
 static PyObject* PyView_addproperty(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        PWOBase prop(args[0]);
-        if (PyProperty_Check((PyObject* )prop)) {
-            PWONumber rslt(o->AddProperty(*(PyProperty *)(PyObject* )prop));
-            return rslt.disOwn();
-        }
-        throw PWException(PyExc_TypeError, "Not a Property object");
+  try {
+    PWOSequence args(_args);
+    PWOBase prop(args[0]);
+    if (PyProperty_Check((PyObject* )prop)) {
+      PWONumber rslt(o->AddProperty(*(PyProperty *)(PyObject* )prop));
+      return rslt.disOwn();
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    throw PWException(PyExc_TypeError, "Not a Property object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* select__doc = 
@@ -100,26 +116,32 @@ static char* select__doc =
 "select(crit_lo, crit_hi) -- select rows in specified range (inclusive)";
 
 static PyObject* PyView_select(PyView *o, PyObject* _args, PyObject* kwargs) {
-    try {
-        c4_Row temp;
-        PWOSequence args(_args);
-        if (args.len() == 0) 
-            return new PyView(o->Select(o->makeRow(temp, kwargs, false)), o);
-        if (args.len() == 1) 
-            return new PyView(o->Select(o->makeRow(temp, args[0], false)), o);
-
-        if (PyObject_Length(args[0]) > 0)
-            o->makeRow(temp, args[0], false);
-
-        c4_Row temp2; // force an error if neither boundary has useful values
-        if (temp.Container().NumProperties() == 0 || PyObject_Length(args[1]) > 0)
-            o->makeRow(temp2, args[1], false);
-        
-        return new PyView(o->SelectRange(temp, temp2), o);
+  try {
+    c4_Row temp;
+    PWOSequence args(_args);
+    if (args.len() == 0) 
+    {
+      o->makeRow(temp, kwargs, false);
+      return new PyView(o->Select(temp), o);
     }
-    catch(PWException e) {
-        return e.toPython();
+    if (args.len() == 1) 
+    {
+      o->makeRow(temp, args[0], false);
+      return new PyView(o->Select(temp), o);
     }
+
+    if (PyObject_Length(args[0]) > 0)
+      o->makeRow(temp, args[0], false);
+
+    c4_Row temp2; // force an error if neither boundary has useful values
+    if (temp.Container().NumProperties() == 0 || PyObject_Length(args[1]) > 0)
+      o->makeRow(temp2, args[1], false);
+    
+    return new PyView(o->SelectRange(temp, temp2), o);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* sort__doc = 
@@ -127,437 +149,439 @@ static char* sort__doc =
 "sort(property...) -- sort on the specified properties";
 
 static PyObject* PyView_sort(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        if (args.len()) {
-            PyView crit;
-            crit.addProperties(args);
-            return new PyView (o->SortOn(crit), o);
-        }
-        return new PyView (o->Sort(), o);
+  try {
+    PWOSequence args(_args);
+    if (args.len()) {
+      PyView crit;
+      crit.addProperties(args);
+      return new PyView (o->SortOn(crit), o);
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    return new PyView (o->Sort(), o);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* sortrev__doc = 
 "sortrev(props,propsdown) -- sort, with optional reversed order";
 
 static PyObject* PyView_sortrev(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
+  try {
+    PWOSequence args(_args);
 
-        PWOSequence all(args[0]);
-        PyView propsAll;
-        propsAll.addProperties(all);
+    PWOSequence all(args[0]);
+    PyView propsAll;
+    propsAll.addProperties(all);
 
-        PWOSequence down(args[1]);
-        PyView propsDown;
-        propsDown.addProperties(down);
+    PWOSequence down(args[1]);
+    PyView propsDown;
+    propsDown.addProperties(down);
 
-        return new PyView (o->SortOnReverse(propsAll, propsDown), o);
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    return new PyView (o->SortOnReverse(propsAll, propsDown), o);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* project__doc = 
 "project(property...) -- returns virtual view with only the named columns";
 
 static PyObject* PyView_project(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        PyView crit;
-        crit.addProperties(args);
-        return new PyView (o->Project(crit));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    PyView crit;
+    crit.addProperties(args);
+    return new PyView (o->Project(crit));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* flatten__doc = 
 "flatten(subview_property, outer=0) -- produces 'flat' view from nested view";
 
 static PyObject* PyView_flatten(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        const c4_Property& subview = *(PyProperty *)(PyObject* )args[0];
-        bool outer = false;
-        if (args.len() > 1) {
-            PWONumber flag(args[1]);
-            if ((int)flag > 0)
-                outer = true;
-        }
-        return new PyView (o->JoinProp((const c4_ViewProp&) subview, outer));
+  try {
+    PWOSequence args(_args);
+    const c4_Property& subview = *(PyProperty *)(PyObject* )args[0];
+    bool outer = false;
+    if (args.len() > 1) {
+      PWONumber flag(args[1]);
+      if ((int)flag > 0)
+        outer = true;
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    return new PyView (o->JoinProp((const c4_ViewProp&) subview, outer));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* join__doc = 
 "join(otherview, property..., outer=0) -- join view on prop of same name and type";
 
 static PyObject* PyView_join(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        PyView *other = (PyView *)(PyObject* )args[0];
-        bool outer = false;
-        int last = args.len();
-        if (PyInt_Check((PyObject*)args[last-1])) {
-            PWONumber flag(args[--last]);
-            if ((int)flag > 0)
-                outer = true;
-        }
-        PyView crit;
-        crit.addProperties(args.getSlice(1,last));
-        return new PyView (o->Join(crit, *other, outer));
+  try {
+    PWOSequence args(_args);
+    PyView *other = (PyView *)(PyObject* )args[0];
+    bool outer = false;
+    int last = args.len();
+    if (PyInt_Check((PyObject*)args[last-1])) {
+      PWONumber flag(args[--last]);
+      if ((int)flag > 0)
+        outer = true;
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    PyView crit;
+    crit.addProperties(args.getSlice(1,last));
+    return new PyView (o->Join(crit, *other, outer));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* groupby__doc = 
 "groupby(property..., 'subname') -- group by given properties, creating subviews";
 
 static PyObject* PyView_groupby(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        int last = args.len();
-        PWOString subname (args[--last]);
-        PyView crit;
-        crit.addProperties(args.getSlice(0,last));
-        c4_ViewProp sub (subname);
-        return new PyView (o->GroupBy(crit, sub));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    int last = args.len();
+    PWOString subname (args[--last]);
+    PyView crit;
+    crit.addProperties(args.getSlice(0,last));
+    c4_ViewProp sub (subname);
+    return new PyView (o->GroupBy(crit, sub));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* counts__doc = 
 "counts(property..., 'name') -- group by given properties, adding a count property";
 
 static PyObject* PyView_counts(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        int last = args.len();
-        PWOString name (args[--last]);
-        PyView crit;
-        crit.addProperties(args.getSlice(0,last));
-        c4_IntProp count (name);
-        return new PyView (o->Counts(crit, count));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    int last = args.len();
+    PWOString name (args[--last]);
+    PyView crit;
+    crit.addProperties(args.getSlice(0,last));
+    c4_IntProp count (name);
+    return new PyView (o->Counts(crit, count));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* rename__doc = 
 "rename('oldname', 'newname') -- derive a view with one property renamed";
 
 static PyObject* PyView_rename(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        
-        PWOString oldName (args[0]);
-        int n = o->FindPropIndexByName(oldName);
-        if (n < 0)
-            throw PWException(PyExc_TypeError, "Property not found in view");
-        const c4_Property& oProp = o->NthProperty(n);
+  try {
+    PWOSequence args(_args);
+    
+    PWOString oldName (args[0]);
+    int n = o->FindPropIndexByName(oldName);
+    if (n < 0)
+      throw PWException(PyExc_TypeError, "Property not found in view");
+    const c4_Property& oProp = o->NthProperty(n);
 
-        PWOString newName (args[1]);
-        c4_Property nProp (oProp.Type(), newName);
+    PWOString newName (args[1]);
+    c4_Property nProp (oProp.Type(), newName);
 
-        return new PyView (o->Rename(oProp, nProp));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    return new PyView (o->Rename(oProp, nProp));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* unique__doc = 
 "unique() -- returns view without duplicate rows, i.e. a set";
 
 static PyObject *PyView_unique(PyView *o, PyObject *_args) {
-    try {
-        return new PyView(o->Unique());
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    return new PyView(o->Unique());
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* product__doc = 
 "product(view2) -- produce the cartesian product of both views";
 
 static PyObject *PyView_product(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Product(*(PyView *)(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Product(*(PyView *)(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* union__doc = 
 "union(view2) -- produce the set union of both views";
 
 static PyObject *PyView_union(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Union(*(PyView *)(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Union(*(PyView *)(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* intersect__doc = 
 "intersect(view2) -- produce the set intersection of both views";
 
 static PyObject *PyView_intersect(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Intersect(*(PyView* )(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Intersect(*(PyView* )(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* different__doc = 
 "different(view2) -- produce the set difference of both views (XOR)";
 
 static PyObject *PyView_different(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Different(*(PyView* )(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Different(*(PyView* )(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* minus__doc = 
 "minus(view2) -- all rows in view, but not in view2";
 
 static PyObject *PyView_minus(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Minus(*(PyView* )(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Minus(*(PyView* )(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* remapwith__doc = 
 "remapwith(view2) -- remap rows according to first (int) prop in view2";
 
 static PyObject *PyView_remapwith(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->RemapWith(*(PyView* )(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->RemapWith(*(PyView* )(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* pair__doc = 
 "pair(view2) -- concatenate rows pairwise, side by side";
 
 static PyObject *PyView_pair(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (PyView_Check((PyObject *)args[0]))
-            return new PyView(o->Pair(*(PyView* )(PyObject *)args[0]));
-        else
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (PyView_Check((PyObject *)args[0]))
+      return new PyView(o->Pair(*(PyView* )(PyObject *)args[0]));
+    else
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* hash__doc = 
 "hash(mapview,numkeys=1) -- create a hashed view mapping";
 
 static PyObject *PyView_hash(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
+  try {
+    PWOSequence args(_args);
 
-	c4_View map;
-        if (args.len() > 0)
-            map = *(PyView*)(PyObject*)args[0];
-        
-        int numkeys = args.len() <= 1 ? 1 : (int) PWONumber(args[1]);
-	return new PyView(o->Hash(map, numkeys));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    c4_View map;
+    if (args.len() > 0)
+      map = *(PyView*)(PyObject*)args[0];
+    
+    int numkeys = args.len() <= 1 ? 1 : (int) PWONumber(args[1]);
+    return new PyView(o->Hash(map, numkeys));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* blocked__doc = 
 "blocked() -- create a blocked/balanced view mapping";
 
 static PyObject *PyView_blocked(PyView *o, PyObject *_args) {
-    try {
-	return new PyView(o->Blocked());
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    return new PyView(o->Blocked());
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* ordered__doc = 
 "ordered(numkeys=1) -- create a order-maintaining view mapping";
 
 static PyObject *PyView_ordered(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        int numkeys = args.len() <= 0 ? 1 : (int) PWONumber(args[0]);
-	return new PyView(o->Ordered(numkeys));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    int numkeys = args.len() <= 0 ? 1 : (int) PWONumber(args[0]);
+    return new PyView(o->Ordered(numkeys));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* indexed__doc = 
 "indexed(map, property..., unique=0) -- create a mapped view which manages an index";
 
 static PyObject* PyView_indexed(PyView *o, PyObject* _args) {
-    try {
-        PWOSequence args(_args);
-        PyView *other = (PyView *)(PyObject* )args[0];
-        bool unique = false;
-        int last = args.len();
-        if (PyInt_Check((PyObject*)args[last-1])) {
-            PWONumber flag(args[--last]);
-            if ((int)flag > 0)
-                unique = true;
-        }
-        PyView crit;
-        crit.addProperties(args.getSlice(1,last));
-        return new PyView (o->Indexed(crit, *other, unique));
+  try {
+    PWOSequence args(_args);
+    PyView *other = (PyView *)(PyObject* )args[0];
+    bool unique = false;
+    int last = args.len();
+    if (PyInt_Check((PyObject*)args[last-1])) {
+      PWONumber flag(args[--last]);
+      if ((int)flag > 0)
+        unique = true;
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    PyView crit;
+    crit.addProperties(args.getSlice(1,last));
+    return new PyView (o->Indexed(crit, *other, unique));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* find__doc = 
 "find(criteria, start=0) -- return index of row found, matching criteria";
 
 static PyObject *PyView_find(PyView *o, PyObject *_args, PyObject* kwargs) {
-    PWONumber start(0);
-    try {
-        PWOSequence args(_args);
-        if (args.len() == 0) {
-            PWOMapping dict(kwargs);
-            if (dict.hasKey("start")) {
-                start = dict["start"];
-                dict.delItem("start");
-            }
-        } else
-            kwargs = args[0];
-        c4_Row temp;
-        return PWONumber(o->Find(o->makeRow(temp, kwargs, false), start)).disOwn();
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  PWONumber start(0);
+  try {
+    PWOSequence args(_args);
+    if (args.len() == 0) {
+      PWOMapping dict(kwargs);
+      if (dict.hasKey("start")) {
+        start = dict["start"];
+        dict.delItem("start");
+      }
+    } else
+      kwargs = args[0];
+    c4_Row temp;
+    o->makeRow(temp, kwargs, false);
+    return PWONumber(o->Find(temp, start)).disOwn();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* search__doc = 
 "search(criteria) -- binary search (native view order), returns match or insert pos";
 
 static PyObject *PyView_search(PyView *o, PyObject *_args, PyObject* kwargs) {
-    try {
-        PWOSequence args(_args);
-        if (args.len() != 0)
-            kwargs = args[0];
-        c4_Row temp;
-        return PWONumber(o->Search(o->makeRow(temp, kwargs, false))).disOwn();
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (args.len() != 0)
+      kwargs = args[0];
+    c4_Row temp;
+    o->makeRow(temp, kwargs, false);
+    return PWONumber(o->Search(temp)).disOwn();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* access__doc = 
 "access(memoprop, rownum, offset, length=0) -- get (partial) memo property contents";
 
 static PyObject *PyView_access(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyProperty_Check((PyObject *)args[0]))
-            throw PWException(PyExc_TypeError, "First arg must be a property");
+  try {
+    PWOSequence args(_args);
+    if (!PyProperty_Check((PyObject *)args[0]))
+      throw PWException(PyExc_TypeError, "First arg must be a property");
 
-        c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
+    c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
 
-        int index = PyInt_AsLong(args[1]);
-        if (index < 0 || index >= o->GetSize())
-            throw PWException(PyExc_IndexError, "Index out of range");
+    int index = PyInt_AsLong(args[1]);
+    if (index < 0 || index >= o->GetSize())
+      throw PWException(PyExc_IndexError, "Index out of range");
 
-        c4_RowRef row = o->GetAt(index);
+    c4_RowRef row = o->GetAt(index);
 
-        long offset = PyInt_AsLong(args[2]);
-        int length = args.len() == 3 ? 0 : PyInt_AsLong(args[3]);
-        if (length <= 0)
-        {
-            length = prop(row).GetSize() - offset;
-            if (length < 0)
-                length = 0;
-        }
-
-        PyObject* buffer = PyString_FromStringAndSize(0, length);
-        int o = 0;
-
-        while (o < length)
-        {
-            c4_Bytes buf = prop(row).Access(offset + o, length - o);
-            int n = buf.Size();
-            if (n == 0)
-                break;
-            memcpy(PyString_AS_STRING(buffer) + o, buf.Contents(), n);
-            o += n;
-        }
-
-        if (o < length)
-            _PyString_Resize(&buffer, o);
-
-        return buffer;
+    long offset = PyInt_AsLong(args[2]);
+    int length = args.len() == 3 ? 0 : PyInt_AsLong(args[3]);
+    if (length <= 0)
+    {
+      length = prop(row).GetSize() - offset;
+      if (length < 0)
+        length = 0;
     }
-    catch(PWException e) {
-        return e.toPython();
+
+    PyObject* buffer = PyString_FromStringAndSize(0, length);
+    int o = 0;
+
+    while (o < length)
+    {
+      c4_Bytes buf = prop(row).Access(offset + o, length - o);
+      int n = buf.Size();
+      if (n == 0)
+        break;
+      memcpy(PyString_AS_STRING(buffer) + o, buf.Contents(), n);
+      o += n;
     }
+
+    if (o < length)
+      _PyString_Resize(&buffer, o);
+
+    return buffer;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* modify__doc = 
@@ -565,34 +589,34 @@ static char* modify__doc =
 "diff removes (<0) or inserts (>0) bytes, and is adjusted to within sensible range";
 
 static PyObject *PyView_modify(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyProperty_Check((PyObject *)args[0]))
-            throw PWException(PyExc_TypeError, "First arg must be a property");
+  try {
+    PWOSequence args(_args);
+    if (!PyProperty_Check((PyObject *)args[0]))
+      throw PWException(PyExc_TypeError, "First arg must be a property");
 
-        c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
+    c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
 
-        int index = PWONumber(args[1]);
-        if (index < 0 || index >= o->GetSize())
-            throw PWException(PyExc_IndexError, "Index out of range");
+    int index = PWONumber(args[1]);
+    if (index < 0 || index >= o->GetSize())
+      throw PWException(PyExc_IndexError, "Index out of range");
 
-        c4_RowRef row = o->GetAt(index);
+    c4_RowRef row = o->GetAt(index);
 
-        PWOString buffer (args[2]);
-        c4_Bytes data ((void*)(const char*)buffer, buffer.len());
+    PWOString buffer (args[2]);
+    c4_Bytes data ((void*)(const char*)buffer, buffer.len());
 
-        long offset = PWONumber(args[3]);
-        int diff = args.len() == 4 ? 0 : (int) PWONumber(args[4]);
+    long offset = PWONumber(args[3]);
+    int diff = args.len() == 4 ? 0 : (int) PWONumber(args[4]);
 
-        if (!prop(row).Modify(data, offset, diff))
-            throw PWException(PyExc_TypeError, "Failed to modify memo field");
+    if (!prop(row).Modify(data, offset, diff))
+      throw PWException(PyExc_TypeError, "Failed to modify memo field");
 
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* itemsize__doc = 
@@ -600,21 +624,21 @@ static char* itemsize__doc =
 "with integer fields, a result of -1/-2/-4 means 1/2/4 bits per value, respectively";
 
 static PyObject *PyView_itemsize(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyProperty_Check((PyObject *)args[0]))
-            throw PWException(PyExc_TypeError, "First arg must be a property");
+  try {
+    PWOSequence args(_args);
+    if (!PyProperty_Check((PyObject *)args[0]))
+      throw PWException(PyExc_TypeError, "First arg must be a property");
 
-        c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
-        int index = args.len() == 1 ? 0 : (int) PWONumber(args[1]);
-        if (index < 0 || index >= o->GetSize())
-            throw PWException(PyExc_IndexError, "Index out of range");
+    c4_BytesProp& prop = *(c4_BytesProp*)(c4_Property*)(PyProperty*)(PyObject*)args[0];
+    int index = args.len() == 1 ? 0 : (int) PWONumber(args[1]);
+    if (index < 0 || index >= o->GetSize())
+      throw PWException(PyExc_IndexError, "Index out of range");
 
-        return PWONumber(prop(o->GetAt(index)).GetSize()).disOwn();
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    return PWONumber(prop(o->GetAt(index)).GetSize()).disOwn();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* relocrows__doc = 
@@ -623,35 +647,35 @@ static char* relocrows__doc =
 "both views must have a compatible structure (field names may differ)";
 
 static PyObject *PyView_relocrows(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyView_Check((PyObject *)args[2]))
-            throw PWException(PyExc_TypeError, "Third arg must be a view object");
-        
-        PyView& dest = *(PyView *)(PyObject *)args[2];
+  try {
+    PWOSequence args(_args);
+    if (!PyView_Check((PyObject *)args[2]))
+      throw PWException(PyExc_TypeError, "Third arg must be a view object");
+    
+    PyView& dest = *(PyView *)(PyObject *)args[2];
 
-        int from = PWONumber(args[0]);
-        if (from < 0)
-            from += o->GetSize();
-        int count = PWONumber(args[1]);
-        if (from < 0 || count < 0 || from + count > o->GetSize())
-            throw PWException(PyExc_IndexError, "Source index out of range");
+    int from = PWONumber(args[0]);
+    if (from < 0)
+      from += o->GetSize();
+    int count = PWONumber(args[1]);
+    if (from < 0 || count < 0 || from + count > o->GetSize())
+      throw PWException(PyExc_IndexError, "Source index out of range");
 
-        int pos = PWONumber(args[3]);
-        if (pos < 0)
-            pos += dest.GetSize();
-        if (pos < 0 || pos > dest.GetSize())
-            throw PWException(PyExc_IndexError, "Destination index out of range");
-        
-        if (!o->RelocateRows(from, count, dest, pos))
-            throw PWException(PyExc_TypeError, "Failed to relocate rows");
+    int pos = PWONumber(args[3]);
+    if (pos < 0)
+      pos += dest.GetSize();
+    if (pos < 0 || pos > dest.GetSize())
+      throw PWException(PyExc_IndexError, "Destination index out of range");
+    
+    if (!o->RelocateRows(from, count, dest, pos))
+      throw PWException(PyExc_TypeError, "Failed to relocate rows");
 
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static char* map__doc = 
@@ -662,286 +686,294 @@ static char* map__doc =
 "subset must be a subset of view: eg, customers.map(func, customers.select(....)).\n";
 
 static PyObject *PyView_map(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        PWOCallable func(args[0]);
-        if (args.len() > 1) {
-            if (!PyView_Check((PyObject *)args[1]))
-                throw PWException(PyExc_TypeError, "Second arg must be a view object");
-        
-            PyView& subset = *(PyView *)(PyObject *)args[1];
+  try {
+    PWOSequence args(_args);
+    PWOCallable func(args[0]);
+    if (args.len() > 1) {
+      if (!PyView_Check((PyObject *)args[1]))
+        throw PWException(PyExc_TypeError, "Second arg must be a view object");
+    
+      PyView& subset = *(PyView *)(PyObject *)args[1];
 
-            o->map(func, subset);
-        }
-        else
-            o->map(func);
+      o->map(func, subset);
+    }
+    else
+      o->map(func);
 
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 static char* filter__doc = 
 "filter(func) -- return a new view containing the indices of those rows satisfying func.\n"
 "func must have the signature func(row), and should return a false value to omit row.\n";
 
 static PyObject *PyView_filter(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        PWOCallable func(args[0]);
-        return o->filter(func);
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    PWOCallable func(args[0]);
+    return o->filter(func);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 static char* reduce__doc = 
 "reduce(func, start=0) -- return the result of applying func(row, lastresult) to\n"
 "each row in view.\n";
 
 static PyObject *PyView_reduce(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        PWOCallable func(args[0]);
-        PWONumber start(0);
-        if (args.len() > 1) 
-            start = args[1];
-        return o->reduce(func, start);
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    PWOCallable func(args[0]);
+    PWONumber start(0);
+    if (args.len() > 1) 
+      start = args[1];
+    return o->reduce(func, start);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 static char* remove__doc = 
 "remove(indices) -- remove all rows whose indices are in subset from view\n"
 "Not the same as minus, because unique is not required, and view is not reordered.\n";
 
 static PyObject *PyView_remove(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyView_Check((PyObject *)args[0]))
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-        
-        PyView& subset = *(PyView *)(PyObject *)args[0];
-        o->remove(subset);
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (!PyView_Check((PyObject *)args[0]))
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+    
+    PyView& subset = *(PyView *)(PyObject *)args[0];
+    o->remove(subset);
+    Py_INCREF(Py_None);
+    return Py_None;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 static char *indices__doc =
 "indices(subset) -- returns a view containing the indices in view of the rows of subset\n";
 
 static PyObject *PyView_indices(PyView *o, PyObject *_args) {
-    try {
-        PWOSequence args(_args);
-        if (!PyView_Check((PyObject *)args[0]))
-            throw PWException(PyExc_TypeError, "Arg must be a view object");
-        PyView& subset = *(PyView *)(PyObject *)args[0];
-        return o->indices(subset);
-    }
-    catch (PWException e) {
-        return e.toPython();
-    }
+  try {
+    PWOSequence args(_args);
+    if (!PyView_Check((PyObject *)args[0]))
+      throw PWException(PyExc_TypeError, "Arg must be a view object");
+    PyView& subset = *(PyView *)(PyObject *)args[0];
+    return o->indices(subset);
+  }
+  catch (PWException e) {
+    return e.toPython();
+  }
 }
 static char *copy__doc =
 "copy() -- returns a copy of the view\n";
 
 static PyObject *PyView_copy(PyView *o, PyObject *_args) {
-    try {
-        return new PyView(o->Duplicate());
-    }
-    catch (PWException e) {
-        return e.toPython();
-    }
+  try {
+    return new PyView(o->Duplicate());
+  }
+  catch (PWException e) {
+    return e.toPython();
+  }
 }
 
 static PyMethodDef ViewMethods[] = {
-    {"insert", (PyCFunction)PyView_insert, METH_VARARGS | METH_KEYWORDS, insert__doc},
-    {"append", (PyCFunction)PyView_append, METH_VARARGS | METH_KEYWORDS, append__doc},
-    {"delete", (PyCFunction)PyView_delete, METH_VARARGS, delete__doc},
-    {"structure", (PyCFunction)PyView_structure, METH_VARARGS, structure__doc},
-    {"select", (PyCFunction)PyView_select, METH_VARARGS | METH_KEYWORDS, select__doc},
-    {"addproperty", (PyCFunction)PyView_addproperty, METH_VARARGS, addproperty__doc},
-    {"sort", (PyCFunction)PyView_sort, METH_VARARGS, sort__doc},
-    {"sortrev", (PyCFunction)PyView_sortrev, METH_VARARGS, sortrev__doc},
-    {"project", (PyCFunction)PyView_project, METH_VARARGS, project__doc},
-    {"flatten", (PyCFunction)PyView_flatten, METH_VARARGS, flatten__doc},
-    {"join", (PyCFunction)PyView_join, METH_VARARGS, join__doc},
-    {"groupby", (PyCFunction)PyView_groupby, METH_VARARGS, groupby__doc},
-    {"counts", (PyCFunction)PyView_counts, METH_VARARGS, counts__doc},
-    {"product", (PyCFunction)PyView_product, METH_VARARGS, product__doc},
-    {"union", (PyCFunction)PyView_union, METH_VARARGS, union__doc},
-    {"intersect", (PyCFunction)PyView_intersect, METH_VARARGS, intersect__doc},
-    {"different", (PyCFunction)PyView_different, METH_VARARGS, different__doc},
-    {"minus", (PyCFunction)PyView_minus, METH_VARARGS, minus__doc},
-    {"remapwith", (PyCFunction)PyView_remapwith, METH_VARARGS, remapwith__doc},
-    {"pair", (PyCFunction)PyView_pair, METH_VARARGS, pair__doc},
-    {"rename", (PyCFunction)PyView_rename, METH_VARARGS, rename__doc},
-    {"unique", (PyCFunction)PyView_unique, METH_VARARGS, unique__doc},
-    {"hash", (PyCFunction)PyView_hash, METH_VARARGS, hash__doc},
-    {"blocked", (PyCFunction)PyView_blocked, METH_VARARGS, blocked__doc},
-    {"ordered", (PyCFunction)PyView_ordered, METH_VARARGS, ordered__doc},
-    {"indexed", (PyCFunction)PyView_indexed, METH_VARARGS, indexed__doc},
-    {"find", (PyCFunction)PyView_find, METH_VARARGS | METH_KEYWORDS, find__doc},
-    {"search", (PyCFunction)PyView_search, METH_VARARGS | METH_KEYWORDS, search__doc},
-    {"access", (PyCFunction)PyView_access, METH_VARARGS, access__doc},
-    {"modify", (PyCFunction)PyView_modify, METH_VARARGS, modify__doc},
-    {"itemsize", (PyCFunction)PyView_itemsize, METH_VARARGS, itemsize__doc},
-    {"relocrows", (PyCFunction)PyView_relocrows, METH_VARARGS, relocrows__doc},
-    {"map", (PyCFunction)PyView_map, METH_VARARGS, map__doc},
-    {"filter", (PyCFunction)PyView_filter, METH_VARARGS, filter__doc},
-    {"reduce", (PyCFunction)PyView_reduce, METH_VARARGS, reduce__doc},
-    {"remove", (PyCFunction)PyView_remove, METH_VARARGS, remove__doc},
-    {"indices", (PyCFunction)PyView_indices, METH_VARARGS, indices__doc},
-    {"copy", (PyCFunction)PyView_copy, METH_VARARGS, copy__doc},
-    {0, 0, 0, 0}
+  {"setsize", (PyCFunction)PyView_setsize, METH_VARARGS, setsize__doc},
+  {"insert", (PyCFunction)PyView_insert, METH_VARARGS | METH_KEYWORDS, insert__doc},
+  {"append", (PyCFunction)PyView_append, METH_VARARGS | METH_KEYWORDS, append__doc},
+  {"delete", (PyCFunction)PyView_delete, METH_VARARGS, delete__doc},
+  {"structure", (PyCFunction)PyView_structure, METH_VARARGS, structure__doc},
+  {"select", (PyCFunction)PyView_select, METH_VARARGS | METH_KEYWORDS, select__doc},
+  {"addproperty", (PyCFunction)PyView_addproperty, METH_VARARGS, addproperty__doc},
+  {"sort", (PyCFunction)PyView_sort, METH_VARARGS, sort__doc},
+  {"sortrev", (PyCFunction)PyView_sortrev, METH_VARARGS, sortrev__doc},
+  {"project", (PyCFunction)PyView_project, METH_VARARGS, project__doc},
+  {"flatten", (PyCFunction)PyView_flatten, METH_VARARGS, flatten__doc},
+  {"join", (PyCFunction)PyView_join, METH_VARARGS, join__doc},
+  {"groupby", (PyCFunction)PyView_groupby, METH_VARARGS, groupby__doc},
+  {"counts", (PyCFunction)PyView_counts, METH_VARARGS, counts__doc},
+  {"product", (PyCFunction)PyView_product, METH_VARARGS, product__doc},
+  {"union", (PyCFunction)PyView_union, METH_VARARGS, union__doc},
+  {"intersect", (PyCFunction)PyView_intersect, METH_VARARGS, intersect__doc},
+  {"different", (PyCFunction)PyView_different, METH_VARARGS, different__doc},
+  {"minus", (PyCFunction)PyView_minus, METH_VARARGS, minus__doc},
+  {"remapwith", (PyCFunction)PyView_remapwith, METH_VARARGS, remapwith__doc},
+  {"pair", (PyCFunction)PyView_pair, METH_VARARGS, pair__doc},
+  {"rename", (PyCFunction)PyView_rename, METH_VARARGS, rename__doc},
+  {"unique", (PyCFunction)PyView_unique, METH_VARARGS, unique__doc},
+  {"hash", (PyCFunction)PyView_hash, METH_VARARGS, hash__doc},
+  {"blocked", (PyCFunction)PyView_blocked, METH_VARARGS, blocked__doc},
+  {"ordered", (PyCFunction)PyView_ordered, METH_VARARGS, ordered__doc},
+  {"indexed", (PyCFunction)PyView_indexed, METH_VARARGS, indexed__doc},
+  {"find", (PyCFunction)PyView_find, METH_VARARGS | METH_KEYWORDS, find__doc},
+  {"search", (PyCFunction)PyView_search, METH_VARARGS | METH_KEYWORDS, search__doc},
+  {"access", (PyCFunction)PyView_access, METH_VARARGS, access__doc},
+  {"modify", (PyCFunction)PyView_modify, METH_VARARGS, modify__doc},
+  {"itemsize", (PyCFunction)PyView_itemsize, METH_VARARGS, itemsize__doc},
+  {"relocrows", (PyCFunction)PyView_relocrows, METH_VARARGS, relocrows__doc},
+  {"map", (PyCFunction)PyView_map, METH_VARARGS, map__doc},
+  {"filter", (PyCFunction)PyView_filter, METH_VARARGS, filter__doc},
+  {"reduce", (PyCFunction)PyView_reduce, METH_VARARGS, reduce__doc},
+  {"remove", (PyCFunction)PyView_remove, METH_VARARGS, remove__doc},
+  {"indices", (PyCFunction)PyView_indices, METH_VARARGS, indices__doc},
+  {"copy", (PyCFunction)PyView_copy, METH_VARARGS, copy__doc},
+  {0, 0, 0, 0}
 };
 /*
-    Duplicate(deep=0)  (__copy__ and __deepcopy__ as methods, too)
-    Clone()
+  Duplicate(deep=0)  (__copy__ and __deepcopy__ as methods, too)
+  Clone()
 */
 static int PyView_length(PyView *o) {
-    return o->GetSize();
+  return o->GetSize();
 }
 
 static PyObject* PyView_concat(PyView *o, PyView *other) {
-    try {
-        if (other->ob_type != &PyViewtype)
-            throw PWException(PyExc_TypeError, "Not a PyView");
-        return new PyView(o->Concat(*other));
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    if (other->ob_type != &PyViewtype)
+      throw PWException(PyExc_TypeError, "Not a PyView");
+    return new PyView(o->Concat(*other));
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static PyObject* PyView_repeat(PyView *o, int n) {
-    try {
-        PyView* tmp = new PyView;
-        while (--n >= 0) 
-            tmp = new PyView(tmp->Concat(*o)); //!! a huge stack of views?
-        return tmp;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PyView* tmp = new PyView;
+    while (--n >= 0) 
+      tmp = new PyView(tmp->Concat(*o)); //!! a huge stack of views?
+    return tmp;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static PyObject* PyView_getitem(PyView *o, int n) {
-    try {
-        PyObject *rslt = o->getItem(n);
-        if (rslt == 0)
-            PyErr_SetString(PyExc_IndexError, "Index out of range");
-        return rslt;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    PyObject *rslt = o->getItem(n);
+    if (rslt == 0)
+      PyErr_SetString(PyExc_IndexError, "Index out of range");
+    return rslt;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static PyObject* PyView_getslice(PyView *o, int s, int e) {
-    try {
-        return o->getSlice(s,e);
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    return o->getSlice(s,e);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 static int PyView_setitem(PyView *o, int n, PyObject* v) {
-    try {
-        if (v == 0) {
-            if (n < 0)
-                n += o->GetSize();
-            if (n >= o->GetSize() || n < 0)
-                throw PWException(PyExc_IndexError, "Index out of range");
-            o->RemoveAt(n);
-            return 0;
-        }
+  try {
+    if (v == 0) {
+      if (n < 0)
+        n += o->GetSize();
+      if (n >= o->GetSize() || n < 0)
+        throw PWException(PyExc_IndexError, "Index out of range");
+      o->RemoveAt(n);
+      return 0;
+    }
 
-        return o->setItem(n,v);
-    }
-    catch(PWException e) {
-        e.toPython();
-        return -1;
-    }
+    return o->setItem(n,v);
+  }
+  catch(PWException e) {
+    e.toPython();
+    return -1;
+  }
 }
 
 static int PyView_setslice(PyView *o, int s, int e, PyObject* v) {
+  try {
     if (v == 0) {
-        PWOSequence seq;
-        return o->setSlice(s,e,seq);
+      PWOSequence seq;
+      return o->setSlice(s,e,seq);
     }
 
-    return o->setSlice(s,e,PWOSequence(v));
+    PWOSequence seq(v);
+    return o->setSlice(s,e,seq);
+  }
+  catch(PWException e) {
+    e.toPython();
+    return -1;
+  }
 }
 
 static PySequenceMethods ViewAsSeq = {
-    (inquiry)PyView_length, //sq_length
-    (binaryfunc)PyView_concat, //sq_concat
-    (intargfunc)PyView_repeat, //sq_repeat
-    (intargfunc)PyView_getitem, //sq_item
-    (intintargfunc)PyView_getslice, //sq_slice
-    (intobjargproc)PyView_setitem, //sq_ass_item
-    (intintobjargproc)PyView_setslice, //sq_ass_slice
+  (inquiry)PyView_length, //sq_length
+  (binaryfunc)PyView_concat, //sq_concat
+  (intargfunc)PyView_repeat, //sq_repeat
+  (intargfunc)PyView_getitem, //sq_item
+  (intintargfunc)PyView_getslice, //sq_slice
+  (intobjargproc)PyView_setitem, //sq_ass_item
+  (intintobjargproc)PyView_setslice, //sq_ass_slice
 };
 
 static void PyView_dealloc(PyView *o) {
-    //o->~PyView();
-    delete o;
+  //o->~PyView();
+  delete o;
 }
 
 static int PyView_print(PyView *o, FILE *f, int) {
-    fprintf(f, "<PyView object at %x>", (int)o);
-    return 0;
+  fprintf(f, "<PyView object at %x>", (int)o);
+  return 0;
 }
 
 static PyObject* PyView_getattr(PyView *o, char *nm) {
-    PyObject *rslt;
-    try {
-        rslt = Py_FindMethod(ViewMethods, o, nm);
-        if (rslt)
-            return rslt;
-        PyErr_Clear();
-        int ndx = o->FindPropIndexByName(nm);
-        if (ndx > -1) 
-            return new PyProperty(o->NthProperty(ndx));
-        throw PWException(PyExc_AttributeError, nm);
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  PyObject *rslt;
+  try {
+    rslt = Py_FindMethod(ViewMethods, o, nm);
+    if (rslt)
+      return rslt;
+    PyErr_Clear();
+    int ndx = o->FindPropIndexByName(nm);
+    if (ndx > -1) 
+      return new PyProperty(o->NthProperty(ndx));
+    throw PWException(PyExc_AttributeError, nm);
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 PyTypeObject PyViewtype = {
-    PyObject_HEAD_INIT(&PyType_Type)
-    0,
-    "PyView",
-    sizeof(PyView),
-    0,
-    (destructor)PyView_dealloc, /*tp_dealloc*/
-    (printfunc)PyView_print, /*tp_print*/
-    (getattrfunc)PyView_getattr, /*tp_getattr*/
-    0,      /*tp_setattr*/
-    (cmpfunc)0, /*tp_compare*/
-    (reprfunc)0, /*tp_repr*/
-    0,      /*tp_as_number*/
-    &ViewAsSeq, /*tp_as_sequence*/
-    0,      /*tp_as_mapping*/
+  PyObject_HEAD_INIT(&PyType_Type)
+  0,
+  "PyView",
+  sizeof(PyView),
+  0,
+  (destructor)PyView_dealloc, /*tp_dealloc*/
+  (printfunc)PyView_print, /*tp_print*/
+  (getattrfunc)PyView_getattr, /*tp_getattr*/
+  0,    /*tp_setattr*/
+  (cmpfunc)0, /*tp_compare*/
+  (reprfunc)0, /*tp_repr*/
+  0,    /*tp_as_number*/
+  &ViewAsSeq, /*tp_as_sequence*/
+  0,    /*tp_as_mapping*/
 };
 
 PyObject* PyView_new(PyObject* o, PyObject* _args) {
-    try {
-        return new PyView;
-    }
-    catch(PWException e) {
-        return e.toPython();
-    }
+  try {
+    return new PyView;
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
 }
 
 PyView::PyView() : PyHead(PyViewtype), _base (0) {
@@ -949,199 +981,207 @@ PyView::PyView() : PyHead(PyViewtype), _base (0) {
 
 PyView::PyView(const c4_View& o, PyView *owner)
   : PyHead(PyViewtype), c4_View(o), _base (owner) {
-    if (owner && owner->_base)
-        _base = owner->_base;
+  if (owner && owner->_base)
+    _base = owner->_base;
 }
 
-c4_Row& PyView::makeRow(c4_Row& tmp, PyObject* o, bool useDefaults) {
-    for (int i=0; i < NumProperties(); i++) {
-        const c4_Property& prop = NthProperty(i);
-        PyObject* attr = 0;
-        if (o) {
-            if (PyDict_Check(o))
-            {
-                attr = PyDict_GetItemString(o, (char *)prop.Name());
-                Py_XINCREF(attr);
-            }
-            else if (PyList_Check(o))
-            {
-                attr = PyList_GetItem(o, i);
-                Py_XINCREF(attr);
-            }
-            else 
-                attr = PyObject_GetAttrString(o, (char *)prop.Name());
-        }
-        if (attr)
-        {
-            PyRowRef::setFromPython(tmp, prop, attr);
-            Py_DECREF(attr);
-        }
-        else {
-            PyErr_Clear();
-            if (useDefaults)
-                PyRowRef::setDefault(tmp, prop);
-        }
+void PyView::makeRow(c4_Row& tmp, PyObject* o, bool useDefaults) {
+  for (int i=0; i < NumProperties(); i++) {
+    const c4_Property& prop = NthProperty(i);
+    PyObject* attr = 0;
+    if (o) {
+      if (PyDict_Check(o))
+      {
+        attr = PyDict_GetItemString(o, (char *)prop.Name());
+        Py_XINCREF(attr);
+      }
+      else if (PySequence_Check(o))
+      {
+        attr = PySequence_GetItem(o, i);
+      }
+      else
+      {
+        attr = PyObject_GetAttrString(o, (char *)prop.Name());
+	if (attr == 0 && i == 0 && NumProperties() == 1) 
+	{
+	  attr = o;
+	  Py_XINCREF(attr);
+	}
+      }
     }
-    if (!useDefaults)
-        if (tmp.Container().NumProperties() == 0)
-            throw PWException(PyExc_ValueError, "Object has no usable attributes");
-    return tmp;
+    if (attr)
+    {
+      try { PyRowRef::setFromPython(tmp, prop, attr); }
+      catch (...) { Py_DECREF(attr); throw; }
+      Py_DECREF(attr);
+    }
+    else {
+      PyErr_Clear();
+      if (useDefaults)
+        PyRowRef::setDefault(tmp, prop);
+    }
+  }
+  if (!useDefaults)
+    if (tmp.Container().NumProperties() == 0)
+      throw PWException(PyExc_ValueError, "Object has no usable attributes");
 }
 
 void PyView::insertAt(int i, PyObject* o) {
-    c4_Row temp;
-    InsertAt(i, makeRow(temp, o));
+  c4_Row temp;
+  makeRow(temp, o);
+  InsertAt(i, temp);
 }
 
 PyObject* PyView::structure() {
-    int n = NumProperties();
-    PWOList rslt(n);
-    for (int i = 0; i < n; i++) {
-        rslt[i] = new PyProperty(NthProperty(i));
-    }
-    return rslt.disOwn();
+  int n = NumProperties();
+  PWOList rslt(n);
+  for (int i = 0; i < n; i++) {
+    rslt[i] = new PyProperty(NthProperty(i));
+  }
+  return rslt.disOwn();
 }
 
 PyView *PyView::getSlice(int s, int e) {
-    int sz = GetSize();
-    if (s < 0)
-        s += sz;
-    if (e < 0)
-        e += sz;
-    if (e > sz)
-        e = sz;
-    if (s >= 0 && s < sz)
-        if (e > s && e <= sz)
-            return new PyView(Slice(s,e));
-    return new PyView(Clone());
+  int sz = GetSize();
+  if (s < 0)
+    s += sz;
+  if (e < 0)
+    e += sz;
+  if (e > sz)
+    e = sz;
+  if (s >= 0 && s < sz)
+    if (e > s && e <= sz)
+      return new PyView(Slice(s,e));
+  return new PyView(Clone());
 }
 
 int PyView::setSlice(int s, int e, const PWOSequence& lst) {
-    int sz = GetSize();
-    if (s < 0)
-        s += sz;
-    if (e < 0)
-        e += sz;
-    if (e > sz)
-        e = sz;
-    int i = 0;
-    for (; i < lst.len() && s < e; i++, s++)
-        setItem(s, lst[i]);
-    for (; i < lst.len(); i++, s++)
-    {
-	if (_base)
-	    throw PWException(PyExc_RuntimeError, "Can't insert in this view");
-        insertAt(s, lst[i]);
-    }
-    if (s < e)
-    	if (_base)
-	    while (s < e)
-	    {
-		int ndx = _base->GetIndexOf(GetAt(s));
-		_base->RemoveAt(ndx, 1);
-		--e;
-	    }
-	else
-	    RemoveAt(s, e - s);
-    return 0;
+  int sz = GetSize();
+  if (s < 0)
+    s += sz;
+  if (e < 0)
+    e += sz;
+  if (e > sz)
+    e = sz;
+  int i = 0;
+  for (; i < lst.len() && s < e; i++, s++)
+    setItem(s, lst[i]);
+  for (; i < lst.len(); i++, s++)
+  {
+    if (_base)
+      throw PWException(PyExc_RuntimeError, "Can't insert in this view");
+    insertAt(s, lst[i]);
+  }
+  if (s < e)
+    if (_base)
+      while (s < e)
+      {
+        int ndx = _base->GetIndexOf(GetAt(s));
+        _base->RemoveAt(ndx, 1);
+        --e;
+      }
+    else
+      RemoveAt(s, e - s);
+  return 0;
 }
 
 PyRowRef *PyView::getItem(int i) {
-    if (i < 0)
-        i += GetSize();
-    if (i >= GetSize() || i < 0)
-        return 0;
-    if (_base) {
-        c4_RowRef derived = GetAt(i);
-        int ndx = _base->GetIndexOf(derived);
-        if (ndx > -1)
-            return new PyRowRef(_base->GetAt(ndx), 0);
-        throw PWException(PyExc_RuntimeError, "Row not found in base view");
-    }
-    return  new PyRowRef(GetAt(i), _base);
+  if (i < 0)
+    i += GetSize();
+  if (i >= GetSize() || i < 0)
+    return 0;
+  if (_base) {
+    c4_RowRef derived = GetAt(i);
+    int ndx = _base->GetIndexOf(derived);
+    if (ndx > -1)
+      return new PyRowRef(_base->GetAt(ndx));
+    throw PWException(PyExc_RuntimeError, "Row not found in base view");
+  }
+  return  new PyRowRef(GetAt(i));
 }
 
 int PyView::setItem(int i, PyObject* v) {
-    if (PyRowRef_Check(v))
-        return setItem(i, *(PyRowRef *)v);
-    c4_Row temp;
-    return setItem(i, makeRow(temp, v));
+  if (PyRowRef_Check(v))
+    return setItemRow(i, *(PyRowRef *)v);
+  c4_Row temp;
+  makeRow(temp, v);
+  return setItemRow(i, temp);
 }
 
 void PyView::addProperties(const PWOSequence& lst) {
-    for (int i=0; i<lst.len(); i++) {
-        if (PyProperty_Check((PyObject* )lst[i])) {
-            AddProperty(*(PyProperty*)(PyObject* )lst[i]);
-        }
+  for (int i=0; i<lst.len(); i++) {
+    if (PyProperty_Check((PyObject* )lst[i])) {
+      AddProperty(*(PyProperty*)(PyObject* )lst[i]);
     }
+  }
 }
 
 void PyView::map(const PWOCallable& func) {
-    PWOTuple tmp(1);
-    for (int i=0; i<GetSize(); ++i) {
-        PyRowRef *row = new PyRowRef(GetAt(i));
-        PWOBase r2 (row);
-        tmp.setItem(0,r2);
-        func.call(tmp);
-        Py_DECREF(row);
-    }
+  PWOTuple tmp(1);
+  for (int i=0; i<GetSize(); ++i) {
+    PyRowRef *row = new PyRowRef(GetAt(i));
+    PWOBase r2 (row);
+    tmp.setItem(0,r2);
+    func.call(tmp);
+    Py_DECREF(row);
+  }
 }
 void PyView::map(const PWOCallable& func, const PyView& subset) {
-    int sz = subset.GetSize();
-    PWOTuple tmp(1);
-    for (int i=0; i<sz; ++i) {
-        PyRowRef *row = new PyRowRef(GetAt(GetIndexOf(subset.GetAt(i))));
-        PWOBase r2 (row);
-        tmp.setItem(0,r2);
-        func.call(tmp);
-        Py_DECREF(row);
-    }
+  int sz = subset.GetSize();
+  PWOTuple tmp(1);
+  for (int i=0; i<sz; ++i) {
+    PyRowRef *row = new PyRowRef(GetAt(GetIndexOf(subset.GetAt(i))));
+    PWOBase r2 (row);
+    tmp.setItem(0,r2);
+    func.call(tmp);
+    Py_DECREF(row);
+  }
 }
 static c4_IntProp _index("index");
 
 PyView *PyView::indices(const PyView& subset) {
-    c4_View tmp(_index);
-    tmp.SetSize(subset.GetSize());
-    c4_Row row;
-    for (int i=0; i<subset.GetSize(); ++i) {
-        _index(row) = GetIndexOf(subset.GetAt(i));
-        tmp.SetAt(i, row);
-    }
-    return new PyView(tmp);
+  c4_View tmp(_index);
+  tmp.SetSize(subset.GetSize());
+  c4_Row row;
+  for (int i=0; i<subset.GetSize(); ++i) {
+    _index(row) = GetIndexOf(subset.GetAt(i));
+    tmp.SetAt(i, row);
+  }
+  return new PyView(tmp);
 }
 void PyView::remove(const PyView& indices) {
-    c4_View tmp = indices.Sort();
-    for (int i=indices.GetSize()-1; i >= 0; --i) 
-        RemoveAt(_index(tmp.GetAt(i)));
+  c4_View tmp = indices.Sort();
+  for (int i=indices.GetSize()-1; i >= 0; --i) 
+    RemoveAt(_index(tmp.GetAt(i)));
 }
 PyView *PyView::filter(const PWOCallable& func) {
-    c4_View indices(_index);
-    c4_Row ndx;
-    PWOTuple tmp(1);
-    for (int i=0; i<GetSize(); ++i) {
-        PyRowRef *row = new PyRowRef(GetAt(i));
-        PWOBase r2 (row);
-        tmp.setItem(0,r2);
-        PWOBase rslt(func.call(tmp));
-        if (rslt.isTrue()) {
-            _index(ndx) = i;
-            indices.Add(ndx);
-        }
-        Py_DECREF(row);
+  c4_View indices(_index);
+  c4_Row ndx;
+  PWOTuple tmp(1);
+  for (int i=0; i<GetSize(); ++i) {
+    PyRowRef *row = new PyRowRef(GetAt(i));
+    PWOBase r2 (row);
+    tmp.setItem(0,r2);
+    PWOBase rslt(func.call(tmp));
+    if (rslt.isTrue()) {
+      _index(ndx) = i;
+      indices.Add(ndx);
     }
-    return new PyView(indices);
+    Py_DECREF(row);
+  }
+  return new PyView(indices);
 }
 PyObject *PyView::reduce(const PWOCallable& func, PWONumber& start) {
-    PWONumber accum = start;
-    PWOTuple tmp(2);
-    for (int i=0; i<GetSize(); ++i) {
-        PyRowRef *row = new PyRowRef(GetAt(i));
-        PWOBase r2 (row);
-        tmp.setItem(0,r2);
-        tmp.setItem(1,accum);
-        PWOBase rslt(func.call(tmp));
-        accum = rslt;
-        Py_DECREF(row);
-    }
-    return accum;
+  PWONumber accum = start;
+  PWOTuple tmp(2);
+  for (int i=0; i<GetSize(); ++i) {
+    PyRowRef *row = new PyRowRef(GetAt(i));
+    PWOBase r2 (row);
+    tmp.setItem(0,r2);
+    tmp.setItem(1,accum);
+    PWOBase rslt(func.call(tmp));
+    accum = rslt;
+    Py_DECREF(row);
+  }
+  return accum;
 }

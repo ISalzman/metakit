@@ -1,4 +1,4 @@
-The MetaKit Library 2.3.4 - last release candidate                  March 2001
+The MetaKit Library 2.4.0                                            June 2001
 ==============================================================================
 
 
@@ -44,9 +44,10 @@ WEBSITE URLS - The main pages on the world wide web, for news and downloads:
 
 ACKNOWLEDGEMENTS - Thanks to everyone who has helped shape and extend MetaKit,
     i.e. Kyrill Denisenko, Gordon McMillan, Matt Newman, Christian Tismer,
-    John Bushakra, Steve Landers, Jacob Levy, and many more people who have
-    reported bugs and helped fix them.  Last but not least, many thanks to all
-    enterprise license customers and all my clients for funding MetaKit work.
+    John Bushakra, Steve Landers, Jacob Levy, John Barnard, and many more
+    people who have reported bugs and helped fix them.  Last but not least,
+    many thanks to all enterprise license customers and all my clients for
+    funding MetaKit work.
 
 
 INSTALLATION
@@ -114,7 +115,7 @@ WINDOWS
 
 MACINTOSH
 
-    The Mac version requires Metrowerks CodeWarrior 5.  See the info above
+    The Mac version requires Metrowerks CodeWarrior 6.  See the info above
     in the Windows section (MWCW is multi-platform).  The projects are all
     located in the "mac/" folder, which is also where MWCW will place its own
     "... Data" folders with intermediate results.  As with all other setups,
@@ -150,10 +151,10 @@ PLATFORM-SPECIFIC NOTES
     used in all contexts regardless of how it was built).  The Python and Tcl
     extensions build as dynamic extensions (a static build is easy to add).
 
-    MWCW 5 builds MK as static lib and as DLL (interestingly enough, the DLL
-    is slightly smaller than MSVC 6 - 102 vs 108 Kb - when their runtimes are
-    linked in dynamically as well).  I have not added Win builds for Tcl or
-    Python, since MSVC 6 has those already.
+    MWCW 5 (that's Metrowerks) builds as static lib and as DLL (interestingly
+    enough, the DLL is slightly smaller than MSVC 6 - 102 vs 108 Kb - when
+    their runtimes are linked in dynamically as well).  I have not added Win
+    builds for Tcl or Python, since MSVC 6 has those already.
 
     Cygwin B20.1, with gcc 2.95.2 ugrade, also builds MK as static lib and as
     DLL.  Both "pure" Cygwin (i.e. requiring cygwin1.dll) and mingw32 (using
@@ -163,7 +164,7 @@ PLATFORM-SPECIFIC NOTES
 
 * Macintosh
 
-    MWCW 5 builds 4 libs: PPC and 68K, static and shared.
+    MWCW 6 builds 4 libs: PPC and 68K, static and shared.
 
     Regression tests and demo apps are built from the cw5app project.
     Two additional projects can be used to build Python and Tcl extensions.
@@ -181,7 +182,7 @@ PLATFORM-SPECIFIC NOTES
 LICENSE AND COPYRIGHT STATEMENT
 ===============================
 
-Copyright (c) 1996-2000 Jean-Claude Wippler
+Copyright (c) 1996-2001 Jean-Claude Wippler
 
 Permission is hereby granted, free of charge, to any person obtaining a
 copy of this software and associated documentation files (the "Software"),

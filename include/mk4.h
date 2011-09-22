@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 
 /** @file
  * Main MetaKit library include file
@@ -47,7 +47,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 234    // 2.3.4 last release candidate
+#define d4_MetaKitLibraryVersion 240    // 2.4.0 final release June 2001
 
 //---------------------------------------------------------------------------
 // Declarations in this file

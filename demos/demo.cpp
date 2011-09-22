@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  An example using the MetaKit C++ persistence library
 

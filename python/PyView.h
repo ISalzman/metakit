@@ -1,5 +1,5 @@
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  View class header
 
@@ -28,7 +28,7 @@ public:
     void insertAt(int i, PyObject* o);
     PyRowRef *getItem(int i);
     PyView *getSlice(int s, int e);
-    int setItem(int i, const c4_RowRef& v) {
+    int setItemRow(int i, const c4_RowRef& v) {
         if (i < 0)
             i += GetSize();
         if (i > GetSize() || i < 0)
@@ -40,7 +40,7 @@ public:
     void addProperties(const PWOSequence& lst);
     int setSlice(int s, int e, const PWOSequence& lst);
     PyObject* structure();
-    c4_Row& makeRow(c4_Row& temp, PyObject* o, bool useDefaults=true);
+    void makeRow(c4_Row& temp, PyObject* o, bool useDefaults=true);
     void map(const PWOCallable& func);
     void map(const PWOCallable& func, const PyView& subset);
     PyView *filter(const PWOCallable& func);

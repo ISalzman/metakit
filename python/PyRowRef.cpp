@@ -1,5 +1,5 @@
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  RowRef class implementation
 
@@ -9,195 +9,235 @@
 #include "PyView.h"
 
 static PyMethodDef RowRefMethods[] = {
-    {0, 0, 0, 0}
+  {0, 0, 0, 0}
 };
 
 static void PyRowRef_dealloc(PyRowRef *o) {
-    //o->~PyRowRef();
-    delete o;
+  //o->~PyRowRef();
+  delete o;
 }
 
 static int PyRowRef_print(PyRowRef *o, FILE *f, int) {
-    fprintf(f, "<PyRowRef object at %x>", (int)o);
-    return 0;
+  fprintf(f, "<PyRowRef object at %x>", (int)o);
+  return 0;
 }
 
 static PyObject* PyRowRef_getattr(PyRowRef *o, char *nm) {
-    try {
-        PyObject* attr = o->getPropertyValue(nm);
-        if (attr)
-            return attr;
+  try {
+    if (nm[0] == '_' && nm[1] == '_') {
+      if (strcmp(nm, "__attrs__") == 0) {
+	c4_View parent = o->Container();
+	int nprops = parent.NumProperties();
+	PyObject *out = PyList_New(nprops);
+	for(int i=0; i < nprops; i++) {
+	  PyList_SetItem(out, i, 
+			 new PyProperty(parent.NthProperty(i)));
+	}
+	return out;
+      }
+      else if (strcmp(nm, "__view__") == 0) {
+	return new PyView(o->Container());
+      }
+      else if (strcmp(nm, "__index__") == 0) {
+	return PyInt_FromLong((&(*o))._index);
+      }
     }
-    catch(PWException e) {
-        return e.toPython();
-    }
-    return Py_FindMethod(RowRefMethods, (PyObject* )o, nm);
+
+    PyObject* attr = o->getPropertyValue(nm);
+    if (attr)
+      return attr;
+    PyErr_Clear();
+  }
+  catch(PWException e) {
+    return e.toPython();
+  }
+  return Py_FindMethod(RowRefMethods, (PyObject* )o, nm);
 }
 
 static int PyRowRef_setattr(PyRowRef *o, char *nm, PyObject* v) {
-    try {
-        PyProperty *p = o->getProperty(nm);
-        if (p) {
-            if (v)
-                PyRowRef::setFromPython(*o, *p, v);
-            else 
-                PyRowRef::setDefault(*o, *p);
-            Py_DECREF(p);
-            return 0;
-        }
-        PyErr_SetString(PyExc_AttributeError, "delete of non-existing attribute");
-        return -1;
+  try {
+    PyProperty *p = o->getProperty(nm);
+    if (p) {
+      if (v)
+        PyRowRef::setFromPython(*o, *p, v);
+      else 
+        PyRowRef::setDefault(*o, *p);
+      Py_DECREF(p);
+      return 0;
     }
-    catch(PWException e) {
-        e.toPython();
-        return -1;
-    }
+    PyErr_SetString(PyExc_AttributeError, "delete of non-existing attribute");
+    return -1;
+  }
+  catch(PWException e) {
+    e.toPython();
+    return -1;
+  }
 }
 PyTypeObject PyRowReftype = {
-    PyObject_HEAD_INIT(&PyType_Type)
-    0,
-    "PyRowRef",
-    sizeof(PyRowRef),
-    0,
-    (destructor)PyRowRef_dealloc, /*tp_dealloc*/
-    (printfunc)PyRowRef_print, /*tp_print*/
-    (getattrfunc)PyRowRef_getattr, /*tp_getattr*/
-    (setattrfunc)PyRowRef_setattr,      /*tp_setattr*/
-    (cmpfunc)0, /*tp_compare*/
-    (reprfunc)0, /*tp_repr*/
-    0,      /*tp_as_number*/
-    0,  /*tp_as_sequence*/
-    0,      /*tp_as_mapping*/
+  PyObject_HEAD_INIT(&PyType_Type)
+  0,
+  "PyRowRef",
+  sizeof(PyRowRef),
+  0,
+  (destructor)PyRowRef_dealloc, /*tp_dealloc*/
+  (printfunc)PyRowRef_print, /*tp_print*/
+  (getattrfunc)PyRowRef_getattr, /*tp_getattr*/
+  (setattrfunc)PyRowRef_setattr,    /*tp_setattr*/
+  (cmpfunc)0, /*tp_compare*/
+  (reprfunc)0, /*tp_repr*/
+  0,    /*tp_as_number*/
+  0,  /*tp_as_sequence*/
+  0,    /*tp_as_mapping*/
 };
 
-PyRowRef::PyRowRef(const c4_RowRef& o, PyView *owner)
-  : PyHead (PyRowReftype), c4_RowRef(o) {
+PyRowRef::PyRowRef(const c4_RowRef& o)
+  : PyHead (PyRowReftype), c4_RowRef(o)
+{
+  c4_Cursor c = & (*(c4_RowRef*) this);
+  c._seq->IncRef();
 }
 
-    // with thanks to Niki Spahiev for improving conversions and error checks
+  // with thanks to Niki Spahiev for improving conversions and error checks
 void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyObject* attr) {
-    switch (prop.Type()) {
-        case 'I':   
-            if (PyInt_Check(attr))
-                ((const c4_IntProp&) prop) (row) = PyInt_AS_LONG(attr);
-	    else if (attr != Py_None)
-	    {
-		PWONumber number (attr);
-                ((const c4_IntProp&) prop) (row) = (long) number;
-	    }
-            break;
-        case 'F':   
-            if (PyFloat_Check(attr))
-                ((const c4_FloatProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
-	    else if (attr != Py_None)
-	    {
-		PWONumber number (attr);
-                ((const c4_FloatProp&) prop) (row) = (double) number;
-	    }
-            break;
-        case 'D':   
-            if (PyFloat_Check(attr))
-                ((const c4_DoubleProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
-	    else if (attr != Py_None)
-	    {
-		PWONumber number (attr);
-                ((const c4_DoubleProp&) prop) (row) = (double) number;
-	    }
-            break;
-        case 'S': 
-            if (PyString_Check(attr)) {
-                c4_Bytes temp (PyString_AS_STRING(attr),
-				PyString_GET_SIZE(attr) + 1, false);
-                prop (row).SetData(temp);
-            }
-	    else if (attr != Py_None)
-		throw PWException(PyExc_TypeError, "wrong type for StringProp");
-            break;
-        case 'V':   
-            if (PyView_Check(attr)) {
-                PyView *obj = (PyView*)attr;
-                ((const c4_ViewProp&) prop)(row) = *obj;
-            }
-            else {  
-                ((const c4_ViewProp&) prop) (row) = c4_View ();
-                PyView tmp(((const c4_ViewProp&) prop)(row));
-                PWOSequence lst(attr);
-                tmp.SetSize(lst.len());
-                for (int i=0; i<lst.len(); i++)
-                {
-                    PyObject* entry = lst[i];
-                    tmp.setItem(i, entry);
-                    Py_DECREF(entry);
-                }
-            }
-            break;
-        case 'B':
-        case 'M':   
-            if (PyString_Check(attr)) {
-                c4_Bytes temp (PyString_AS_STRING(attr),
-				PyString_GET_SIZE(attr), false);
-                prop (row).SetData(temp);
-            }
-	    else if (attr != Py_None)
-		throw PWException(PyExc_TypeError, "wrong type for ByteProp");
-    }
+  switch (prop.Type()) {
+    case 'I': 
+      if (PyInt_Check(attr))
+        ((const c4_IntProp&) prop) (row) = PyInt_AS_LONG(attr);
+      else if (attr != Py_None)
+      {
+	PWONumber number (attr);
+	((const c4_IntProp&) prop) (row) = (long) number;
+      }
+      break;
+    case 'L':   
+      if (PyInt_Check(attr))
+	((const c4_LongProp&) prop) (row) = PyInt_AS_LONG(attr);
+      else if (PyLong_Check(attr))
+	((const c4_LongProp&) prop) (row) = PyLong_AsLong(attr);
+      else if (attr != Py_None)
+	{
+	  PWONumber number (attr);
+	  ((const c4_LongProp&) prop) (row) = (long) number;
+	}
+      break;
+    case 'F': 
+      if (PyFloat_Check(attr))
+        ((const c4_FloatProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
+      else if (attr != Py_None)
+      {
+	PWONumber number (attr);
+	((const c4_FloatProp&) prop) (row) = (double) number;
+      }
+      break;
+    case 'D': 
+      if (PyFloat_Check(attr))
+        ((const c4_DoubleProp&) prop) (row) = PyFloat_AS_DOUBLE(attr);
+      else if (attr != Py_None)
+      {
+	PWONumber number (attr);
+	((const c4_DoubleProp&) prop) (row) = (double) number;
+      }
+      break;
+    case 'S': 
+      if (PyString_Check(attr)) {
+        c4_Bytes temp (PyString_AS_STRING(attr),
+        PyString_GET_SIZE(attr) + 1, false);
+        prop (row).SetData(temp);
+      }
+      else if (attr != Py_None)
+	throw PWException(PyExc_TypeError, "wrong type for StringProp");
+      break;
+    case 'V': 
+      if (PyView_Check(attr)) {
+        PyView *obj = (PyView*)attr;
+        ((const c4_ViewProp&) prop)(row) = *obj;
+      }
+      else {  
+        ((const c4_ViewProp&) prop) (row) = c4_View ();
+        PyView tmp(((const c4_ViewProp&) prop)(row));
+        PWOSequence lst(attr);
+        tmp.SetSize(lst.len());
+        for (int i=0; i<lst.len(); i++)
+        {
+          PyObject* entry = lst[i];
+          tmp.setItem(i, entry);
+          Py_DECREF(entry);
+        }
+      }
+      break;
+    case 'B':
+    case 'M': 
+      if (PyString_Check(attr)) {
+        c4_Bytes temp (PyString_AS_STRING(attr),
+        PyString_GET_SIZE(attr), false);
+        prop (row).SetData(temp);
+      }
+      else if (attr != Py_None)
+	throw PWException(PyExc_TypeError, "wrong type for ByteProp");
+  }
 }
 
 void PyRowRef::setDefault(const c4_RowRef& row, const c4_Property& prop) {
-    switch (prop.Type()) {
-        case 'I':
-            ((const c4_IntProp&) prop) (row) = 0;
-            break;
-        case 'F': 
-            ((const c4_FloatProp&) prop) (row) = 0.0;
-            break;
-         case 'D':
-             ((const c4_DoubleProp&) prop) (row) = 0.0;
-             break;
-        case 'S':
-            ((const c4_StringProp&) prop) (row) = "";
-            break;
-        case 'V':   
-            ((const c4_ViewProp&) prop) (row) = c4_View ();
-            break;
-        case 'B':
-        case 'M':
-            {
-                c4_Bytes temp;
-                prop (row).SetData(temp);
-            }
-    }
+  switch (prop.Type()) {
+    case 'I':
+      ((const c4_IntProp&) prop) (row) = 0;
+      break;
+    case 'L':
+      ((const c4_LongProp&) prop) (row) = 0;
+      break;
+    case 'F': 
+      ((const c4_FloatProp&) prop) (row) = 0.0;
+      break;
+     case 'D':
+       ((const c4_DoubleProp&) prop) (row) = 0.0;
+       break;
+    case 'S':
+      ((const c4_StringProp&) prop) (row) = "";
+      break;
+    case 'V': 
+      ((const c4_ViewProp&) prop) (row) = c4_View ();
+      break;
+    case 'B':
+    case 'M':
+      {
+        c4_Bytes temp;
+        prop (row).SetData(temp);
+      }
+  }
 }
 
 PyObject* PyRowRef::asPython(const c4_Property& prop) {
-    switch (prop.Type()) {
+  switch (prop.Type()) {
     case 'I': {
-        PWONumber rslt(((const c4_IntProp&)prop)(*this));
-        return rslt.disOwn();
-              }
+      PWONumber rslt(((const c4_IntProp&)prop)(*this));
+      return rslt.disOwn();
+    }
+    case 'L': {
+      return PyLong_FromLong(((const c4_LongProp&)prop)(*this));
+    }
     case 'F': {
-        PWONumber rslt(((const c4_FloatProp&)prop)(*this));
-        return rslt.disOwn();
-              }
+      PWONumber rslt(((const c4_FloatProp&)prop)(*this));
+      return rslt.disOwn();
+    }
     case 'D': {
-        PWONumber rslt(((const c4_DoubleProp&)prop)(*this));
-        return rslt.disOwn();
-              }
+      PWONumber rslt(((const c4_DoubleProp&)prop)(*this));
+      return rslt.disOwn();
+    }
     case 'S': {
-        //c4_String tmp = ((c4_StringProp&)prop).Get(*this);
-        PWOString rslt(((c4_StringProp&)prop).Get(*this));
-        return rslt.disOwn();
-              }
+      //c4_String tmp = ((c4_StringProp&)prop).Get(*this);
+      PWOString rslt(((c4_StringProp&)prop).Get(*this));
+      return rslt.disOwn();
+    }
     case 'V': {
-        return new PyView(((const c4_ViewProp&)prop)(*this));
-              }
+      return new PyView(((const c4_ViewProp&)prop)(*this));
+    }
     case 'B':
     case 'M': {
-        c4_Bytes temp;
-        prop (*this).GetData(temp);
-        PWOString rslt((const char*)temp.Contents(), temp.Size());
-        return rslt.disOwn();
-              }
+      c4_Bytes temp;
+      prop (*this).GetData(temp);
+      PWOString rslt((const char*)temp.Contents(), temp.Size());
+      return rslt.disOwn();
     }
-    return 0;
+  }
+  return 0;
 }

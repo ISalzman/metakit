@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  This command-line utility displays the data structure of a datafile
 //  created with the MetaKit library as a one-line description.

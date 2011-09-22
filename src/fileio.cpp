@@ -1,4 +1,4 @@
-//  Copyright (C) 1996-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 
 /** @file
  * Implementation of c4_FileStrategy and c4_FileStream
@@ -21,6 +21,11 @@
 #if q4_UNIX && HAVE_MMAP
 #include <sys/types.h>
 #include <sys/mman.h>
+#endif
+
+#if q4_UNIX
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 #include <time.h>
@@ -195,6 +200,10 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 	_cleanup = _file = _fdopen(fd, mode_ > 0 ? "r+b" : "rb");
 #else
     _cleanup = _file = fopen(fname_, mode_ > 0 ? "r+b" : "rb");
+#if q4_UNIX
+    if (_file != 0)
+	fcntl(fileno(_file), F_SETFD, FD_CLOEXEC);
+#endif
 #endif
 
     if (_file != 0)
@@ -211,6 +220,10 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 	    _cleanup = _file = _fdopen(fd, "w+b");
 #else
         _cleanup = _file = fopen(fname_, "w+b");
+#if q4_UNIX
+	if (_file != 0)
+	    fcntl(fileno(_file), F_SETFD, FD_CLOEXEC);
+#endif
 #endif
     }
 

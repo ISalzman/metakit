@@ -33,7 +33,7 @@ top_builddir = .
 
 # not normally compiled with -g, but you can specify it in the make command
 CXXFLAGS = -O2 -fomit-frame-pointer
-#CXXFLAGS = -fguiding-decls -Wall -pedantic -Wno-unused -g
+#CXXFLAGS = -Wall -pedantic -Wno-unused -g
 
 CXX = @CXX@
 INSTALL = @LIBTOOL@ @INSTALL@
@@ -76,7 +76,7 @@ test: Makefile libmk4.a regress
 	diff $(srcdir)/../tests/ok tests
 
 test-tcl: tcl
-	cd $(srcdir)/../tcl/test && tclsh8.3 all.tcl
+	cd $(srcdir)/../tcl/test && tclsh all.tcl
 
 install: @MK_INSTALL@
 
@@ -147,11 +147,11 @@ libmk4tcl.a: mk4tcl.o mk4too.o libmk4.a
 libmk4tcl.la: mk4tcl.o mk4too.o libmk4.a
 	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) -export-dynamic \
 		-rpath $(libdir) mk4tcl.lo mk4too.lo $(SHLOBJS) \
-		-L$(libdir) -ltclstub8.3
+		-L$(TCL_BIN_DIR) -ltclstub8.4
 
 Mk4tcl.so: mk4tcl.o mk4too.o libmk4.a
 	$(CXX) -o $@ $(CXX_SWITCHES) -shared mk4tcl.lo mk4too.lo $(SHLOBJS) \
-		-L$(libdir) -ltclstub8.3
+		-L$(TCL_BIN_DIR) -ltclstub8.4
 
 libmk4py.a: $(PYOBJS) libmk4.a
 	$(LIBTOOL) --mode=link $(CXX) -o $@ $(CXX_SWITCHES) $(PYOBJS) $(LIBOBJS)

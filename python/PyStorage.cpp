@@ -1,5 +1,5 @@
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
-//  Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+//  Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
 //  Storage class implementation and main entry point
 
@@ -533,6 +533,6 @@ void initMk4py_d() {
 void initMk4py() {
     PyObject* m = Py_InitModule4("Mk4py", Mk4Methods,
 	    		mk4py_module_documentation, 0, PYTHON_API_VERSION);
-    PyObject_SetAttrString(m, "version", PyString_FromString("2.3.4"));
+    PyObject_SetAttrString(m, "version", PyString_FromString("2.4.0"));
 }
 #endif

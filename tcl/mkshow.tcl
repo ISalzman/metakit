@@ -1,4 +1,4 @@
-# Copyright (C) 1999-2000 Jean-Claude Wippler <jcw@equi4.com>
+# Copyright (C) 1999-2001 Jean-Claude Wippler <jcw@equi4.com>
 #
 # MetaKit file show utility
 

@@ -1,4 +1,4 @@
-//  Copyright (C) 2000 by Matt Newman and Jean-Claude Wippler.
+//  Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 //
 //  Definitions used by "mk4tcl.cpp" and "mk4too.cpp".
 
@@ -203,7 +203,7 @@ public:
     {
         const c4_String _name;  // the alias for this storage
         const c4_String _fileName;
-        c4_Storage* _storage;   // the storage object
+        c4_Storage _storage;    // the storage object
         c4_PtrArray _paths;     // the paths associated with this entry
         c4_PtrArray& _items;    // array from which this item is referenced
         int _index;             // position in the _items array
