@@ -462,6 +462,20 @@ v2.Add(r);
 	buf = p1 (v1[0]);
 	    A(buf == c4_Bytes ("1Axy3456", 8));
     } E;
+
+    B(b27, Copy value to another row, 0)
+    {
+        c4_StringProp p1 ("p1");
+        c4_View v1;
+        v1.SetSize(2);
+        p1 (v1[1]) = "abc";
+            A((const char*) (p1 (v1[0])) == (c4_String) "");
+            A((const char*) (p1 (v1[1])) == (c4_String) "abc");
+
+	    // fails in 2.4.0, reported by Jerry McRae, August 2001
+        p1 (v1[0]) = p1 (v1[1]);
+            A((const char*) (p1 (v1[0])) == (c4_String) "abc");
+    } E;
 }
 
 /////////////////////////////////////////////////////////////////////////////

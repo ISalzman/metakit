@@ -54,6 +54,7 @@ public:
 
     void StoreValue(t4_i32 v_);
     bool CommitColumn(c4_Column& col_);
+    void ForgetColumn(c4_Column& col_);
     void CommitSequence(c4_HandlerSeq& seq_, bool selfDesc_);
 
     c4_Column* SetWalkBuffer(c4_Column* walk_);

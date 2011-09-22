@@ -123,6 +123,7 @@ extern void TestDiffer();
 extern void TestExtend();
 extern void TestFormat();
 extern void TestLimits();
+extern void TestMapped();
 extern void TestNotify();
 extern void TestResize();
 extern void TestStores1();

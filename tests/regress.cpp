@@ -54,6 +54,7 @@ int main()
         TestDiffer();
         TestExtend();
         TestFormat();
+        TestMapped();
         TestLimits();
 
 #if q4_MWCW_PROFILER

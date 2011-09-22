@@ -533,6 +533,6 @@ void initMk4py_d() {
 void initMk4py() {
     PyObject* m = Py_InitModule4("Mk4py", Mk4Methods,
 	    		mk4py_module_documentation, 0, PYTHON_API_VERSION);
-    PyObject_SetAttrString(m, "version", PyString_FromString("2.4.0"));
+    PyObject_SetAttrString(m, "version", PyString_FromString("2.4.1"));
 }
 #endif

@@ -22,7 +22,7 @@
 <P>
 <B>Tcl/Tk</B> - The extension for <A HREF="http://www.scriptics.com/">Tcl</A> is called "Mk4tcl".  It is being used in a number of commercial projects, for in-house use as well as in commercially distributed products.
 <P>
-<B>Mk4tcl 2.4.0</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any MetaKit datafile from the command line, and a few more goodies.
+<B>Mk4tcl 2.4.1</B> - is a final/production release.  The <A HREF=".">homepage</A> points to a download area with pre-compiled shared libraries for Unix, Windows, and Macintosh.  The MetaKit source distribution includes this documentation, the Mk4tcl C++ source code, a small Tcl test suite, a "mkshow.tcl" utility which lets you examine data in any MetaKit datafile from the command line, and a few more goodies.
 <P>
 <B>Changes since 2.01</B> - the MK core has changed substantially:
 <UL>
@@ -48,7 +48,7 @@ X/MIT-style open source license. Commercial support is available through an Ente
      and displays some previously stored results:
     <PRE>
     mk::file open db phonebook.dat -readonly
-    foreach i [mk::select db.persons -glob name Jon* -sort date] {
+    foreach i [mk::select db.persons -glob name "Jon*" -sort date] {
         puts "Found [mk::get db.persons!$i name phone date]"
     }</PRE>
     This script illustrates how easy it is to access stored data from Tcl.
@@ -136,8 +136,8 @@ mk::file open db datafile.mk</PRE></BLOCKQUOTE>
 Create a view (this is the MetaKit term for "table"):
 <BLOCKQUOTE><PRE>set vw [mk::view layout db.people {first last shoesize:I}]</PRE></BLOCKQUOTE>
 Add two rows (this is the MetaKit term for "record"):
-<BLOCKQUOTE><PRE>mk::row append $vw first John last Lennon shoesize 44
-mk::row append $vw first Flash last Gordon shoesize 42</PRE></BLOCKQUOTE>
+<BLOCKQUOTE><PRE>mk::row append $vw first "John" last "Lennon" shoesize 44
+mk::row append $vw first "Flash" last "Gordon" shoesize 42</PRE></BLOCKQUOTE>
 Commit the changes to file:
 <BLOCKQUOTE><PRE>mk::file commit db</PRE></BLOCKQUOTE>
 Show a list of all people:
@@ -145,7 +145,7 @@ Show a list of all people:
 Show a list of all people, sorted by last name:
 <BLOCKQUOTE><PRE>foreach r [mk::select $vw -sort last] {puts [mk::get $vw!$r]}</PRE></BLOCKQUOTE>
 Show a list of all people with first name 'John':
-<BLOCKQUOTE><PRE>foreach r [mk::select $vw first John] {puts [mk::get $vw!$r]}</PRE></BLOCKQUOTE>
+<BLOCKQUOTE><PRE>foreach r [mk::select $vw first "John"] {puts [mk::get $vw!$r]}</PRE></BLOCKQUOTE>
 <P>
 <A NAME="ref"><hr size=1></A>
 <DL><DT><H2>Mk4tcl Reference</H2><DD>
@@ -297,8 +297,7 @@ Show a list of all people with first name 'John':
         <DT> <B>:B</B>  <DD>
             A <B>binary</B> property for untyped binary data (including null bytes).
         <DT> <B>:M</B>  <DD>
-            A <B>memo</B> property for large amounts of binary data
-            (currently treated as <B>:B</B>).
+            Obsolete (now treated as <B>:B</B>).
     </DL></UL>
 <P>
     Properties which are not listed int the layout will only remain set while
@@ -329,11 +328,17 @@ Show a list of all people with first name 'John':
     Define a phonebook view which can store more than one
     phone number for each person:
     <PRE>
-    mk::view layout db.book {name address {phones {type phone}}}</PRE>
-    
+    mk::view layout db.book {name address {phones {category phone}}}</PRE>
+    Add a new phonebook entry:
+    <PRE>
+    mk::row append db.book name "Steve" address "Down-under"</PRE>
+    Add two phone numbers to phone book entry zero, i.e. "Steve":
+    <PRE>
+    mk::row append db.book!0.phones category "home" phone "1234567"
+    mk::row append db.book!0.phones category "mobile" phone "2345678"</PRE>
     Restructure the view in the datafile, adding an integer date field:
     <PRE>
-    mk::view layout db.book {name address {phones {type phone}} date:I}</PRE>
+    mk::view layout db.book {name address {phones {category phone}} date:I}</PRE>
     
     Delete all phonebook entries as well as its definition from the datafile:
     <PRE>
@@ -422,7 +427,7 @@ Show a list of all people with first name 'John':
     Initialize a temporary view with 100 copies of the string "Hello":
     <PRE>
     mk::cursor create cursor 
-    mk::row insert $cursor 100 [mk::row create text Hello]</PRE>
+    mk::row insert $cursor 100 [mk::row create text "Hello"]</PRE>
 <P>
 <P><DT><A name="mk_get"><HR size=1></A><H2>mk::get</H2><DD><H3>Fetch values</H3>
 <P><DT>SYNOPSIS<DD><B>mk::get</B> &nbsp;<I>cursor</I> &nbsp;?-size?<BR>
@@ -578,7 +583,7 @@ Note that you cannot easily use a loop to insert or delete rows, since changes t
     Search for a unique match (<I>'-count 2'</I>
     speeds up selection when many entries match):
     <PRE>
-    set v [mk::select db.phonebook -count 2 -glob name John*]
+    set v [mk::select db.phonebook -count 2 -glob name "John*"]
     switch [llength $v] {
         0       {puts "not found"}
         1       {puts "found: [mk::get db.phonebook![lindex $v 0] name]"}
@@ -594,17 +599,17 @@ Note that you cannot easily use a loop to insert or delete rows, since changes t
 <P><DT><A name="mk_channel"><HR size=1></A><H2>mk::channel</H2><DD><H3>Channel interface</H3>
 <P><DT>SYNOPSIS<DD><B>mk::channel</B> &nbsp;<I>path</I> &nbsp;<I>prop</I> &nbsp;<I>?mode?</I> &nbsp;<BR>
 <P><DT>DESCRIPTION<DD>
-    The <B>mk::channel</B> command provides a channel interface to memo fields.
-    It needs the <i>path</i> of a row and the name of a memo <i>prop</i>, and 
-    returns a channel
+    The <B>mk::channel</B> command provides a channel interface to binary
+    fields.  It needs the <i>path</i> of a row and the name of a binary
+    <i>prop</i>, and returns a channel
     descriptor which can be used to read or write from.
 <P>
     Channels are opened in one of three modes:
-    <UL><DL>
-        <DT> <B>read</B> - <I>open for reading existing contents (default)</I> <BR>
+    <BLOCKQUOTE>
+             <B>read</B> - <I>open for reading existing contents (default)</I> <BR>
              <B>write</B> - <I>clear contents and start saving data</I><BR>
              <B>append</B> - <I>keep contents, set seek pointer to end</I>
-    </DL></UL>
+    </BLOCKQUOTE>
 <P>
     Note: do not insert or delete rows in a view within which there are
     open channels, because subsequent reads and writes may end up going
@@ -613,10 +618,10 @@ Note that you cannot easily use a loop to insert or delete rows, since changes t
 <DT>EXAMPLES<DD>
     Write a few values (with line separators):
     <PRE>
-    mk::view layout db.v {m:M}
+    mk::view layout db.v {b:B}
     mk::view size db.v 1
 
-    set fd [mk::channel db.v!0 m w]
+    set fd [mk::channel db.v!0 b w]
     puts $fd one
     puts $fd two
     puts $fd three
@@ -624,7 +629,7 @@ Note that you cannot easily use a loop to insert or delete rows, since changes t
     
     Read values back, line by line:
     <PRE>
-    set fd [mk::channel db.v!0 m]
+    set fd [mk::channel db.v!0 b]
     while {[gets $fd text] >= 0} {
         puts $text
     }

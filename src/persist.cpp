@@ -812,6 +812,12 @@ bool c4_SaveContext::CommitColumn(c4_Column& col_)
     return changed;
 }
 
+void c4_SaveContext::ForgetColumn(c4_Column& col_)
+{
+    if (!_differ && !_preflight && !_fullScan)
+	col_.ReleaseAllSegments();
+}
+
 void c4_SaveContext::CommitSequence(c4_HandlerSeq& seq_, bool selfDesc_)
 {
     StoreValue(0); // sias prefix

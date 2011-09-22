@@ -1,6 +1,6 @@
 //  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
-//  Regression test program, custom biew tests
+//  Regression test program, custom view tests
 
 #include "regress.h"
 
@@ -362,6 +362,43 @@ void TestCustom2()
             A(v3.GetSize() == 8);
         v2.Add(p2 [333]);
             A(v3.GetSize() == 12);
+    } E;
+
+    B(c21, Join on compound key, 0)
+    {
+        c4_IntProp p1 ("p1"), p2 ("p2"), p3 ("p3"), p4 ("p4");
+
+        c4_View v1, v2, v3;
+
+        v1.Add(p1 [1] + p2 [11] + p3 [111]);
+        v1.Add(p1 [2] + p2 [22] + p3 [222]);
+        v1.Add(p1 [3] + p2 [22] + p3 [111]);
+
+        v2.Add(p2 [11] + p3 [111] + p4 [1111]);
+        v2.Add(p2 [22] + p3 [222] + p4 [2222]);
+        v2.Add(p2 [22] + p3 [222] + p4 [3333]);
+        v2.Add(p2 [22] + p3 [333] + p4 [4444]);
+
+	// this works here, but it fails in Python, i.e. Mk4py 2.4.0
+	v3 = v1.Join((p2, p3), v2);
+
+            A(v3.GetSize() == 3);
+
+            A(p1 (v3[0]) == 1);
+            A(p1 (v3[1]) == 2);
+            A(p1 (v3[2]) == 2);
+
+            A(p2 (v3[0]) == 11);
+            A(p2 (v3[1]) == 22);
+            A(p2 (v3[2]) == 22);
+
+            A(p3 (v3[0]) == 111);
+            A(p3 (v3[1]) == 222);
+            A(p3 (v3[2]) == 222);
+
+            A(p4 (v3[0]) == 1111);
+            A(p4 (v3[1]) == 2222);
+            A(p4 (v3[2]) == 3333);
     } E;
 }
 

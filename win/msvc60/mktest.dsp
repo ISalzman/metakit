@@ -178,6 +178,10 @@ SOURCE=..\..\tests\tlimits.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\tests\tmapped.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\tests\tnotify.cpp
 # End Source File
 # Begin Source File

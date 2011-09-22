@@ -79,9 +79,9 @@ public:
     void InsertData(t4_i32 index_, t4_i32 count_, bool clear_);
     void RemoveData(t4_i32 index_, t4_i32 count_);
 
-private:
     enum { kSegBits = 12, kSegMax = 1 << kSegBits, kSegMask = kSegMax - 1 };
 
+private:
     static int fSegIndex(t4_i32 offset_);
     static t4_i32 fSegOffset(int index_);
     static int fSegRest(t4_i32 offset_);

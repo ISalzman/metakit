@@ -8,7 +8,7 @@
 #include <tcl.h>
 
 #ifndef d4_assert
-#if q4_INLINE
+#if q4_INLINE && !q4_CHECK
     // if inlining is on, assume it's release code and disable assertions
 #define d4_assert(x)
 #elif defined (ASSERT)

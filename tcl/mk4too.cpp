@@ -237,7 +237,7 @@ int MkView::DeleteCmd()
 
 int MkView::ExistsCmd()
 {
-    int index = asIndex(view, objv[2], false);
+    asIndex(view, objv[2], false);
     int r = _error ? 0 : 1;
     _error = 0;
     return tcl_SetObjResult(Tcl_NewIntObj(r));
@@ -261,9 +261,8 @@ int MkView::FindCmd()
     if (idx == -1) {
 	Fail("not found");
 	return TCL_ERROR;
-    } else {
-	return tcl_SetObjResult(Tcl_NewIntObj(idx));
     }
+    return tcl_SetObjResult(Tcl_NewIntObj(idx));
 }
 
 int MkView::GetCmd()
@@ -338,9 +337,8 @@ int MkView::InsertCmd()
     if (_error) {
         view.RemoveAt(index, 1);    // remove new row on errors
 	return _error;
-    } else {
-	return tcl_SetObjResult(Tcl_NewIntObj(index));
     }
+    return tcl_SetObjResult(Tcl_NewIntObj(index));
 }
 
 int MkView::OpenCmd()
@@ -370,7 +368,7 @@ int MkView::SearchCmd()
     const c4_Property& prop = AsProperty(objv[2], view);
     char type = prop.Type();
     double dblVal = 0, dtmp;
-    long longVal;
+    long longVal = 0;
     c4_String strVal;
 
     int size = view.GetSize();
@@ -427,6 +425,8 @@ int MkView::SearchCmd()
 	    case 'I':
 		rc = longVal - ((c4_IntProp&) prop)(view[row]);
 		break;
+	    default:
+		rc == 0; // 27-09-2001, to satisfy MSVC6 warn level 4
 	}
 
 	if (rc == 0) {

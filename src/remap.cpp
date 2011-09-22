@@ -208,6 +208,14 @@ t4_i32 c4_HashViewer::Hash(c4_Cursor cursor_) const
     return hash;
 }
 
+/*
+ * Types of slots:
+ * 	Unused:	row = -1, hash = 0
+ * 	Dummy:	row = -1, hash = -1
+ * 	Active:	row >= 0
+ * There must be at least one Unused slot at all times.
+ */
+
 int c4_HashViewer::LookDict(t4_i32 hash_, c4_Cursor cursor_) const
 {
     const unsigned int mask = _map.GetSize() - 2;
@@ -217,7 +225,7 @@ int c4_HashViewer::LookDict(t4_i32 hash_, c4_Cursor cursor_) const
     /* We use ~hash_ instead of hash_, as degenerate hash functions, such
        as for ints <sigh>, can have lots of leading zeros. It's not
        really a performance risk, but better safe than sorry. */
-    t4_i32 h = _pHash (_map[i]);
+    t4_i32 h = _pHash (_map[i]), r;
     if (h == 0 || (h == hash_ && KeySame(_pRow (_map[i]), cursor_)))
         return i;
     
@@ -234,11 +242,12 @@ int c4_HashViewer::LookDict(t4_i32 hash_, c4_Cursor cursor_) const
     {
 	i = (i+incr) & mask;
 	h = _pHash (_map[i]);
-        if (h == 0)
+        r = _pRow (_map[i]);
+        if (r < 0 && h == 0)
             return freeslot != -1 ? freeslot : i;
-        if (h == hash_ && KeySame(_pRow (_map[i]), cursor_))
+        if (h == hash_ && KeySame(r, cursor_))
             return i;
-        if (h == -1 && freeslot == -1)
+        if (r < 0 && h == -1 && freeslot == -1)
             freeslot = i;
         /* Cycle through GF(2^n)-{0} */
         incr = incr << 1;
@@ -256,7 +265,7 @@ void c4_HashViewer::InsertDict(int row_)
 
     if (_pRow (_map[i]) == -1)
     {
-	if (_pHash (_map[i]) != 0)
+	if (_pHash (_map[i]) == 0)
 	{
 	    int n = GetSpare();
 	    d4_assert(n > 0);
@@ -298,7 +307,7 @@ bool c4_HashViewer::DictResize(int minused)
     _map.InsertAt(0, empty, size);
 
     SetPoly(s_polys[i]);
-    SetSpare(0);
+    SetSpare(size);
 
     for (int j = 0; j < _base.GetSize(); ++j)
 	InsertDict(j);

@@ -631,8 +631,14 @@ const void* c4_FormatB::Get(int index_, int& length_)
     return GetOne(index_, length_);
 }
 
-void c4_FormatB::SetOne(int index_, const c4_Bytes& buf_, bool ignoreMemos_)
+void c4_FormatB::SetOne(int index_, const c4_Bytes& xbuf_, bool ignoreMemos_)
 {
+	// this fixes bug in 2.4.0 when copying string from higher row
+	// TODO: this fix is very conservative, figure out when to copy
+	// (can probably look at pointer to see whether it's from us)
+    int sz = xbuf_.Size();
+    c4_Bytes buf_ (xbuf_.Contents(), sz, 0 < sz && sz <= c4_Column::kSegMax);
+
     c4_Column* cp = &_data;
     t4_i32 start = Offset(index_);
     int len = Offset(index_ + 1) - start;
@@ -795,7 +801,7 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
         {
             col = GetNthMemoCol(r, true);
             d4_assert(col != &_data);
-            start = 0;
+            //? start = 0;
         }
 
         c4_Bytes temp;
@@ -812,8 +818,14 @@ void c4_FormatB::Commit(c4_SaveContext& ar_)
             continue;
         }
         else                // it was a memo, but it no longer is
+	{
+	    d4_assert(start == 0);
             if (len > 0)
+	    {
                 col->FetchBytes(start, len, temp, true);
+		ar_.ForgetColumn(*col);
+	    }
+	}
         
         sizes.SetInt(r, temp.Size());
         SetOne(r, temp, true); // bypass current memo pointer

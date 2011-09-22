@@ -219,6 +219,43 @@ void TestStores4()
                 A(p1 (v1[1]) == 222);
         }
     }   D(s35a); R(s35a); E;
+
+    B(s36, Commit after load, 0) W(s36a); W(s36b);
+    {
+        c4_IntProp p1 ("p1");
+    
+	c4_Storage s1 ("s36a", 1);
+	s1.SetStructure("a[p1:I]");
+	c4_View v1 = s1.View("a");
+	v1.Add(p1 [111]);
+	    A(v1.GetSize() == 1);
+	    A(p1 (v1[0]) == 111);
+
+	{
+	    c4_FileStream fs1 (fopen("s36b", "wb"), true);
+	    s1.SaveTo(fs1);
+	}
+
+	p1 (v1[0]) = 222;
+	v1.Add(p1 [333]);
+	bool f1 = s1.Commit();
+	    A(f1);
+	    A(v1.GetSize() == 2);
+	    A(p1 (v1[0]) == 222);
+	    A(p1 (v1[1]) == 333);
+
+	c4_FileStream fs2 (fopen("s36b", "rb"), true);
+	s1.LoadFrom(fs2);
+	    //A(v1.GetSize() == 0); // should be detached, but it's still 2
+
+	c4_View v2 = s1.View("a");
+	    A(v2.GetSize() == 1);
+	    A(p1 (v2[0]) == 111);
+
+	    // this fails in 2.4.0, reported by James Lupo, August 2001
+	bool f2 = s1.Commit();
+	    A(f2);
+    }   D(s36a); D(s36b); R(s36a); R(s36b); E;
 }
 
 /////////////////////////////////////////////////////////////////////////////

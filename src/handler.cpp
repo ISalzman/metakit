@@ -18,11 +18,6 @@
 /////////////////////////////////////////////////////////////////////////////
 // c4_Handler
 
-c4_Persist* c4_HandlerSeq::Persist() const
-{
-    return _persist;
-}
-
 void c4_Handler::ClearBytes(c4_Bytes& buf_) const
 {
     static char zeros[8];
@@ -105,7 +100,7 @@ c4_HandlerSeq::~c4_HandlerSeq ()
     const bool rootLevel = _parent == this;
     c4_Persist* pers = _persist;
 
-    if (pers != 0)
+    if (rootLevel && pers != 0)
         pers->DoAutoCommit();
         
     DetachFromParent();
@@ -124,6 +119,11 @@ c4_HandlerSeq::~c4_HandlerSeq ()
         d4_assert(pers != 0);
         delete pers;
     }
+}
+
+c4_Persist* c4_HandlerSeq::Persist() const
+{
+    return _persist;
 }
 
 void c4_HandlerSeq::DefineRoot()

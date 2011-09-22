@@ -44,11 +44,14 @@ c4_Column::c4_Column (c4_Persist* persist_)
 
 c4_Column::~c4_Column ()
 {
+    Validate();
     ReleaseAllSegments();
 
         // this is needed to remove this column from the cache
     d4_assert(_slack == 0);
     FinishSlack();
+
+    _slack = -1; // bad value in case we try to set up again (!)
 }
 
 #if q4_CHECK
@@ -56,11 +59,12 @@ c4_Column::~c4_Column ()
         // debugging version to verify that the internal data is consistent
     void c4_Column::Validate() const
     {
+        d4_assert(0 <= _slack && _slack < kSegMax);
+
         if (_segments.GetSize() == 0)
             return; // ok, not initialized
 
         d4_assert(_gap <= _size);
-        d4_assert(0 <= _slack && _slack < kSegMax);
 
         int n = fSegIndex(_size + _slack);
         d4_assert(n == _segments.GetSize() - 1);
@@ -224,6 +228,7 @@ void c4_Column::SetupSegments()
     {
             // setup for mapped files is quick, just fill in the pointers
         d4_assert(_position > 1);
+        d4_assert(_position + (n-1) * kSegMax < Strategy()._dataSize);
         const t4_byte* map = Strategy()._mapStart + _position;
 
         for (int i = 0; i < n; ++i)
@@ -736,6 +741,7 @@ const t4_byte* c4_Column::FetchBytes(t4_i32 pos_, int len_, c4_Bytes& buffer_, b
 {
     d4_assert(len_ > 0);
     d4_assert(pos_ + len_ <= ColSize());
+    d4_assert(0 <= _slack && _slack < kSegMax);
     
     c4_ColIter iter (*this, pos_, pos_ + len_);
     iter.Next();

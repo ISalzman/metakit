@@ -400,8 +400,15 @@ bool c4_Storage::LoadFrom(c4_Stream& stream_)
     c4_HandlerSeq* newRoot = c4_Persist::Load(&stream_);
     if (newRoot == 0)
         return false;
-    
-    *(c4_View*) this = newRoot;
+
+        // fix commit-after-load bug, by using a full view copy
+	// this is inefficient, but avoids mapping/strategy problems
+    c4_View temp (newRoot);
+
+    SetSize(0);
+    SetStructure(temp.Description());
+    InsertAt(0, temp);
+
     return true;
 }
 

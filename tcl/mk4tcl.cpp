@@ -474,8 +474,6 @@ bool c4_TclStream::Write(const void* buffer_, int length_)
 MkPath::MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp)
     : _refs (1), _ws (ws_), _path (path_), _currGen (generation)
 {
-    TRACE("new path %s\n", (const char*) _path);
-
         // if this view is not part of any storage, make a new temporary row
     if (_path.IsEmpty())
     {
@@ -498,8 +496,6 @@ MkPath::MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp)
 
 MkPath::~MkPath ()
 {
-    TRACE("  ~ path %s\n", (const char*) _path);
-
     _ws.ForgetPath(this);
 }
 
@@ -641,10 +637,23 @@ MkWorkspace::Item::Item (const char* name_, const char* fileName_, int mode_,
 
 MkWorkspace::Item::~Item ()
 {
-    ForceRefresh();
+//! ForceRefresh();
+        // all views referring to this datafile are made invalid
+    for (int i = 0; i < _paths.GetSize(); ++i)
+    {
+        MkPath* path = (MkPath*) _paths.GetAt(i);
+        path->_view = c4_View ();
+	path->_path = "?"; // make sure it never matches
+	path->_currGen = -1; // make sure lookup is retried on next use
+	// TODO: get rid of generations, use a "_valid" flag instead
+    }
+    ++generation; // make sure all cached paths refresh on next access
 
     if (_index < _items.GetSize())
+    {
+        d4_assert(_items.GetAt(_index) == this);
         _items.SetAt(_index, 0);
+    }
 
     if (_shared != 0)
     {
@@ -681,7 +690,7 @@ MkWorkspace::MkWorkspace (Tcl_Interp* ip_)
     new Item ("", "", 0, _items, 0);
     
         // never uses entry zero (so atoi failure in ForgetPath is harmless)
-    _usedRows = _usedBuffer.SetBufferClear(16); // no realloc for first 16 temp rows
+    //!_usedRows = _usedBuffer.SetBufferClear(16); // no realloc for first 16 temp rows
 }
 
 MkWorkspace::~MkWorkspace ()
@@ -714,7 +723,7 @@ MkWorkspace::Item* MkWorkspace::Define(const char* name_, const char* fileName_,
                 break;
 
         ip = new Item (name_, fileName_, mode_, _items, n, share_);
-        if (!ip->_storage.Strategy().IsValid())
+        if (*fileName_ != 0 && !ip->_storage.Strategy().IsValid())
         {
             delete ip;
             return 0;
@@ -765,20 +774,20 @@ MkPath* MkWorkspace::AddPath(const char*& name_, Tcl_Interp* interp)
     {
         ip = Nth(0);
         d4_assert(ip != 0);
-        name_ = "._!0._!0";  // no such tag, use another (valid) one instead
+        name_ = "";  // no such tag, assign a temporary one instead
     }
+    else
+      for (int i = 0; i < ip->_paths.GetSize(); ++i)
+      {
+	  MkPath* path = (MkPath*) ip->_paths.GetAt(i);
+	  d4_assert(path != 0);
 
-    for (int i = 0; i < ip->_paths.GetSize(); ++i)
-    {
-        MkPath* path = (MkPath*) ip->_paths.GetAt(i);
-        d4_assert(path != 0);
-
-        if (path->_path.CompareNoCase(name_) == 0 && path->_currGen == generation)
-        {
-            path->Refs(+1);
-            return path;
-        }
-    }
+	  if (path->_path.CompareNoCase(name_) == 0 && path->_currGen == generation)
+	  {
+	      path->Refs(+1);
+	      return path;
+	  }
+      }
 
     MkPath* newPath = new MkPath (*this, name_, interp);
     ip->_paths.Add(newPath);
@@ -804,6 +813,9 @@ c4_String MkWorkspace::AllocTempRow()
 
         _usedBuffer.Swap(temp);
         _usedRows = tempPtr;
+
+	c4_View v = Nth(0)->_storage.View("_");
+	v.SetSize(_usedBuffer.Size());
     }
 
         // flag it as being in use
@@ -811,7 +823,7 @@ c4_String MkWorkspace::AllocTempRow()
 
         // temporary rows have special names
     char buf[20];
-    sprintf(buf, "._!%d._", i);
+    sprintf(buf, "_._!%d._", i);
 
     return buf;
 }
@@ -2455,7 +2467,8 @@ int MkTcl::ChannelCmd()
 
     const char* p = path._path;
     MkWorkspace::Item* ip = work.Find(f4_GetToken(p));
-    d4_assert(ip != 0);
+    if (ip == 0)
+	return Fail("no storage with this name");
 
     if (id == 1)
         memo (row).SetData(c4_Bytes()); // truncate the existing contents
@@ -2635,6 +2648,7 @@ void MkWorkspace::CleanupCommands()
 {
     for (int i = 0; i < _commands.GetSize(); ++i)
         delete (MkTcl*) _commands.GetAt(i);
+    _commands.SetSize(0);
 }
 
 static void ExitProc(ClientData cd_)
@@ -2695,7 +2709,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
     for (int i = 0; cmds[i]; ++i)
         ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-    return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.0");
+    return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.1");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

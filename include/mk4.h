@@ -47,7 +47,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 240    // 2.4.0 final release June 2001
+#define d4_MetaKitLibraryVersion 241    // 2.4.1 final release October 2001
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -202,6 +202,7 @@ bool operator< (const t4_i64 a_, const t4_i64 b_);
 
 class c4_View
 {
+protected:
     c4_Sequence* _seq;
 
 public:

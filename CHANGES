@@ -1,8 +1,46 @@
+2001-10-14  MK 2.4.1    Custom-extended TclKit, and threading
+
+   Minor kitInit.c change allows wrapping apps as a "custom-extended"
+   version of TclKit.  Enable threaded Tcl build on Unix.
+
+   This release consolidates the most recent fixes and code tweaks.
+
+2001-09-27              Fix temp storage open in Mk4tcl
+
+   A recent change made it impossible to open temporary storages
+   from Tcl ("mk::file open db") - <blush> - now fixed again.
+
+2001-09-19              Bug fixes
+
+   Fixed a problem during commit, when memo's are modified, causing 
+   them to be stored inline again.  This caused a late reference to
+   mapped memory - leading to intermittent crashes on commit.
+
+   Changes/fixes in mk4tcl.cpp, to prevent a problem when a datafile
+   is re-opened again under the same name later on.  Old references
+   could in some cases end up stale - leading to crashes much later.
+
+2001-09-05              Bug fixes
+
+   Hashing bug fixed: failed to terminate when looking for a missing
+   key after a hash collision.  The fill count was not being tracked
+   properly to enforce that there is always at least one unused slot.
+
+   Fixed bug when setting a string from a higher row: the data gets
+   trashed, because too little copying was done while creating a gap.
+   This bug may have led to some other cases of "damaged" datafiles.
+   Solved by copying input data in c4_FormatB::SetOne().
+
+   Fixed long-standing bug with commit-after-load, by now doing a full
+   view/subview copy.  This is inefficient, but it avoids all sorts of
+   mapping/strategy problems.  This also fixes test s33 (at last!).
+
+   Added regression tests b27, c21, m01, and s36 to check above fixes.
+
 2001-06-29  MK 2.4.0    More changes to the Mk4py interface
 
     - allow setting a row to a value if the row has a single property
     - there is an unexplained crash when setting slices with wrong type
-    - view.delete(N) has been reported to crash (interactive mode only)
 
 2001-06-22              Changes to the Mk4py interface
 

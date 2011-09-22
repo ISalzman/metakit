@@ -1,6 +1,6 @@
 //  Copyright (C) 1996-2001 Jean-Claude Wippler <jcw@equi4.com>
 //
-//  Regression test program, custom biew tests
+//  Regression test program, custom view tests
 
 #include "regress.h"
 

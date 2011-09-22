@@ -17,8 +17,8 @@ PYOBJS  = PyProperty.o PyRowRef.o PyStorage.o PyView.o PWOImp.o
 SPYOBJS = PyProperty.lo PyRowRef.lo PyStorage.lo PyView.lo PWOImp.lo
 
 TSTOBJS = regress.o tbasics.o tcusto1.o tcusto2.o tdiffer.o textend.o \
-	  tformat.o tlimits.o tnotify.o tresize.o tstore1.o tstore2.o \
-	  tstore3.o tstore4.o
+	  tformat.o tlimits.o tmapped.o tnotify.o tresize.o tstore1.o \
+	  tstore2.o tstore3.o tstore4.o
 
 DEMOS   = demo dump myio
 
@@ -33,6 +33,7 @@ top_builddir = .
 
 # not normally compiled with -g, but you can specify it in the make command
 CXXFLAGS = -O2 -fomit-frame-pointer
+#CXXFLAGS = -g -Dq4_CHECK
 #CXXFLAGS = -Wall -pedantic -Wno-unused -g
 
 CXX = @CXX@
@@ -53,6 +54,8 @@ CXX_SWITCHES_TCL  = $(CXXFLAGS) -I$(srcdir)/../include \
 				-DUSE_TCL_STUBS
 CXX_SWITCHES_PY   = $(CXXFLAGS) -I$(srcdir)/../include \
 				-I$(srcdir)/../python/scxx \
+				-I$(includedir)/python2.1 \
+				-I/usr/include/python2.1 \
 				-I$(includedir)/python2.0 \
 				-I/usr/include/python2.0 \
 				-I$(includedir)/python1.5 \
@@ -255,6 +258,8 @@ textend.o: $(srcdir)/../tests/textend.cpp
 tformat.o: $(srcdir)/../tests/tformat.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
 tlimits.o: $(srcdir)/../tests/tlimits.cpp
+	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
+tmapped.o: $(srcdir)/../tests/tmapped.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
 tnotify.o: $(srcdir)/../tests/tnotify.cpp
 	$(CXX) -c $(CXX_SWITCHES_TEST) $? -o $@
