@@ -1,5 +1,5 @@
 // mk4too.cpp -- Tcl object command interface to MetaKit
-// $Id: mk4too.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: mk4too.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2001 by Matt Newman and Jean-Claude Wippler.
 
@@ -374,6 +374,9 @@ int MkView::SearchCmd()
   char type = prop.Type();
   double dblVal = 0, dtmp;
   long longVal = 0;
+#ifdef TCL_WIDE_INT_TYPE
+  Tcl_WideInt wideVal = 0, wtmp;
+#endif
   c4_String strVal;
 
   int size = view.GetSize();
@@ -395,6 +398,16 @@ int MkView::SearchCmd()
           return e;
       }
       break;
+
+#ifdef TCL_WIDE_INT_TYPE
+    case 'L':
+      {
+        e = Tcl_GetWideIntFromObj(interp, obj_, &wideVal);
+        if (e != TCL_OK)
+          return e;
+      }
+      break;
+#endif
 
     case 'I':
       {
@@ -427,6 +440,12 @@ int MkView::SearchCmd()
         dtmp = dblVal - ((c4_DoubleProp&) prop)(view[row]);
         rc = (dtmp < 0 ? -1 : (dtmp > 0));
         break;
+#ifdef TCL_WIDE_INT_TYPE
+      case 'L':
+        wtmp = wideVal - ((c4_LongProp&) prop)(view[row]);
+        rc = (wtmp < 0 ? -1 : (wtmp > 0));
+        break;
+#endif
       case 'I':
         rc = longVal - ((c4_IntProp&) prop)(view[row]);
         break;

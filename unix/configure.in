@@ -161,11 +161,13 @@ esac
 #
 # The special configurations are:
 #
-# (1) CXX=aCC, CC=cc, build_os=hpux*, build_cpu=hppa
-# (2) CXX=aCC, CC=cc, build_os=hpux*, build_cpu=ia64
+# (1)  CXX=aCC, CC=cc, build_os=hpux*, build_cpu=hppa
+# (1a) CXX=aCC, CC=cc, build_os=hpux*, build_cpu=hppa2.0w (true 64 bit)
+# (2)  CXX=aCC, CC=cc, build_os=hpux*, build_cpu=ia64
 #
-# [Ad 1] Link against -lCsup and insert cpprt0_stub.o
-# [Ad 2] Link against -lCsup
+# [Ad 1]  Link against -lCsup and insert cpprt0_stub.o
+# [Ad 1a] Link against -lCsup
+# [Ad 2]  Link against -lCsup
 #
 # Variables to substitute
 # = LINK_SPECIAL_FLAGS
@@ -185,14 +187,28 @@ case $build_os in
 	"`basename $CXX`x" = "aCCx" -a	\
 	"Z`basename $CC`" = "Zcc"
     then
+	# Native HP compilers
+
     	if test "X$build_cpu" = "Xia64" ; then
+	    # Itanium: No -lstdc++
 	    LINK_SPECIAL_FLAGS="$LINK_SPECIAL_FLAGS -lCsup"
 	    LINK_SPECIAL_FILES=""
-	    # Itanium: No -lstdc++
     	else
-	    LINK_SPECIAL_FLAGS="$LINK_SPECIAL_FLAGS -lCsup -Wl,cpprt0_stubs.o"
-	    LINK_SPECIAL_FILES="cpprt0_stubs.o"
-    	    LDFLAGS="${LDFLAGS} -lstdc++"
+	    # pa-risc: The exact architecture of the cpu is now important.
+	    # Actually: The exact nature of the code we generate is important.
+
+	    case $CXXFLAGS in
+	      *DA2.0W*)
+	        # True 64 bit, no stdc++, no stubs
+	    	LINK_SPECIAL_FLAGS="$LINK_SPECIAL_FLAGS -lCsup"
+	      ;;
+	      *)
+	        # Everything else
+		LINK_SPECIAL_FLAGS="$LINK_SPECIAL_FLAGS -lCsup -Wl,cpprt0_stubs.o"
+	    	LINK_SPECIAL_FILES="cpprt0_stubs.o"
+    	    	LDFLAGS="${LDFLAGS} -lstdc++"
+	      ;;
+	    esac
 	fi
     fi
     ;;

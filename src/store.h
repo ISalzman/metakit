@@ -1,5 +1,5 @@
 // store.h --
-// $Id: store.h 1263 2007-03-09 16:51:19Z jcw $
+// $Id: store.h 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

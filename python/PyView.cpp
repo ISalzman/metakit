@@ -1,5 +1,5 @@
 // PyView.cpp --
-// $Id: PyView.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: PyView.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -37,9 +37,25 @@ static char* structure__doc =
 
 static PyObject* PyView_structure(PyView *o, PyObject* _args) {
   try {
+    PWOSequence args(_args);
+    if (args.len() != 0)
+        Fail(PyExc_TypeError, "method takes no arguments");
     return o->structure();
   }
   catch (...) { return 0; }
+}
+ 
+static char* properties__doc =
+"properties() -- return a dictionary mapping property names to property objects";
+
+static PyObject* PyView_properties(PyView *o, PyObject* _args) {
+    try {
+        PWOSequence args(_args);
+        if (args.len() != 0)
+            Fail(PyExc_TypeError, "method takes no arguments");
+        return o->properties();
+    }
+    catch (...) { return 0; }
 }
 
 static char* insert__doc = 
@@ -796,6 +812,7 @@ static PyMethodDef ViewMethods[] = {
   {"remove", (PyCFunction)PyView_remove, METH_VARARGS, remove__doc},
   {"indices", (PyCFunction)PyView_indices, METH_VARARGS, indices__doc},
   {"copy", (PyCFunction)PyView_copy, METH_VARARGS, copy__doc},
+  {"properties", (PyCFunction)PyView_properties, METH_VARARGS, properties__doc},
   {0, 0, 0, 0}
 };
 static PyMethodDef ViewerMethods[] = {
@@ -833,6 +850,7 @@ static PyMethodDef ViewerMethods[] = {
   {"reduce", (PyCFunction)PyView_reduce, METH_VARARGS, reduce__doc},
   {"indices", (PyCFunction)PyView_indices, METH_VARARGS, indices__doc},
   {"copy", (PyCFunction)PyView_copy, METH_VARARGS, copy__doc},
+  {"properties", (PyCFunction)PyView_properties, METH_VARARGS, properties__doc},
   {0, 0, 0, 0}
 };
 
@@ -849,8 +867,8 @@ static int PyView_length(PyView *o) {
 
 static PyObject* PyView_concat(PyView *o, PyView *other) {
   try {
-    if (other->ob_type != &PyViewtype)
-      Fail(PyExc_TypeError, "Not a PyView");
+    if (other->ob_type != &PyViewtype && other->ob_type != &PyViewertype)
+      Fail(PyExc_TypeError, "Not a PyView(er)");
     return new PyView(o->Concat(*other), 0, o->computeState(RWVIEWER));
   }
   catch (...) { return 0; }
@@ -921,16 +939,16 @@ static PySequenceMethods ViewAsSeq = {
   (intobjargproc)PyView_setitem, //sq_ass_item
   (intintobjargproc)PyView_setslice, //sq_ass_slice
 };
+
 static PySequenceMethods ViewerAsSeq = {
   (inquiry)PyView_length, //sq_length
-  (binaryfunc)0, //sq_concat
-  (intargfunc)0, //sq_repeat
+  (binaryfunc)PyView_concat, //sq_concat
+  (intargfunc)PyView_repeat, //sq_repeat
   (intargfunc)PyView_getitem, //sq_item
   (intintargfunc)PyView_getslice, //sq_slice
   (intobjargproc)0, //sq_ass_item
   (intintobjargproc)0, //sq_ass_slice
 };
-
 
 static void PyView_dealloc(PyView *o) {
   //o->~PyView();
@@ -953,28 +971,28 @@ static int PyROViewer_print(PyView *o, FILE *f, int) {
 static PyObject* PyView_getattr(PyView *o, char *nm) {
   PyObject *rslt;
   try {
-    rslt = Py_FindMethod(ViewMethods, o, nm);
-    if (rslt)
-      return rslt;
-    PyErr_Clear();
-    int ndx = o->FindPropIndexByName(nm);
-    if (ndx < 0) 
+      rslt = Py_FindMethod(ViewMethods, o, nm);
+      if (rslt)
+        return rslt;
+      PyErr_Clear();
+      int ndx = o->FindPropIndexByName(nm);
+      if (ndx > -1)
+          return new PyProperty(o->NthProperty(ndx));
       Fail(PyExc_AttributeError, nm);
-    return new PyProperty(o->NthProperty(ndx));
   }
   catch (...) { return 0; }
 }
 static PyObject* PyViewer_getattr(PyView *o, char *nm) {
   PyObject *rslt;
   try {
-    rslt = Py_FindMethod(ViewerMethods, o, nm);
-    if (rslt)
-      return rslt;
-    PyErr_Clear();
-    int ndx = o->FindPropIndexByName(nm);
-    if (ndx < 0) 
+      rslt = Py_FindMethod(ViewerMethods, o, nm);
+      if (rslt)
+          return rslt;
+      PyErr_Clear();
+      int ndx = o->FindPropIndexByName(nm);
+      if (ndx > -1)
+          return new PyProperty(o->NthProperty(ndx));
       Fail(PyExc_AttributeError, nm);
-    return new PyProperty(o->NthProperty(ndx));
   }
   catch (...) { return 0; }
 }
@@ -1117,12 +1135,30 @@ void PyView::insertAt(int i, PyObject* o) {
 
 PyObject* PyView::structure() {
   int n = NumProperties();
-  PWOList rslt(n);
-  for (int i = 0; i < n; i++) {
-    rslt[i] = new PyProperty(NthProperty(i));
-  }
-  return rslt.disOwn();
+//  PyObject* list=PyList_New(n);
+//  for (int i = 0; i < n; i++)
+//    PyList_SET_ITEM(list, i, new PyProperty(NthProperty(i)));
+//  return list;
+    PWOList rslt(n);
+    for (int i = 0; i < n; i++) {
+        PyProperty *prop = new PyProperty(NthProperty(i));
+        rslt.setItem(i, prop);
+    }
+    return rslt.disOwn();
 }
+
+
+PyObject *PyView::properties() {
+    int n = NumProperties();
+    PWOMapping rslt;
+    for (int i = 0; i < n; i++) {
+        PyProperty *item = new PyProperty(NthProperty(i));
+        rslt.setItem(item->Name(), item);
+        Py_DECREF(item);
+    }
+    return rslt.disOwn();
+}
+        
 
 PyView *PyView::getSlice(int s, int e) {
   int sz = GetSize();

@@ -108,4 +108,11 @@ T 6 {open missing file r/o} {
   C $err {file open failed}
 }
 
-Q 7
+  # crashed until 2003-02-37
+
+T 7 {relaxed layout list input} {
+  mk::file open db
+  mk::view layout db.v { README#2 README#3 }
+}
+
+Q 8

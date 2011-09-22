@@ -1,5 +1,5 @@
 # mkshow.tcl -- MetaKit file show utility
-# $Id: mkshow.tcl 1263 2007-03-09 16:51:19Z jcw $
+# $Id: mkshow.tcl 1262 2007-03-09 16:50:55Z jcw $
 # This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 package require Mk4tcl

@@ -81,6 +81,12 @@ public:
     if (rslt==-1)
       Fail(PyExc_IndexError, "Index out of range");
   };
+  void setItem(int ndx, PyObject *val) {
+    //int rslt = PySequence_SetItem(_obj, ndx, val); - assumes old item is valid
+    int rslt = PyList_SetItem(_obj, ndx, val);
+    if (rslt==-1)
+      Fail(PyExc_IndexError, "Index out of range");
+  };
   //PySequence_SetSlice   ##Lists
   void setSlice(int lo, int hi, const PWOSequence& slice) {
     int rslt = PySequence_SetSlice(_obj, lo, hi, slice);

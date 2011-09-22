@@ -1,5 +1,5 @@
 // PyRowRef.cpp --
-// $Id: PyRowRef.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: PyRowRef.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
@@ -123,7 +123,7 @@ PyRowRef::PyRowRef(const c4_RowRef& o, int immutable)
 void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyObject* attr) {
   switch (prop.Type()) {
     case 'I':
-      if (PyInt_CheckExact(attr))
+      if (PyInt_Check(attr))
         ((const c4_IntProp&) prop) (row) = PyInt_AS_LONG(attr);
       else if (attr != Py_None)
       {
@@ -133,7 +133,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
       break;
 #ifdef HAVE_LONG_LONG
     case 'L':
-      if (PyInt_CheckExact(attr))
+      if (PyInt_Check(attr))
 	((const c4_LongProp&) prop) (row) = PyInt_AS_LONG(attr);
       else if (PyLong_Check(attr)) {
 	LONG_LONG number = PyLong_AsLongLong(attr);
@@ -167,7 +167,7 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
       }
       break;
     case 'S': 
-      if (PyString_CheckExact(attr)) {
+      if (PyString_Check(attr)) {
         c4_Bytes temp (PyString_AS_STRING(attr),
         PyString_GET_SIZE(attr) + 1, false);
         prop (row).SetData(temp);
@@ -195,13 +195,14 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
       break;
     case 'B':
     case 'M': 
-      if (PyString_CheckExact(attr)) {
+      if (PyString_Check(attr)) {
         c4_Bytes temp (PyString_AS_STRING(attr),
         PyString_GET_SIZE(attr), false);
         prop (row).SetData(temp);
       }
       else if (attr != Py_None)
 	Fail(PyExc_TypeError, "wrong type for ByteProp");
+      break;
     default:
       PyErr_Format(PyExc_TypeError, "unknown property type '%c'", prop.Type());
       throw PWDPyException;

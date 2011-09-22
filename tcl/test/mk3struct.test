@@ -4,7 +4,7 @@ source defs_mk.tcl
 
 T 1 {recursive subviews} {
   mk::file open db [F].mk
-  mk::view layout db.v {tag nest:^}
+  mk::view layout db.v {tag {nest ^}}
   
   mk::row append db.v tag a
   mk::row append db.v!0.nest tag b

@@ -96,8 +96,8 @@ public:
     PyObject* Int = PyNumber_Int(_obj);
     if (Int == NULL)
       Fail(PyExc_TypeError, "can't convert to int");
-    long r = PyInt_AsLong(_obj);
-    if (r == -1) FailIfPyErr();
+    long r = PyInt_AS_LONG(Int);
+    Py_DECREF(Int);
     return r;
   };
   operator int () const {

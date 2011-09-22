@@ -1,5 +1,5 @@
 // remap.cpp --
-// $Id: remap.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: remap.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -189,7 +189,6 @@ bool c4_HashViewer::KeySame(int row_, c4_Cursor cursor_) const
   return true;
 }
 
-#include <stdio.h>
 /// Create mapped view which is uses a second view for hashing
 t4_i32 c4_HashViewer::CalcHash(c4_Cursor cursor_) const
 {
@@ -209,7 +208,7 @@ t4_i32 c4_HashViewer::CalcHash(c4_Cursor cursor_) const
       const t4_byte* p = buffer.Contents();
 
 	// 20030218: careful to avoid endian-ness sensitivity
-      if ((const t4_byte&) endian) // true on big-endian systems
+      if (*(const t4_byte*) &endian) // true on big-endian systems
 	switch (h.Property().Type())
 	{
 	  case 'I': case 'L': case 'F': case 'D':

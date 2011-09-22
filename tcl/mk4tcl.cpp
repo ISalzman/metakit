@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: mk4tcl.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -402,13 +402,17 @@ Tcl_Obj* GetAsObj(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_
       }
       break;
 
-#if !q4_TINY
     case 'F':
       Tcl_SetDoubleObj(obj_, ((c4_FloatProp&) prop_) (row_));
       break;
 
     case 'D':
       Tcl_SetDoubleObj(obj_, ((c4_DoubleProp&) prop_) (row_));
+      break;
+
+#ifdef TCL_WIDE_INT_TYPE
+    case 'L':
+      Tcl_SetWideIntObj(obj_, ((c4_LongProp&) prop_) (row_));
       break;
 #endif
 
@@ -459,7 +463,6 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
       }
       break;
 
-#if !q4_TINY
     case 'F':
       {
         double value = 0;
@@ -475,6 +478,16 @@ int SetAsObj(Tcl_Interp* interp, const c4_RowRef& row_,
         e = Tcl_GetDoubleFromObj(interp, obj_, &value);
         if (e == TCL_OK)
           ((c4_DoubleProp&) prop_) (row_) = value;
+      }
+      break;
+
+#ifdef TCL_WIDE_INT_TYPE
+    case 'L':
+      {
+        Tcl_WideInt value = 0;
+        e = Tcl_GetWideIntFromObj(interp, obj_, &value);
+        if (e == TCL_OK)
+          ((c4_LongProp&) prop_) (row_) = value;
       }
       break;
 #endif
@@ -946,76 +959,7 @@ void MkWorkspace::Invalidate(const MkPath& path_)
 ///////////////////////////////////////////////////////////////////////////////
 // Translate between the MetaKit and Tcl-style datafile structure descriptions
 
-c4_String TclToKitDesc(const char* desc_)
-{
-  c4_Bytes temp;
-  char* p = (char*) temp.SetBuffer(3 * strlen(desc_) + 100);
-
-  *p++ = '[';
-
-  int level = 0;
-  bool prop = false;
-
-  while (*desc_)
-  {
-    if (isalnum(*desc_) || *desc_ == '_')
-    {
-      if (prop)
-        *p++ = ',';
-
-      do
-        *p++ = *desc_;
-      while (isalnum(*++desc_) || *desc_ == '_');
-      
-      while (isspace(*desc_))
-        ++desc_;
-
-      if (*desc_ == ':')
-      {
-        *p++ = *desc_++;
-        *p++ = *desc_;
-        
-        if (*desc_++ == '^')
-        {
-          p[-2] = '['; // change ':' to '['
-          *p++ = ']';
-        }
-      }
-      else if (*desc_ != '{' || level % 2 == 0)
-      {
-        *p++ = ':';
-        *p++ = 'S';
-      }
-
-      prop = true;
-    }
-    else
-    {
-      switch (*desc_++)
-      {
-        case '{': if (++level % 2 == 0)
-              {
-                *p++ = '[';
-                prop = false;
-              }
-              break;
-        case '}': if (level-- % 2 == 0)
-              {
-                *p++ = ']';
-                prop = true;
-              }
-              break;
-      }
-    }
-  }
-
-  *p++ = ']';
-  *p = 0;
-
-  return (const char*) temp.Contents();
-}
-
-c4_String KitToTclDesc(const char* desc_)
+static c4_String KitToTclDesc(const char* desc_)
 {
   c4_Bytes temp;
   char* p = (char*) temp.SetBuffer(3 * strlen(desc_) + 100);
@@ -1577,6 +1521,26 @@ Tcl_Obj* Tcl::tcl_NewStringObj(const char* str_, int len_)
   return Tcl_NewStringObj((char*) str_, len_);
 }
 
+void Tcl::list2desc(Tcl_Obj* in_, Tcl_Obj* out_)
+{
+  Tcl_Obj *o, **ov;
+  int oc;
+  if (Tcl_ListObjGetElements(0, in_, &oc, &ov) == TCL_OK && oc > 0) {
+    char sep = '[';
+    for (int i = 0; i < oc; ++i) {
+      Tcl_AppendToObj(out_, &sep, 1);
+      sep = ',';
+      Tcl_ListObjIndex(0, ov[i], 0, &o);
+      if (o != 0)
+	Tcl_AppendObjToObj(out_, o);
+      Tcl_ListObjIndex(0, ov[i], 1, &o);
+      if (o != 0)
+	list2desc(o, out_);
+    }
+    Tcl_AppendToObj(out_, "]", 1);
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 // The MkTcl class adds MetaKit-specific utilities and all the command procs.
 
@@ -2130,9 +2094,11 @@ int MkTcl::ViewCmd()
 
         if (id == 0)
         {
-          const char* desc = Tcl_GetStringFromObj(objv[3], 0);
+	  KeepRef o = tcl_NewStringObj(s);
+	  list2desc(objv[3], o);
+          const char* desc = Tcl_GetStringFromObj(o, 0);
           if (desc && *desc)
-            np->_storage.GetAs(s + TclToKitDesc(desc));
+	    np->_storage.GetAs(desc);
         }
         else
         {
@@ -2775,7 +2741,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.1");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

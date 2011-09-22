@@ -1,5 +1,5 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1263 2007-03-09 16:51:19Z jcw $
+// $Id: mk4tcl.h 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -266,12 +266,6 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////
-// Translate between the MetaKit and Tcl-style datafile structure descriptions
-
-c4_String TclToKitDesc(const char* desc_);
-c4_String KitToTclDesc(const char* desc_);
-
-///////////////////////////////////////////////////////////////////////////////
 //
 //  Interface to Tcl 8.0 type mechanism, defines a new "mkProperty" datatype
 //
@@ -359,6 +353,7 @@ public:
 
   Tcl_Obj* GetValue(const c4_RowRef& row_, const c4_Property& prop_, Tcl_Obj* obj_ =0);
   Tcl_Obj* tcl_NewStringObj(const char* str_, int len_ =-1);
+  void list2desc(Tcl_Obj* in, Tcl_Obj* out);
 };
 
 // The MkTcl class adds MetaKit-specific utilities and all the command procs.

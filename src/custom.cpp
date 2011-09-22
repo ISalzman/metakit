@@ -1,5 +1,5 @@
 // custom.cpp --
-// $Id: custom.cpp 1263 2007-03-09 16:51:19Z jcw $
+// $Id: custom.cpp 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

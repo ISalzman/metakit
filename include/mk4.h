@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1263 2007-03-09 16:51:19Z jcw $
+// $Id: mk4.h 1262 2007-03-09 16:50:55Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetaKitLibraryVersion 249    // 2.4.9 release, Feb 14, 2003
+#define d4_MetaKitLibraryVersion 249    // 2.4.9.1 release, Mar 3, 2003
 
 //---------------------------------------------------------------------------
 // Declarations in this file
@@ -98,11 +98,12 @@
 #endif
 
     // and here's the other end of the scale...
-#if (defined (_PA_RISC2_0) || defined (__powerpc64__) || \
-     defined (__x86_64__) || defined (__s390x__) || defined (__alpha) || \
-     (defined (__ia64) && !defined (__HP_aCC))) && \
-			!defined (_WIN32) && !defined (q4_LONG64)
+#if !defined (_WIN32) && !defined (q4_LONG64)
+#if defined (_PA_RISC2_0) || defined (__powerpc64__) || \
+    defined (__x86_64__) || defined (__s390x__) || defined (__alpha) || \
+    (defined (__ia64) && (!defined (__HP_aCC) || defined(__LP64__)))
 #define q4_LONG64 1
+#endif
 #endif
 
     // default to inlining for maximum performance
@@ -135,8 +136,17 @@
 #endif
 
     // GNU gcc/egcs
-#if defined (__GNUC__) && !defined (q4_BOOL)
+#if defined (__GNUC__)
+#ifndef q4_BOOL
 #define q4_BOOL 1
+#endif
+#ifndef HAVE_LONG_LONG
+#define HAVE_LONG_LONG 1
+#endif
+#endif
+
+    // HP aCC
+#if defined (__HP_aCC)
 #ifndef HAVE_LONG_LONG
 #define HAVE_LONG_LONG 1
 #endif
