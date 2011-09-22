@@ -3,7 +3,7 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during Tcl installation
 dnl	to configure the system for the local environment.
 #
-# RCS: @(#) $Id: configure.in 1259 2007-03-09 16:49:19Z jcw $
+# RCS: @(#) $Id: configure.in 1258 2007-03-09 16:48:38Z jcw $
 
 #-----------------------------------------------------------------------
 # This initializes the environment with PACKAGE_NAME and PACKAGE_VERSION
@@ -11,7 +11,7 @@ dnl	to configure the system for the local environment.
 # so you can encode the package version directly into the source files.
 #-----------------------------------------------------------------------
 
-AC_INIT([Mk4tcl], [2.4.9.5])
+AC_INIT([Mk4tcl], [2.4.9.6])
 
 #--------------------------------------------------------------------
 # Call TEA_INIT as the first TEA_ macro to set up initial vars.
@@ -19,7 +19,7 @@ AC_INIT([Mk4tcl], [2.4.9.5])
 # as well as PKG_LIB_FILE and PKG_STUB_LIB_FILE.
 #--------------------------------------------------------------------
 
-TEA_INIT([3.2])
+TEA_INIT([3.5])
 
 AC_CONFIG_AUX_DIR(tclconfig)
 
@@ -84,7 +84,7 @@ TEA_ADD_SOURCES([../src/column.cpp
 TEA_ADD_HEADERS([])
 TEA_ADD_INCLUDES([-I\"\${srcdir}/../include\" -I\"\${srcdir}\"])
 TEA_ADD_LIBS([])
-TEA_ADD_CFLAGS([-Dq4_WINCE])
+TEA_ADD_CFLAGS([])
 TEA_ADD_STUB_SOURCES([])
 TEA_ADD_TCL_SOURCES([])
 

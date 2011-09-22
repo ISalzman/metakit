@@ -1,6 +1,6 @@
 // mk4str.inl --
-// $Id: mk4str.inl 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
+// $Id: mk4str.inl 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit.html
 
 /** @file
  * Members of the string package which are usually inlined

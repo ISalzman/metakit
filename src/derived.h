@@ -1,6 +1,6 @@
 // derived.h --
-// $Id: derived.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
+// $Id: derived.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit.html
 
 /** @file
  * Encapsulation of derived view classes
@@ -12,13 +12,13 @@
 /////////////////////////////////////////////////////////////////////////////
 // Declarations in this file
 
-  class c4_Cursor;          // not defined here
-  class c4_Sequence;          // not defined here
+class c4_Cursor; // not defined here
+class c4_Sequence; // not defined here
 
-  extern c4_Sequence* f4_CreateFilter(c4_Sequence&, c4_Cursor, c4_Cursor);
-  extern c4_Sequence* f4_CreateSort(c4_Sequence&, c4_Sequence* =0);
-  extern c4_Sequence* f4_CreateProject(c4_Sequence&, c4_Sequence&,
-                          bool, c4_Sequence* =0);
+extern c4_Sequence *f4_CreateFilter(c4_Sequence &, c4_Cursor, c4_Cursor);
+extern c4_Sequence *f4_CreateSort(c4_Sequence &, c4_Sequence * = 0);
+extern c4_Sequence *f4_CreateProject(c4_Sequence &, c4_Sequence &, bool,
+  c4_Sequence * = 0);
 
 /////////////////////////////////////////////////////////////////////////////
 

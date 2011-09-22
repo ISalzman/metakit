@@ -847,8 +847,8 @@ Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-python=PATH      build the Mk4py extension for Python with headers in
-                          `PATH/include/python2.4'; install the Mk4py modules in
-                          `PATH/lib/python2.4/site-packages'.  If PATH is of the
+                          `PATH/include/python2.5'; install the Mk4py modules in
+                          `PATH/lib/python2.5/site-packages'.  If PATH is of the
                           form `HEADER,LIB', search for header files in HEADER,
                           and install Mk4py in LIB.  If you omit the `=PATH'
                           part, use the standard includedir and libdir.
@@ -1357,8 +1357,8 @@ echo "$as_me:$LINENO: checking for Python configuration" >&5
 echo $ECHO_N "checking for Python configuration... $ECHO_C" >&6
 case "$with_python" in
   "yes" )
-	PY_INCLUDE_DIR="${prefix}/include/python2.4"
-	PY_LIB_DIR="${prefix}/lib/python2.4/site-packages"
+	PY_INCLUDE_DIR="${prefix}/include/python2.5"
+	PY_LIB_DIR="${prefix}/lib/python2.5/site-packages"
   ;;
   "no" )
 	PY_INCLUDE_DIR="# no Python headers"
@@ -1368,8 +1368,8 @@ case "$with_python" in
 	PY_LIB_DIR="`echo $with_python | sed -e 's/^.*,//'`"
   ;;
   * )
-    PY_INCLUDE_DIR="$with_python/include/python2.4"
-    PY_LIB_DIR="$with_python/lib/python2.4/site-packages"
+    PY_INCLUDE_DIR="$with_python/include/python2.5"
+    PY_LIB_DIR="$with_python/lib/python2.5/site-packages"
   ;;
 esac
 
@@ -1481,7 +1481,7 @@ fi
 
 if test $SHARED_BUILD = 1; then
   SHLIB_FLAGS="-shared"
-  SHLIB_CFLAGS="-fPIC"
+  SHLIB_CFLAGS="-fPIC -DUSE_TCL_STUBS"
   SHLIB_LD="g++ -shared"
 else
   SHLIB_FLAGS=""

@@ -1,6 +1,6 @@
 // regress.h -- Regression test program, header file
-// $Id: regress.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, see http://www.equi4.com/metakit/
+// $Id: regress.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit.html
 
 #include "mk4.h"
 #include "mk4io.h"
@@ -8,17 +8,17 @@
 
 #define TraceAll  false
 
-  // default for dos and unix is to assume they don't support exceptions
+// default for dos and unix is to assume they don't support exceptions
 #if defined (_DOS) || defined (unix) || defined (__unix__) || \
-    defined (__GNUC__) || defined (_WIN32_WCE)
+defined(__GNUC__) || defined(_WIN32_WCE)
 #if !defined (q4_NOTHROW)
 #define q4_NOTHROW 1
-#endif
-#endif
+#endif 
+#endif 
 
 #ifdef _WIN32_WCE
 int remove(const char*);
-#endif
+#endif 
 
 #if _MSC_VER == 800
 #pragma warning (disable: 4703) // function too large for global optimizations
@@ -26,15 +26,15 @@ int remove(const char*);
 // also no exceptions in MSVC 1.52 when used with a QuickWin target
 #if defined (_QWINVER) && !defined (q4_NOTHROW)
 #define q4_NOTHROW 1    
-#endif
-#endif
+#endif 
+#endif 
 
 #if q4_NOTHROW
 #define try
 #define catch(x)  if (0)
 
-extern const char* msg;
-#endif     
+extern const char *msg;
+#endif 
 
 #if defined (macintosh)  
 #define TESTDIR ":tests:"
@@ -44,62 +44,63 @@ extern const char* msg;
 #define TESTDIR "[.tests]"
 #define TEXTOUT "w"
 #define LINESEP "\r\n" // is this correct?
-#elif defined (unix) || defined (__unix__) || defined (__GNUC__)
+#elif defined (unix) || defined (__unix__) || defined (__GNUC__) || \
+defined(__hpux)
 #define TESTDIR "tests/"
 #define TEXTOUT "w"
 #define LINESEP "\n"
-#else
+#else 
 #define TESTDIR "tests\\"
 #define TEXTOUT "wt"
 #define LINESEP "\r\n"
-#endif
+#endif 
 
 #include <stdio.h>
 
 #if q4_MFC && defined(_DEBUG)
 #define B(n_,d_,c_) \
-  if (StartTest(c_, #n_, #d_)) \
-  { \
-    CMemoryState oldState, newState, diffState; \
-    oldState.Checkpoint(); \
-    afxTraceEnabled = TraceAll; \
-    try \
-    { \
-      {
+if (StartTest(c_, #n_, #d_)) \
+{ \
+CMemoryState oldState, newState, diffState; \
+oldState.Checkpoint(); \
+afxTraceEnabled = TraceAll; \
+try \
+{ \
+{
 #define E \
-      } \
-      puts("<<< done."); \
-    } \
-    catch (const char* msg) { CatchMsg(msg); } \
-    catch (...) { CatchOther(); } \
-    afxTraceEnabled = true; \
-    fflush(stdout); \
-    newState.Checkpoint(); \
-    if (diffState.Difference(oldState, newState)) \
-    { \
-      fputs("\tMemory leaked!\n", stderr); \
-      puts("*** Memory leaked ***"); \
-      TRACE("   *** Memory leaked, "); \
-      diffState.DumpAllObjectsSince(); \
-    } \
-    fflush(stdout); \
-  }
-#else
+} \
+puts("<<< done."); \
+} \
+catch (const char* msg) { CatchMsg(msg); } \
+catch (...) { CatchOther(); } \
+afxTraceEnabled = true; \
+fflush(stdout); \
+newState.Checkpoint(); \
+if (diffState.Difference(oldState, newState)) \
+{ \
+fputs("\tMemory leaked!\n", stderr); \
+puts("*** Memory leaked ***"); \
+TRACE("   *** Memory leaked, "); \
+diffState.DumpAllObjectsSince(); \
+} \
+fflush(stdout); \
+}
+#else 
 #define B(n_,d_,c_) \
-  if (StartTest(c_, #n_, #d_)) \
-  { \
-    try \
-    { \
-      {
+if (StartTest(c_, #n_, #d_)) \
+{ \
+try \
+{ \
+{
 #define E \
-      } \
-      puts("<<< done."); \
-    } \
-    catch (const char* msg) { CatchMsg(msg); } \
-    catch (...) { CatchOther(); } \
-    fflush(stdout); \
-  }
-#endif
+} \
+puts("<<< done."); \
+} \
+catch (const char* msg) { CatchMsg(msg); } \
+catch (...) { CatchOther(); } \
+fflush(stdout); \
+}
+#endif 
 
 #define A(e_) if (e_) ; else FailExpr(#e_)
 
@@ -109,11 +110,11 @@ extern const char* msg;
 
 typedef c4_BytesProp c4_MemoProp;
 
-extern void DumpFile(const char* in_, const char* out_);
-extern void Fail(const char* msg);
-extern void FailExpr(const char* expr);
-extern int StartTest(int, const char*, const char*);
-extern void CatchMsg(const char* msg);
+extern void DumpFile(const char *in_, const char *out_);
+extern void Fail(const char *msg);
+extern void FailExpr(const char *expr);
+extern int StartTest(int, const char *, const char*);
+extern void CatchMsg(const char *msg);
 extern void CatchOther();
 
 extern void TestBasics1();
@@ -133,11 +134,11 @@ extern void TestStores3();
 extern void TestStores4();
 extern void TestStores5();
 
-  //  The Borland C++ RTL does not want file handle objects to cross
-  //  DLL boundaries, so we use special fopen/fclose hooks in the DLL.
+//  The Borland C++ RTL does not want file handle objects to cross
+//  DLL boundaries, so we use special fopen/fclose hooks in the DLL.
 
 #if defined (__BORLANDC__) // this assumes Metakit is in a DLL!
-extern FILE* f4_FileOpenInDLL(const char*, const char*);
+extern FILE *f4_FileOpenInDLL(const char *, const char*);
 extern int f4_FileCloseInDLL(FILE*);
 
 #define fopen f4_FileOpenInDLL

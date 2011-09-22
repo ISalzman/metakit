@@ -5,17 +5,15 @@ TclPlatStubs *tclPlatStubsPtr;
 struct TclIntStubs *tclIntStubsPtr;
 struct TclIntPlatStubs *tclIntPlatStubsPtr;
 
-static int
-MyInitStubs (Tcl_Interp *ip)
-{
-  typedef struct {
+static int MyInitStubs(Tcl_Interp *ip) {
+  typedef struct  {
     char *result;
     Tcl_FreeProc *freeProc;
     int errorLine;
     TclStubs *stubTable;
   } HeadOfInterp;
 
-  HeadOfInterp *hoi = (HeadOfInterp*) ip;
+  HeadOfInterp *hoi = (HeadOfInterp*)ip;
 
   if (hoi->stubTable == NULL || hoi->stubTable->magic != TCL_STUB_MAGIC) {
     ip->result = "This extension requires stubs-support.";
@@ -31,10 +29,10 @@ MyInitStubs (Tcl_Interp *ip)
   }
 
   if (tclStubsPtr->hooks != NULL) {
-      tclPlatStubsPtr = tclStubsPtr->hooks->tclPlatStubs;
-      tclIntStubsPtr = tclStubsPtr->hooks->tclIntStubs;
-      tclIntPlatStubsPtr = tclStubsPtr->hooks->tclIntPlatStubs;
+    tclPlatStubsPtr = tclStubsPtr->hooks->tclPlatStubs;
+    tclIntStubsPtr = tclStubsPtr->hooks->tclIntStubs;
+    tclIntPlatStubsPtr = tclStubsPtr->hooks->tclIntPlatStubs;
   }
 
   return 1;
-} 
+}

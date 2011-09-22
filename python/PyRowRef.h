@@ -1,6 +1,6 @@
 // PyRowRef.h --
-// $Id: PyRowRef.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: PyRowRef.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit.html
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  RowRef class header
@@ -21,38 +21,38 @@
 extern PyTypeObject PyRowReftype;
 extern PyTypeObject PyRORowReftype;
 
-class PyRowRef : public PyHead, public c4_RowRef {
-public:
-  //PyRowRef();
-  PyRowRef(const c4_RowRef& o, int immutable=0);
-  //PyRowRef(c4_Row row);
-  ~PyRowRef() {
-    c4_Cursor c = & (*(c4_RowRef*) this);
-    c._seq->DecRef();
-  }
-  PyProperty *getProperty(char *nm) {
-    c4_View cntr = Container();
-    int ndx = cntr.FindPropIndexByName(nm);
-    if (ndx > -1) {
-      return new PyProperty(cntr.NthProperty(ndx));
+class PyRowRef: public PyHead, public c4_RowRef {
+  public:
+    //PyRowRef();
+    PyRowRef(const c4_RowRef &o, int immutable = 0);
+    //PyRowRef(c4_Row row);
+    ~PyRowRef() {
+        c4_Cursor c = &(*(c4_RowRef*)this);
+        c._seq->DecRef();
     }
-    return 0;
-  };
+    PyProperty *getProperty(char *nm) {
+        c4_View cntr = Container();
+        int ndx = cntr.FindPropIndexByName(nm);
+        if (ndx >  - 1) {
+            return new PyProperty(cntr.NthProperty(ndx));
+        }
+        return 0;
+    };
 
-  PyObject* getPropertyValue(char *nm) {
-    PyProperty *prop = getProperty(nm);
-    if (prop)
-    {
-      PyObject* result = asPython(*prop);
-      Py_DECREF(prop);
-      return result;
-    }
-    return 0;
-  };
+    PyObject *getPropertyValue(char *nm) {
+        PyProperty *prop = getProperty(nm);
+        if (prop) {
+            PyObject *result = asPython(*prop);
+            Py_DECREF(prop);
+            return result;
+        }
+        return 0;
+    };
 
-  static void setFromPython(const c4_RowRef& row, const c4_Property& prop, PyObject* val);
-  static void setDefault(const c4_RowRef& row, const c4_Property& prop);
-  PyObject* asPython(const c4_Property& prop);
+    static void setFromPython(const c4_RowRef &row, const c4_Property &prop,
+      PyObject *val);
+    static void setDefault(const c4_RowRef &row, const c4_Property &prop);
+    PyObject *asPython(const c4_Property &prop);
 };
 
 #endif

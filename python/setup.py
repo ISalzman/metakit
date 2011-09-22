@@ -160,21 +160,21 @@ class test_regrtest(Command):
         # restore sys.path
         sys.path = old_path[:]
 
-try:
-    import metakit
-except:
-    metakit = sys.modules['metakit']
+#try:
+#    import metakit
+#except:
+#    metakit = sys.modules['metakit']
 
-setup(name             = metakit.__name__,
-      version          = metakit.__version__,
-      description      = metakit.__description__,
-      long_description = metakit.__doc__,
-      author           = metakit.__author__,
-      author_email     = metakit.__email__,
-      url              = metakit.__url__,
-      maintainer       = metakit.__author__,
-      maintainer_email = metakit.__email__,
-      license          = metakit.__license__,
+setup(name             = "metakit",
+      version          = "2.4.9.6",
+      description      = "Python bindings to the Metakit database library",
+      #long_description = metakit.__doc__,
+      author           = "Gordon McMillan / Jean-Claude Wippler",
+      author_email     = "jcw@equi4.com",
+      url              = "http://www.equi4.com/metakit/python.html",
+      maintainer       = "Jean-Claude Wippler",
+      maintainer_email = "jcw@equi4.com",
+      license         = "X/MIT style, see: http://www.equi4.com/mklicense.html",
       keywords         = ['database'],
       py_modules       = ['metakit'],
       cmdclass         = {'build': build_mk, 'build_ext': build_mkext,

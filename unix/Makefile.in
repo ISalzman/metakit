@@ -81,7 +81,7 @@ test: Makefile libmk4$(LIBEXT) regress
 	-test -d ../tests/ok/CVS && (test -d tests/CVS || mkdir tests/CVS)
 	test -f reversed || cp $(srcdir)/reversed .
 	./regress
-	diff $(srcdir)/../tests/ok tests
+	diff --exclude=CVS $(srcdir)/../tests/ok tests
 
 test-tcl: tcl
 	cd $(srcdir)/../tcl/test && $(tclsh) all.tcl
@@ -104,7 +104,7 @@ install-tcl: Mk4tcl$(LIBEXT)
 	mkdir -p $(DESTDIR)$(tcllibdir)/Mk4tcl
 	$(INSTALL_PROGRAM) Mk4tcl$(LIBEXT) $(DESTDIR)$(tcllibdir)/Mk4tcl
 	if [ '${LIBEXT}' = '.a' ]; then ranlib $(DESTDIR)$(tcllibdir)/Mk4tcl/Mk4tcl.a; fi
-	echo 'package ifneeded Mk4tcl 2.4.9.5 [list load [file join $$dir Mk4tcl$(LIBEXT)] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
+	echo 'package ifneeded Mk4tcl 2.4.9.6 [list load [file join $$dir Mk4tcl$(LIBEXT)] Mk4tcl]' >$(DESTDIR)$(tcllibdir)/Mk4tcl/pkgIndex.tcl
 
 install-python: Mk4py$(LIBEXT)
 	$(INSTALL_PROGRAM) Mk4py$(LIBEXT) $(DESTDIR)$(pylibdir)

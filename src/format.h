@@ -1,6 +1,6 @@
 // format.h --
-// $Id: format.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, see http://www.equi4.com/metakit/
+// $Id: format.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit.html
 
 /** @file
  * Encapsulation of all format handlers
@@ -12,11 +12,11 @@
 /////////////////////////////////////////////////////////////////////////////
 // Declarations in this file
 
-  class c4_Handler;         // not defined here
+class c4_Handler; // not defined here
 
-  extern c4_Handler* f4_CreateFormat(const c4_Property&, c4_HandlerSeq&);
-  extern int f4_ClearFormat(char);
-  extern int f4_CompareFormat(char, const c4_Bytes&, const c4_Bytes&);
+extern c4_Handler *f4_CreateFormat(const c4_Property &, c4_HandlerSeq &);
+extern int f4_ClearFormat(char);
+extern int f4_CompareFormat(char, const c4_Bytes &, const c4_Bytes &);
 
 /////////////////////////////////////////////////////////////////////////////
 

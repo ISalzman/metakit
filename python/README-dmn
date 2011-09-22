@@ -5,18 +5,27 @@ Subject: [Metakit] Instructions for Legacy Pythons
 
 Hi,
 
-Below are instructions for people needing to build the python metakit wrapper for non-latest python versions.
+Below are instructions for people needing to build the python metakit wrapper
+for non-latest python versions.
 
-With the web app framework I'm building, I was using SQLObject for database storage. But given the fact that most public web hosts offering Python have version 2.1 or earlier, I've decided life is easiest for all if my framework can be made to work with python1.5.2 or later.
+With the web app framework I'm building, I was using SQLObject for database
+storage. But given the fact that most public web hosts offering Python have
+version 2.1 or earlier, I've decided life is easiest for all if my framework can
+be made to work with python1.5.2 or later.
 
-These simple instructions walk people through the building of the Mk4py.so module for Python 1.5.2 or later, and can be used to help people compile a binary Mk4py.so locally, and drop it (with metakit.py) into their web hosting file tree.
+These simple instructions walk people through the building of the Mk4py.so
+module for Python 1.5.2 or later, and can be used to help people compile a
+binary Mk4py.so locally, and drop it (with metakit.py) into their web hosting
+file tree.
 
-The need for this comes from the fact that, while most reasonable public web hosts support python, most of these have python1.5.2 or python2.1, and no Metakit.
+The need for this comes from the fact that, while most reasonable public web
+hosts support python, most of these have python1.5.2 or python2.1, and no
+Metakit.
 
-I hope the metakit devs might see fit to include these instructions in Metakit releases.
+I hope the metakit devs might see fit to include these instructions in
+Metakitreleases.
 
-Cheers
-David
+Cheers David
 
 ---------------------------
 
@@ -28,8 +37,8 @@ cd into top-level Metakit directory, then:
 
  $ mkdir buildsx.x
 
-   (here and below we use 'x.x' to mean the python version you want to
-    build for, eg '1.5')
+ (here and below we use 'x.x' to mean the python version you want to build for,
+eg '1.5')
 
 2. PRE-CONFIGURATION
 
@@ -37,7 +46,9 @@ cd into the 'unix' directory, then:
 
  $ cp configure configurex.x
 
-Then, edit configurex.x, search for the 'case "$with_python in' line. Look down a bit, and change the PY_INCLUDE_DIR and PY_LIB_DIR lines, to reference the version of python you're building for
+Then, edit configurex.x, search for the 'case "$with_python in' line. Look down
+a bit, and change the PY_INCLUDE_DIR and PY_LIB_DIR lines, to reference the
+version of python you're building for
 
 3. CONFIGURE AND BUILD
 
@@ -45,8 +56,7 @@ cd into the buildsx.x directory, and type:
 
  $ ../pythonx.x/configurex.x --with-python=/usr
 
-  (If your python doesn't live in /usr, change to
-   /usr/local or wherever)
+ (If your python doesn't live in /usr, change to /usr/local or wherever)
 
  $ make
 
@@ -56,22 +66,24 @@ While still in your buildsx.x directory, type:
 
  $ cp Mk4py.so /usr/lib/pythonx.x/site-packages
 
-   (you may need /usr/local/lib instead /usr/lib)
+ (you may need /usr/local/lib instead /usr/lib)
 
 Then, cd into the python directory:
 
  $ cd ../python
 
-Note that you can build Metakit Mk4py.so for Python 1.5.2, and use it quite happily in all later python versions. However, you will probably want to suppress the API warning. To do this, edit the metakit.py file, and add the following lines right after the docstring:
+Note that you can build Metakit Mk4py.so for Python 1.5.2, and use it quite
+happily in all later python versions. However, you will probably want to
+suppress the API warning. To do this, edit the metakit.py file, and add the
+following lines right after the docstring:
 
-  import warnings
-  warnings.filterwarnings('ignore', '.*Mk4py.*', RuntimeWarning)
+ import warnings warnings.filterwarnings('ignore', '.*Mk4py.*', RuntimeWarning)
 
 Then, just copy metakit.py into your python load path:
 
  $ cp metakit.py /usr/lib/pythonx.x/site-packages
 
-   (change /usr/lib to /usr/local/lib or whatever if needed)
+ (change /usr/lib to /usr/local/lib or whatever if needed)
 
 5. TESTING
 
@@ -83,6 +95,6 @@ And verify that you can load Metakit:
 
  >>> from metakit import *
 
-_____________________________________________
-Metakit mailing list  -  Metakit@equi4.com
+_____________________________________________ 
+Metakit mailing list -Metakit@equi4.com 
 http://www.equi4.com/mailman/listinfo/metakit

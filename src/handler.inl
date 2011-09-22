@@ -1,6 +1,6 @@
 // handler.inl --
-// $Id: handler.inl 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, see http://www.equi4.com/metakit/
+// $Id: handler.inl 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, see http://www.equi4.com/metakit.html
 
 /** @file
  * Inlined members of the handler classes

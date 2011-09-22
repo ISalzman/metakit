@@ -1,6 +1,6 @@
 // gnuc.h --
-// $Id: gnuc.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of Metakit, the homepage is http://www.equi4.com/metakit/
+// $Id: gnuc.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of Metakit, the homepage is http://www.equi4.com/metakit.html
 
 /** @file
  * Configuration header for GNU C++

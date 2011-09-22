@@ -1,6 +1,6 @@
 // PyProperty.h --
-// $Id: PyProperty.h 1259 2007-03-09 16:49:19Z jcw $
-// This is part of MetaKit, see http://www.equi4.com/metakit/
+// $Id: PyProperty.h 1258 2007-03-09 16:48:38Z jcw $
+// This is part of MetaKit, see http://www.equi4.com/metakit.html
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
 //  Property class header
@@ -15,14 +15,15 @@
 
 extern PyTypeObject PyPropertytype;
 
-class PyProperty : public PyHead, public c4_Property {
-public:
-	//PyProperty();
-	PyProperty(const c4_Property& o) : PyHead(PyPropertytype), c4_Property (o) { }
-	PyProperty(char t, const char* n) : PyHead(PyPropertytype), c4_Property (t, n) { }
-	~PyProperty () {}
+class PyProperty: public PyHead, public c4_Property {
+  public:
+    //PyProperty();
+    PyProperty(const c4_Property &o): PyHead(PyPropertytype), c4_Property(o){}
+    PyProperty(char t, const char *n): PyHead(PyPropertytype), c4_Property(t, n)
+      {}
+    ~PyProperty(){}
 };
 
-PyObject* PyProperty_new(PyObject* o, PyObject* _args);
+PyObject *PyProperty_new(PyObject *o, PyObject *_args);
 
 #endif
