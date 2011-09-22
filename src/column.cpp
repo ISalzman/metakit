@@ -1,5 +1,5 @@
 // column.cpp --
-// $Id: column.cpp 1265 2007-03-09 16:52:32Z jcw $
+// $Id: column.cpp 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -1269,8 +1269,21 @@ void c4_ColOfInts::Set(int index_, const c4_Bytes& buf_)
     t4_i32 oldEnd = ColSize();
     t4_i32 newEnd = ((t4_i32) k * n + 7) >> 3;
     
-    if (newEnd > oldEnd)
+    if (newEnd > oldEnd) {
       InsertData(oldEnd, newEnd - oldEnd, _currWidth == 0);
+
+	// 14-5-2002: need to get rid of gap in case it risks not being a
+	//  multiple of the increased size (bug, see s46 regression test)
+	//
+	// Example scenario: gap size is odd, data gets resized to 2/4-byte
+	// ints, data at end fits without moving gap to end, then we end
+	// up with a vector that has an int split *across* the gap - this
+	// commits just fine, but access to that split int is now bad.
+	//
+	// Lesson: need stricter/simpler consistency, it's way too complex!
+      if (n > 8)
+	RemoveGap();
+    }
 
       // data value exceeds width, expand to new size and repeat
     if (_currWidth > 0) {

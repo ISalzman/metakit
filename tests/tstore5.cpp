@@ -1,5 +1,5 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1265 2007-03-09 16:52:32Z jcw $
+// $Id: tstore5.cpp 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -177,4 +177,44 @@ void TestStores5()
       A(temp == data); // this failed in 2.4.5
 
   } D(s45a); R(s45a); E;
+
+  B(s46, LoadFrom after commit, 0) W(s46a);
+  {
+    c4_IntProp p1 ("p1");
+
+    {
+      c4_Storage s1 ("s46a", true);
+      s1.SetStructure("a[p1:I]");
+      c4_View v1 = s1.View("a");
+
+      v1.Add(p1 [11]);
+      v1.Add(p1 [22]);
+      v1.Add(p1 [33]);
+      v1.Add(p1 [44]);
+      v1.Add(p1 [55]);
+      v1.Add(p1 [66]);
+      v1.Add(p1 [77]);
+      v1.Add(p1 [88]);
+      v1.Add(p1 [99]);
+      
+      s1.Commit();
+    }
+    {
+      c4_Storage s2 ("s46a", true);
+      c4_View v2 = s2.View("a");
+
+      v2.Add(p1 [1000]); // force 1->2 byte ints
+      v2.InsertAt(7, c4_Row ());
+      v2.InsertAt(4, c4_Row ());
+
+      //for (int i = 6; i <= 9; ++i) printf("%d\n", (int) p1 (v2[i]));
+
+      A(p1 (v2[6]) == 66);
+      A(p1 (v2[8]) == 0);
+      A(p1 (v2[9]) == 88);
+      A(p1 (v2[7]) == 77); // this failed in 2.4.6
+
+      s2.Commit();
+    }
+  } D(s46a); R(s46a); E;
 }

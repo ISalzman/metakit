@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1265 2007-03-09 16:52:32Z jcw $
+// $Id: mk4tcl.cpp 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -1476,11 +1476,12 @@ double Tcl::tcl_GetDoubleFromObj(Tcl_Obj* obj_)
   return value;
 }
 
-int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, CONST84 char **table_, char *msg_)
+int Tcl::tcl_GetIndexFromObj(Tcl_Obj *obj_, const char **table_, char *msg_)
 {
   int index = -1;
   if (!_error)
-    _error = Tcl_GetIndexFromObj(interp, obj_, table_, msg_, 0, &index);
+    _error = Tcl_GetIndexFromObj(interp, obj_, (CONST84 char**) table_,
+							msg_, 0, &index);
   return _error == TCL_OK ? index : -1;
 }
 
@@ -2733,7 +2734,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.6");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.7");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

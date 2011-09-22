@@ -35,8 +35,8 @@ tclsh = tclsh
 # Compiling without frame pointers can play tricks with exception handling
 # (e.g. in Mk4py).  This does not affect standard operation, *only* errors.
 # Happens in gcc 2.95.3, it has been disabled for now (even though slower).
-#CXXFLAGS = -O2 -fomit-frame-pointer
-CXXFLAGS = -O2
+CXXFLAGS = -O2 -fomit-frame-pointer
+#CXXFLAGS = -O2
 #CXXFLAGS = @CFLAGS@
 #CXXFLAGS = -g -Dq4_CHECK
 #CXXFLAGS = -Wall -pedantic -Wno-unused -g
@@ -78,7 +78,7 @@ python: Makefile libmk4py.la
 
 test: Makefile libmk4.la regress
 	test -d tests || mkdir tests
-	test -d tests/CVS || mkdir tests/CVS
+	-test -d ../tests/ok/CVS && (test -d tests/CVS || mkdir tests/CVS)
 	test -f reversed || cp $(srcdir)/../unix/reversed .
 	./regress
 	diff $(srcdir)/../tests/ok tests

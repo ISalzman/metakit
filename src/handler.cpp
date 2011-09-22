@@ -1,5 +1,5 @@
 // handler.cpp --
-// $Id: handler.cpp 1265 2007-03-09 16:52:32Z jcw $
+// $Id: handler.cpp 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file

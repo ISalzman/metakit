@@ -1,5 +1,5 @@
 // column.h --
-// $Id: column.h 1265 2007-03-09 16:52:32Z jcw $
+// $Id: column.h 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -81,6 +81,7 @@ public:
 
   void InsertData(t4_i32 index_, t4_i32 count_, bool clear_);
   void RemoveData(t4_i32 index_, t4_i32 count_);
+  void RemoveGap();
 
   enum { kSegBits = 12, kSegMax = 1 << kSegBits, kSegMask = kSegMax - 1 };
 
@@ -95,7 +96,6 @@ private:
   void ReleaseSegment(int);
   void SetupSegments();
   void Validate() const;
-  void RemoveGap();
   void FinishSlack();
 
   void MoveGapUp(t4_i32 pos_);

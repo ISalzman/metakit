@@ -4,21 +4,13 @@
 
 int main(int argc, char **argv)
 {
-#ifdef _WIN32
-  system("cmd /c copy bb1 ofile.try");
-#else
-  system("cp bb1 ofile.try");
-#endif
-
-  c4_IntProp pParent ("parent");
-
-  c4_Storage storage ("ofile.try", true);
-  c4_View v = storage.View("dirs");
-
-  pParent (v[0]) = 1;
-  storage.Commit();
-
-  pParent (v[0]) = 1;
+  c4_Storage storage ("metadata.db", true);
+  //storage.GetAs("version");
+  //c4_View v;
+  //v= storage.View("version");
+  //v.SetSize(0);
+  //v= storage.View("data");
+  //v.SetSize(0);
   storage.Commit();
 
   return 0;

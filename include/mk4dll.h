@@ -1,5 +1,5 @@
 // mk4dll.h --
-// $Id: mk4dll.h 1265 2007-03-09 16:52:32Z jcw $
+// $Id: mk4dll.h 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 //
 //  Import declarations for DLLs
@@ -91,6 +91,9 @@
 
     d4_DLLSPEC(bool) operator== (const c4_Bytes& a_, const c4_Bytes& b_);
     d4_DLLSPEC(bool) operator!= (const c4_Bytes& a_, const c4_Bytes& b_);
+
+    d4_DLLSPEC(bool) operator== (const c4_Reference&, const c4_Reference&);
+    d4_DLLSPEC(bool) operator!= (const c4_Reference&, const c4_Reference&);
 
 #if !q4_MFC
     d4_DLLSPEC(c4_String) operator+ (const c4_String&, const c4_String&);

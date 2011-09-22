@@ -104,7 +104,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib /nologo /subsystem:console /incremental:no /debug /machine:I386 /out:"..\..\builds\mkbug_d.exe" /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"..\..\builds\mkbug_mfc_d.exe"
+# ADD LINK32 /nologo /subsystem:console /debug /debugtype:both /machine:I386 /out:"..\..\builds\mkbug_mfc_d.exe" /pdbtype:sept
 # SUBTRACT LINK32 /incremental:no /map /nodefaultlib
 
 !ELSEIF  "$(CFG)" == "mkbug - Win32 Debug STD"

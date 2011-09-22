@@ -1,5 +1,5 @@
 // PyProperty.cpp --
-// $Id: PyProperty.cpp 1265 2007-03-09 16:52:32Z jcw $
+// $Id: PyProperty.cpp 1264 2007-03-09 16:52:09Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 //
 //  Copyright 1999 McMillan Enterprises, Inc. -- www.mcmillan-inc.com
