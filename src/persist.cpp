@@ -1,5 +1,5 @@
 // persist.cpp --
-// $Id: persist.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: persist.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -116,6 +116,7 @@ public:
   void Occupy(t4_i32 pos_, t4_i32 len_);  
   void Release(t4_i32 pos_, t4_i32 len_);
   void Dump(const char* str_);
+  t4_i32 FreeCounts(t4_i32* bytes_ = 0);
 
 private:
   int Locate(t4_i32 pos_) const;
@@ -336,6 +337,17 @@ void c4_Allocator::Dump(const char* str_)
 void c4_Allocator::Dump(const char* str_) { }
 
 #endif
+
+t4_i32 c4_Allocator::FreeCounts(t4_i32* bytes_)
+{
+  if (bytes_ != 0) {
+    t4_i32 total = 0;
+    for (int i = 2; i < GetSize() - 2; i += 2)
+      total += GetAt(i+1) - GetAt(i);
+    *bytes_ = total;
+  }
+  return GetSize() / 2 - 2;
+}
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -1084,6 +1096,11 @@ void c4_Persist::FetchOldLocation(c4_Column& col_)
   t4_i32 sz = FetchOldValue();
   if (sz > 0)
   col_.SetLocation(FetchOldValue(), sz);
+}
+
+t4_i32 c4_Persist::FreeBytes(t4_i32* bytes_)
+{
+  return _space == 0 ? -1 : _space->FreeCounts(bytes_);
 }
 
 int c4_Persist::OldRead(t4_byte* buf_, int len_)

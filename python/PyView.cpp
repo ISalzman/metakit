@@ -1,5 +1,5 @@
 // PyView.cpp --
-// $Id: PyView.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: PyView.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
@@ -90,16 +90,19 @@ static PyObject* PyView_insert(PyView *o, PyObject* _args, PyObject* kwargs) {
 }
 
 static char* append__doc = 
-"append(obj) -- coerce obj (or keyword args) to row and append, returns pos";
+"append(obj) -- coerce obj (or keyword args) to row and append, returns position";
 
 static PyObject* PyView_append(PyView *o, PyObject* _args, PyObject* kwargs) {
   try {
     PWOSequence args(_args);
     PWONumber ndx(o->GetSize());
-    if (args.len() == 0)
+    int argcount = args.len();
+    if (argcount == 0)
       o->insertAt(ndx, kwargs);
-    else
+    else if (argcount == 1)
       o->insertAt(ndx, args[0]);
+    else
+      Fail(PyExc_TypeError, "append() takes exactly one argument, or multiple keyword arguments");
     return ndx.disOwn();
   }
   catch (...) { return 0; }
@@ -892,8 +895,11 @@ static PyObject* PyView_concat(PyView *o, PyView *other) {
 static PyObject* PyView_repeat(PyView *o, int n) {
   try {
     PyView* tmp = new PyView(*o, 0, o->computeState(RWVIEWER));
-    while (--n > 0) 
-      tmp = new PyView(tmp->Concat(*o), 0, o->computeState(RWVIEWER)); //!! a huge stack of views?
+    while (--n > 0)  { //!! a huge stack of views?
+      PyView *tmp1 = new PyView(tmp->Concat(*o), 0, o->computeState(RWVIEWER));
+      delete tmp;
+      tmp = tmp1;
+    }
     return tmp;
   }
   catch (...) { return 0; }
@@ -1176,9 +1182,13 @@ void PyView::makeRow(c4_Row& tmp, PyObject* o, bool useDefaults) {
 }
 
 void PyView::insertAt(int i, PyObject* o) {
-  c4_Row temp;
-  makeRow(temp, o);
-  InsertAt(i, temp);
+  if (PyGenericView_Check(o))
+    InsertAt(i, *(PyView*) o);
+  else {
+    c4_Row temp;
+    makeRow(temp, o);
+    InsertAt(i, temp);
+  }
 }
 
 PyObject* PyView::structure() {

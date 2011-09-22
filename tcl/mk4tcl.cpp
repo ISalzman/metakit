@@ -1,5 +1,5 @@
 // mk4tcl.cpp --
-// $Id: mk4tcl.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: mk4tcl.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "mk4tcl.h"
@@ -551,8 +551,7 @@ MkPath::MkPath (MkWorkspace& ws_, const char*& path_, Tcl_Interp* interp)
     // if this view is not part of any storage, make a new temporary row
   if (_path.IsEmpty())
   {
-    _path = ws_.AllocTempRow();
-
+    ws_.AllocTempRow(_path);
     AttachView(interp);
   }
   else
@@ -574,6 +573,7 @@ MkPath::~MkPath ()
     _ws->ForgetPath(this);
 }
 
+#if 0
   static c4_View OpenMapped(c4_View v_, int col_, int row_)
   {
     if (col_ < 0)
@@ -600,6 +600,7 @@ MkPath::~MkPath ()
 
     return vw;
   }
+#endif
 
 int MkPath::AttachView(Tcl_Interp* /*interp*/)
 {
@@ -881,7 +882,7 @@ MkPath* MkWorkspace::AddPath(const char*& name_, Tcl_Interp* interp)
   return newPath;
 }
 
-c4_String MkWorkspace::AllocTempRow()
+void MkWorkspace::AllocTempRow(c4_String& result_)
 {
   int i;
   
@@ -910,8 +911,7 @@ c4_String MkWorkspace::AllocTempRow()
     // temporary rows have special names
   char buf[20];
   sprintf(buf, "._!%d._", i);
-
-  return buf;
+  result_ = buf;
 }
 
 void MkWorkspace::ForgetPath(const MkPath* path_)
@@ -1054,7 +1054,9 @@ static Tcl_ObjType mkPropertyType =
 
 const c4_Property& AsProperty(Tcl_Obj* objPtr, const c4_View& view_)
 {
-  if (objPtr->typePtr != &mkPropertyType)
+  void* tag = (&view_[0])._seq; // horrific hack to get at c4_Sequence pointer
+  if (objPtr->typePtr != &mkPropertyType ||
+      objPtr->internalRep.twoPtrValue.ptr1 != tag)
   {
     Tcl_ObjType* oldTypePtr = objPtr->typePtr;
 
@@ -1062,36 +1064,37 @@ const c4_Property& AsProperty(Tcl_Obj* objPtr, const c4_View& view_)
 
     int length;
     char* string = Tcl_GetStringFromObj(objPtr, &length);
+    c4_Property* prop;
 
     if (length > 2 && string[length-2] == ':')
     {
       type = string[length-1];
-      length -= 2;
+      prop = new c4_Property (type, c4_String(string, length-2));
     }
-    else // look int the view to try to determine the type
+    else // look into the view to try to determine the type
     {
       int n = view_.FindPropIndexByName(string);
       if (n >= 0)
         type = view_.NthProperty(n).Type();
+      prop = new c4_Property (type, string);
     }
-
-    c4_Property* prop = new c4_Property (type, c4_String (string, length));
 
     if (oldTypePtr && oldTypePtr->freeIntRepProc)
       oldTypePtr->freeIntRepProc(objPtr);
   
     objPtr->typePtr = &mkPropertyType;
       // use a (char*), because the Mac wants it, others use (void*)
-    objPtr->internalRep.otherValuePtr = (char*) prop;
+    objPtr->internalRep.twoPtrValue.ptr1 = tag;
+    objPtr->internalRep.twoPtrValue.ptr2 = (char*) prop;
   }
 
-  return *(c4_Property*) objPtr->internalRep.otherValuePtr;
+  return *(c4_Property*) objPtr->internalRep.twoPtrValue.ptr2;
 }
 
 static void 
 FreePropertyInternalRep(Tcl_Obj* propPtr)
 {
-  delete (c4_Property*) propPtr->internalRep.otherValuePtr;
+  delete (c4_Property*) propPtr->internalRep.twoPtrValue.ptr2;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1168,16 +1171,18 @@ SetCursorFromAny(Tcl_Interp* interp, Tcl_Obj* objPtr)
 
     const char* string = Tcl_GetStringFromObj(objPtr, 0);
     
+      // dig up the workspace used in this interpreter
+    MkWorkspace* work = (MkWorkspace*) Tcl_GetAssocData(interp, "mk4tcl", 0);
+     // cast required for Mac
+    char* s = (char*) (void*) work->AddPath(string, interp);
+    int i = isdigit(*string) ? atoi(string) : -1;
+
     if (oldTypePtr && oldTypePtr->freeIntRepProc)
       oldTypePtr->freeIntRepProc(objPtr);
 
-      // dig up the workspace used in this interpreter
-    MkWorkspace* work = (MkWorkspace*) Tcl_GetAssocData(interp, "mk4tcl", 0);
-
     objPtr->typePtr = &mkCursorType;
-    objPtr->internalRep.twoPtrValue.ptr2 = // cast required for Mac
-        (char*) (void*) work->AddPath(string, interp);
-    AsIndex(objPtr) = isdigit(*string) ? atoi(string) : -1;
+    objPtr->internalRep.twoPtrValue.ptr1 = (void*) i;
+    objPtr->internalRep.twoPtrValue.ptr2 = s;
   }
 
   return TCL_OK;
@@ -1239,7 +1244,8 @@ c4_View TclSelector::GetAsProps( Tcl_Obj* obj_)
 
   Tcl_Obj* o;
 
-  for (int i = 0; Tcl_ListObjIndex(_interp, obj_, i, &o) == TCL_OK && o != 0; ++i)
+  for (int i = 0; Tcl_ListObjIndex(_interp, obj_, i, &o) == TCL_OK &&
+      								o != 0; ++i)
     result.AddProperty(AsProperty(o, _view));
 
   return result;
@@ -1249,25 +1255,24 @@ int TclSelector::AddCondition(int id_, Tcl_Obj* props_, Tcl_Obj* value_)
 {
   c4_View props = GetAsProps(props_);
   if (props.NumProperties() > 0)
-    _conditions.Add(new Condition (id_, props, Tcl_GetStringFromObj(value_, 0)));
+    _conditions.Add(new Condition (id_, props, value_));
 
   return TCL_OK;
 }
 
-bool TclSelector::MatchOneString(int id_, const char* value_, const c4_String& crit_)
+bool TclSelector::MatchOneString(int id_, const char* value_, const char* crit_)
 {
   switch (id_)
   {
     case 2:   // -exact prop value : exact case-sensitive match
-      return value_ == crit_;
+      return strcmp(value_, crit_) == 0;
 
     case 3:   // -glob prop pattern : match "glob" expression wildcard
-      return Tcl_StringMatch((char*) value_, (char*) (const char*) crit_) > 0;
+      return Tcl_StringMatch(value_, crit_) > 0;
 
     case 4:   // -regexp prop pattern : match specified regular expression
-      return Tcl_RegExpMatch(_interp, (char*) value_,
-                      (char*) (const char*) crit_) > 0;
-
+      return Tcl_RegExpMatch(_interp, (CONST84 char*) value_,
+	  				(CONST84 char*) crit_) > 0;
     case 5:   // -keyword prop prefix : match keyword in given property
       return MatchOneKeyword(value_, crit_);
 
@@ -1294,24 +1299,20 @@ bool TclSelector::Match(const c4_RowRef& row_)
 
       if (cond._id < 2) // use typed comparison as defined by Metakit
       {
-          // set up a Tcl object, using the criterium string value
-        Tcl_SetStringObj(_temp, (char*) (const char*) cond._crit, -1);
-        
         c4_Row data; // this is *very* slow in Metakit 1.8
-        if (SetAsObj(_interp, data, prop, _temp) != TCL_OK)
+        if (SetAsObj(_interp, data, prop, cond._crit) != TCL_OK)
           return false;
         
           // data is now a row with the criterium as single property
         matched = cond._id < 0 && data == row_ ||
-              cond._id == 0 && data <= row_ ||
-              cond._id > 0 && data >= row_;
+		  cond._id == 0 && data <= row_ ||
+		  cond._id > 0 && data >= row_;
       }
       else // use item value as a string
       {
         GetAsObj(row_, prop, _temp);
-        const char* value = Tcl_GetStringFromObj(_temp, 0);
-
-        matched = MatchOneString(cond._id, value, cond._crit);
+        matched = MatchOneString(cond._id, Tcl_GetStringFromObj(_temp, NULL),
+	    				Tcl_GetStringFromObj(cond._crit, NULL));
         if (matched)
           break;
       }
@@ -1335,9 +1336,7 @@ void TclSelector::ExactKeyProps(const c4_RowRef& row_)
       for (int j = 0; j < cond._view.NumProperties(); ++j)
       {
         const c4_Property& prop = cond._view.NthProperty(j);
-        // 2001-05-30: inc/decref to clean up the string object
-        KeepRef o = Tcl_NewStringObj(cond._crit, -1);
-        SetAsObj(_interp, row_, prop, o);
+        SetAsObj(_interp, row_, prop, cond._crit);
       }
     }
   }
@@ -1892,12 +1891,14 @@ int MkTcl::FileCmd()
         int len = 0;
         const char* file = objc < 4 ? ""
                       : Tcl_GetStringFromObj(objv[3], &len);
-
+#ifdef WIN32
+        np = work.Define(name, file, mode, shared);
+#else
         Tcl_DString ds;
         const char *native = Tcl_UtfToExternalDString(NULL, file, len, &ds);
         np = work.Define(name, native, mode, shared);
         Tcl_DStringFree(&ds);
-
+#endif
         if (np == 0)
           return Fail("file open failed");
 
@@ -1910,13 +1911,15 @@ int MkTcl::FileCmd()
       {
         int len;
         const char* name = Tcl_GetStringFromObj(objv[2], &len);
+        c4_FileStrategy strat;
+#ifdef WIN32
+        int err = strat.DataOpen(name, false);
+#else
         Tcl_DString ds;
         const char *native = Tcl_UtfToExternalDString(NULL, name, len, &ds);
-
-        c4_FileStrategy strat;
         int err = strat.DataOpen(native, false);
         Tcl_DStringFree(&ds);
-                
+#endif
         if (!err || !strat.IsValid())
           return Fail("no such file");
         t4_i32 end = strat.EndOfData();
@@ -2584,8 +2587,6 @@ int MkTcl::ChannelCmd()
         for (int i = 0; i < v.NumProperties(); ++i)
         {
           const c4_Property& prop = v.NthProperty(i);
-          c4_String name = prop.Name();
-
           if (prop.Type() == 'V')
             continue; // omit subviews
 
@@ -2750,7 +2751,7 @@ Mktcl_Cmds(Tcl_Interp* interp, bool /*safe*/)
   for (int i = 0; cmds[i]; ++i)
     ws->DefCmd(new MkTcl (ws, interp, i, prefix + cmds[i]));
 
-  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.3");
+  return Tcl_PkgProvide(interp, "Mk4tcl", "2.4.9.4");
 }
 
 ///////////////////////////////////////////////////////////////////////////////

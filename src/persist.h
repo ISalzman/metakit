@@ -1,5 +1,5 @@
 // persist.h --
-// $Id: persist.h 1260 2007-03-09 16:49:54Z jcw $
+// $Id: persist.h 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -118,6 +118,8 @@ public:
   t4_i32 FetchOldValue();
   void FetchOldLocation(c4_Column& col_);
   
+  t4_i32 FreeBytes(t4_i32* bytes_ =0);
+
   static c4_HandlerSeq* Load(c4_Stream*);
   static void Save(c4_Stream*, c4_HandlerSeq& root_);
 };

@@ -1,5 +1,5 @@
 // tstore5.cpp -- Regression test program, storage tests, part 5
-// $Id: tstore5.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: tstore5.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "regress.h"
@@ -282,5 +282,44 @@ void TestStores5()
       c4_String x1 = s1.Description();
       A(x1 == "v1[p1:I],v2[p1:I],v3[v3[^]]");
     s1.Commit();
-  } D(s49a); E;
+  } D(s49a); R(s49a); E;
+
+  B(s50, Free space usage, 0) W(s50a);
+  {
+    t4_i32 c, b;
+    c4_IntProp p1 ("p1");
+
+    c4_Storage s1 ("s50a", true);
+    c4_View v1 = s1.GetAs("a[p1:I]");
+    
+    v1.Add(p1 [12345]);
+
+    s1.Commit();
+    c = s1.FreeSpace(&b);
+      A(c == 0);
+      A(b == 0);
+
+    v1.Add(p1 [2345]);
+
+    s1.Commit();
+    c = s1.FreeSpace(&b);
+      A(c == 1);
+      A(b == 18);
+    s1.Commit();
+    c = s1.FreeSpace(&b);
+      A(c == 1);
+      A(b == 6);
+
+    v1.Add(p1 [345]);
+
+    s1.Commit();
+    c = s1.FreeSpace(&b);
+      A(c == 2);
+      A(b == 56);
+    s1.Commit();
+    c = s1.FreeSpace(&b);
+      A(c == 1);
+      A(b == 44);
+      //fprintf(stderr, "c %d b %d\n", c, b);
+  } D(s50a); R(s50a); E;
 }

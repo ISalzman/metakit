@@ -1,9 +1,10 @@
 // mk4too.cpp -- Tcl object command interface to Metakit
-// $Id: mk4too.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: mk4too.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 // Copyright (C) 2000-2004 by Matt Newman and Jean-Claude Wippler.
 
 #include "mk4tcl.h"
+#include <stdio.h>
 #include <string.h>
 
 ///////////////////////////////////////////////////////////////////////////////

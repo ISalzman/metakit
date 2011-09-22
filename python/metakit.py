@@ -1,6 +1,6 @@
 """
 metakit.py -- Utility code for the Python interface to Metakit
-$Id: metakit.py 1260 2007-03-09 16:49:54Z jcw $
+$Id: metakit.py 1248 2007-03-09 16:30:30Z jcw $
 This is part of Metakit, see http://www.equi4.com/metakit/
 
 This wraps the raw Mk4py compiled extension interface.

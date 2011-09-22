@@ -1,5 +1,5 @@
 // store.cpp --
-// $Id: store.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: store.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -424,6 +424,11 @@ bool c4_Storage::LoadFrom(c4_Stream& stream_)
 void c4_Storage::SaveTo(c4_Stream& stream_)
 {
   c4_Persist::Save(&stream_, Persist()->Root());
+}
+
+t4_i32 c4_Storage::FreeSpace(t4_i32* bytes_)
+{
+  return Persist()->FreeBytes(bytes_);
 }
 
 /////////////////////////////////////////////////////////////////////////////

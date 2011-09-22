@@ -1,5 +1,5 @@
 // fileio.cpp --
-// $Id: fileio.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: fileio.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -15,11 +15,9 @@
 #endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#if !defined (q4_WINCE)
 #include <io.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#endif
 #endif
 
 #if q4_UNIX && HAVE_MMAP
@@ -322,6 +320,11 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
 #if q4_WIN32 && !q4_BORC && !q4_WINCE
   int flags = _O_BINARY | _O_NOINHERIT | (mode_ > 0 ? _O_RDWR : _O_RDONLY);
   int fd = _open(fname_, flags);
+  if (fd == -1) {
+    WCHAR wName[MAX_PATH];
+    MultiByteToWideChar(CP_UTF8, 0, fname_, -1, wName, MAX_PATH);
+    fd = _wopen(wName, flags);
+  }
   if (fd != -1)
     _cleanup = _file = _fdopen(fd, mode_ > 0 ? "r+b" : "rb");
 #else
@@ -340,6 +343,11 @@ bool c4_FileStrategy::DataOpen(const char* fname_, int mode_)
   if (mode_ > 0) {
 #if q4_WIN32 && !q4_BORC && !q4_WINCE
     fd = _open(fname_, flags | _O_CREAT, _S_IREAD | _S_IWRITE);
+    if (fd == -1) {
+      WCHAR wName[MAX_PATH];
+      MultiByteToWideChar(CP_UTF8, 0, fname_, -1, wName, MAX_PATH);
+      fd = _wopen(wName, flags | _O_CREAT, _S_IREAD | _S_IWRITE);
+    }
     if (fd != -1)
       _cleanup = _file = _fdopen(fd, "w+b");
 #else

@@ -1,5 +1,5 @@
 // PyStorage.cpp --
-// $Id: PyStorage.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: PyStorage.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
@@ -557,7 +557,7 @@ void initMk4py() {
 void initMk4py() {
   PyObject* m = Py_InitModule4("Mk4py", Mk4Methods,
             mk4py_module_documentation, 0, PYTHON_API_VERSION);
-  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.3"));
+  PyObject_SetAttrString(m, "version", PyString_FromString("2.4.9.4"));
   PyObject_SetAttrString(m, "ViewType", (PyObject*)&PyViewtype);
   PyObject_SetAttrString(m, "ViewerType", (PyObject*)&PyViewertype);
   PyObject_SetAttrString(m, "ROViewerType", (PyObject*)&PyROViewertype);

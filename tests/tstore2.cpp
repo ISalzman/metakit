@@ -1,5 +1,5 @@
 // tstore2.cpp -- Regression test program, storage tests, part 2
-// $Id: tstore2.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: tstore2.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 #include "regress.h"

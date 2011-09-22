@@ -1,5 +1,5 @@
 // mk4tcl.h --
-// $Id: mk4tcl.h 1260 2007-03-09 16:49:54Z jcw $
+// $Id: mk4tcl.h 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 #include "mk4.h"
@@ -259,7 +259,7 @@ public:
     // decrease the reference count, delete path if it is no longer used
   void ForgetPath(const MkPath* path_);
     // create a path to a temporary row
-  c4_String AllocTempRow();
+  void AllocTempRow(c4_String&);
   
     // adjust paths of all subviews if the parent position has changed
   void Invalidate(const MkPath& path_);
@@ -305,9 +305,9 @@ public:
   public:
     int _id;
     c4_View _view;
-    c4_String _crit;
+    Tcl_Obj* _crit; // no need to incref, original lifetime is guaranteed
 
-    Condition (int id_, const c4_View& view_, const char* crit_)
+    Condition (int id_, const c4_View& view_, Tcl_Obj* crit_)
       : _id (id_), _view (view_), _crit (crit_) { }
   };
 
@@ -321,7 +321,7 @@ public:
 
   c4_View GetAsProps( Tcl_Obj* obj_);
   int AddCondition(int id_, Tcl_Obj* props_, Tcl_Obj* value_);
-  bool MatchOneString(int id_, const char* value_, const c4_String& crit_);
+  bool MatchOneString(int id_, const char* value_, const char* crit_);
   bool Match(const c4_RowRef& row_);
   void ExactKeyProps(const c4_RowRef& row_);
   int DoSelect(Tcl_Obj* list_, c4_View* result_ =0);

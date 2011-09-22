@@ -1,5 +1,5 @@
 // PyHead.h --
-// $Id: PyHead.h 1260 2007-03-09 16:49:54Z jcw $
+// $Id: PyHead.h 1248 2007-03-09 16:30:30Z jcw $
 // This is part of MetaKit, see http://www.equi4.com/metakit/
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
@@ -17,6 +17,7 @@ public:
 #ifdef Py_TRACE_REFS
         _ob_next = 0;
         _ob_prev = 0;
+	_Py_AddToAllObjects(this, 0);
 #endif
         ob_refcnt = 1;
         ob_type = &t;

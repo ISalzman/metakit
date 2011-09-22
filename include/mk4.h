@@ -1,5 +1,5 @@
 // mk4.h --
-// $Id: mk4.h 1260 2007-03-09 16:49:54Z jcw $
+// $Id: mk4.h 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -43,7 +43,7 @@
 //---------------------------------------------------------------------------
 
     /// Current release = 100 * major + 10 * minor + maintenance
-#define d4_MetakitLibraryVersion 249    // 2.4.9.3 release, Jan 26, 2004
+#define d4_MetakitLibraryVersion 249    // 2.4.9.4 release, Jun 10, 2005
 #define d4_MetaKitLibraryVersion d4_MetakitLibraryVersion // compat, yuck
 
 //---------------------------------------------------------------------------
@@ -553,6 +553,8 @@ public:
 
   bool LoadFrom(c4_Stream&);
   void SaveTo(c4_Stream&);
+
+  t4_i32 FreeSpace(t4_i32* bytes_ =0);
 
   //DROPPED: c4_Storage (const char* filename_, const char* description_);
   //DROPPED: c4_View Store(const char* name_, const c4_View& view_);

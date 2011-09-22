@@ -132,6 +132,13 @@ class test_regrtest(Command):
         # Use test.regrtest, unlike the original version of this class
         import test.regrtest
 
+	# jcw 2004-04-26 - why do I need to add these here to find the tests?
+	#import leaktest - not very portable
+	import test_inttypes
+	import test_stringtype
+	#import test_hash - doesn't work
+	# jcw end
+
         test.regrtest.STDTESTS = []
         test.regrtest.NOTTESTS = []
 

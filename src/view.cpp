@@ -1,5 +1,5 @@
 // view.cpp --
-// $Id: view.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: view.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, the homepage is http://www.equi4.com/metakit/
 
 /** @file
@@ -390,7 +390,7 @@ bool c4_View::IsCompatibleWith(const c4_View& dest_) const
 
     // both must have the same structure (is this expensive?)
   c4_String d1 = h1->Definition().Description(true);
-  c4_String d2 = h1->Definition().Description(true);
+  c4_String d2 = h2->Definition().Description(true);
   return d1 == d2; // ignores all names
 }
 

@@ -1,5 +1,5 @@
 // PyRowRef.cpp --
-// $Id: PyRowRef.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: PyRowRef.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of MetaKit, the homepage is http://www.equi4.com/metakit/
 // Copyright (C) 1999-2004 Gordon McMillan and Jean-Claude Wippler.
 //
@@ -171,14 +171,25 @@ void PyRowRef::setFromPython(const c4_RowRef& row, const c4_Property& prop, PyOb
         ((const c4_DoubleProp&) prop) (row) = (double) number;
       }
       break;
-    case 'S': 
-      if (PyString_Check(attr)) {
-        c4_Bytes temp (PyString_AS_STRING(attr),
-        PyString_GET_SIZE(attr) + 1, false);
+    case 'S':
+      if (attr != Py_None) {
+#ifdef HAVE_UNICODEOBJECT_H
+        bool is_unicode = PyUnicode_Check(attr);
+        if (is_unicode) attr = PyUnicode_AsUTF8String(attr);
+#else
+        const bool is_unicode = false;
+#endif
+        PWOString string(attr);
+        if (is_unicode)
+          Py_DECREF(attr);
+
+        size_t size = string.size();
+        const char *cstring = string;
+        if (size != strlen(cstring))
+          Fail(PyExc_ValueError, "string contains embedded nulls; try 'B' type");
+        c4_Bytes temp (cstring, size + 1, false);
         prop (row).SetData(temp);
       }
-      else if (attr != Py_None)
-        Fail(PyExc_TypeError, "wrong type for StringProp");
       break;
     case 'V': 
       if (PyView_Check(attr)) {

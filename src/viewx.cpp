@@ -1,5 +1,5 @@
 // viewx.cpp --
-// $Id: viewx.cpp 1260 2007-03-09 16:49:54Z jcw $
+// $Id: viewx.cpp 1248 2007-03-09 16:30:30Z jcw $
 // This is part of Metakit, see http://www.equi4.com/metakit/
 
 /** @file
@@ -194,13 +194,15 @@ void c4_Sequence::InsertAt(int index_, c4_Cursor newElem_, int count_)
     const c4_Sequence* hc = newElem_._seq->HandlerContext(i);
     int ri = newElem_._seq->RemapIndex(newElem_._index, hc);
 
-    h.GetBytes(ri, data);
-
     int colNum = PropIndex(h.Property());
     d4_assert(colNum >= 0);
 
     if (h.Property().Type() == 'V')
     {
+        // If inserting from self: Make sure we get a copy of the bytes,
+        // so we don't get an invalid pointer if the memory get realloc'ed
+      h.GetBytes(ri, data, newElem_._seq == this);
+
         // special treatment for subviews, insert empty, then overwrite
         // changed 19990904 - probably fixes a long-standing limitation
       c4_Bytes temp;
@@ -208,11 +210,15 @@ void c4_Sequence::InsertAt(int index_, c4_Cursor newElem_, int count_)
 
       c4_Handler& h2 = NthHandler(colNum);
       h2.Insert(index_, temp, count_);
+
       for (int j = 0; j < count_; ++j)
         h2.Set(index_ + j, data);
     }
     else
+    {
+      h.GetBytes(ri, data);
       NthHandler(colNum).Insert(index_, data, count_);
+    }
   }
 
     // if number of props in dest is larger after adding, clear the rest

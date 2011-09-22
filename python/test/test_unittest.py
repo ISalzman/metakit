@@ -1,8 +1,33 @@
 import unittest, Mk4py, sys
+from test import test_support
+from mktestsupport import *
 
 class Dummy:
     def __init__(self, **kws):
         self.__dict__.update(kws)
+
+try:
+    # new-style class declaration; fails on Python 2.1 and earlier
+    new_dummy = """class NewDummy(object):
+    def __init__(self, **kws):
+        self.__dict__.update(kws)"""
+    eval(compile(new_dummy, '', 'single'))
+except:
+    NewDummy = None
+
+class SequenceCounter:
+    def __init__(self, initial_value):
+        self.beginning = self.count = initial_value
+
+    def begin(self):
+        self.beginning = self.count
+
+    # ideally, this wants to be a generator...
+    # but then we'd have a more complex interface, and lose compatibility with
+    # older Python versions
+    def __call__(self):
+        self.count += 1
+        return self.count - 1
         
 ##class StorageTestCase(unittest.TestCase):
     #storge(), storage(file), storage(fnm, rw=[0,1,2])
@@ -324,13 +349,103 @@ class ViewTestCase(ViewerTestCase):
     def testSetsize(self):
         #setsize
         x = self.v0.copy()
-        x.setsize(6)
+        self.assertEqual(x.setsize(6), 6)
+        self.assertRaises(TypeError, x.setsize, 1, 2)
+        self.assertRaises(TypeError, x.setsize, 'a')
         self.assertEqual(len(x), 6)
         for row in x[3:]:
             self.assertEqual(row.s, '')
-            
+            self.assertEqual(row.i, 0)
+        self.assertEqual(x.setsize(0), 0)
+        self.assertEqual(len(x), 0)
+
+    def testInsert(self):
         #insert
+        x = self.v0.copy()
+
+        # Most of insert()'s attribute handling is tested by append(),
+        # so just test the features unique to insert() here.
+        def insert(index, i):
+            a = [r.i for r in x]
+            x.insert(index, i=i)
+            if index < 0:
+                index += len(a) # default behavior in Python 2.3 and later
+            a.insert(index, i)
+            self.assertEqual(a, [r.i for r in x])
+
+        insert(0, 7)
+        insert(1, 4)
+        insert(2, 8)
+        insert(-1, 6)
+        insert(-2, 9)
+        insert(500, 48)
+        insert(MAXINT, 300)
+        insert(MININT, 21)
+        self.assertRaises(TypeError, x.insert, 'hi', i=2)
+        self.assertRaises(TypeError, x.insert, None, i=2)
+        self.assertRaises(TypeError, x.insert)
+        self.assertRaises(int_long_error, x.insert, MAXINT + 1, i=2)
+        self.assertRaises(int_long_error, x.insert, MININT - 1, i=2)
+
+    def testAppend(self):
         #append
+        x = self.v0.copy()
+        c = SequenceCounter(3)
+
+        self.assertEqual(x.append(['hi', 2]), c())
+        self.assertRaises(TypeError, x.append, 1, 2)
+        self.assertRaises(IndexError, x.append, [1, 2, 3]) # could also be TypeError
+        self.assertRaises(IndexError, x.append, 'abc')
+        self.assertRaises(IndexError, x.append, ['hi', 2, 3])
+        self.assertEqual(x.append(s='hi',i=2), c())
+        self.assertEqual(x.append(i=2,s='hi'), c())
+        self.assertRaises(TypeError, x.append, [1, 's'])
+        self.assertRaises(TypeError, x.append, ['s', 't'])
+        self.assertRaises(TypeError, x.append, 'hi')
+        self.assertEqual(x.append(('hi', 2)), c())
+        self.assertEqual(x.append(Dummy(s='hi', i=2)), c())
+        self.assertEqual(x.append(Dummy(s='hi', i=2, j=4)), c())
+        self.assertRaises(TypeError, x.append, Dummy(s=1))
+        self.assertRaises(TypeError, x.append, Dummy(s=Dummy()))
+        if NewDummy:
+            self.assertEqual(x.append(NewDummy(s='hi', i=2)), c())
+            self.assertEqual(x.append(NewDummy(s='hi', i=2, j=4)), c())
+            self.assertRaises(TypeError, x.append, NewDummy(s=1))
+            self.assertRaises(TypeError, x.append, NewDummy(s=NewDummy()))
+        for row in x[c.beginning:]:
+            self.assertEqual(row.s, 'hi')
+            self.assertEqual(row.i, 2)
+            
+        c.begin()
+        self.assertEqual(x.append(s='hi'), c())
+        self.assertEqual(x.append(s='hi',j=2), c())
+        self.assertEqual(x.append(['hi']), c())
+        self.assertRaises(TypeError, x.append, [1])
+        self.assertRaises(TypeError, x.append, 1)
+        self.assertEqual(x.append(Dummy(s='hi')), c())
+        self.assertEqual(x.append(Dummy(s='hi', j=2)), c())
+        if NewDummy:
+            self.assertEqual(x.append(NewDummy(s='hi')), c())
+            self.assertEqual(x.append(NewDummy(s='hi', j=2)), c())
+        for row in x[c.beginning:]:
+            self.assertEqual(row.s, 'hi')
+            self.assertEqual(row.i, 0)
+            
+        c.begin()
+        self.assertEqual(x.append(), c())
+        self.assertEqual(x.append(()), c())
+        self.assertEqual(x.append(Dummy()), c())
+        self.assertEqual(x.append(Dummy(k=Dummy())), c())
+        if NewDummy:
+            self.assertEqual(x.append(NewDummy()), c())
+            self.assertEqual(x.append(NewDummy(k=NewDummy())), c())
+        for row in x[c.beginning:]:
+            self.assertEqual(row.s, '')
+            self.assertEqual(row.i, 0)
+
+        # XXX test 'L', 'D', 'M'/'B' types
+        # XXX test other view types (necessary?)
+        
         #delete
         #remove
         #map
@@ -497,14 +612,14 @@ class RowRefTestCase(RORowRefTestCase):
         r.m = s*50
         self.assertEqual(r.m, s*50)
         self.assertRaises(TypeError, setattr, (r, 'm', 1.0))
-    
-def suite():
+
+def test_main():
     l = [ unittest.makeSuite(RORowRefTestCase),
           unittest.makeSuite(RowRefTestCase),
           unittest.makeSuite(ViewerTestCase),
           unittest.makeSuite(ViewTestCase), ]
-    return unittest.TestSuite(l)
+    suite = unittest.TestSuite(l)
+    test_support.run_suite(suite)
 
 if __name__ == '__main__':
-    runner = unittest.TextTestRunner(verbosity=2)
-    runner.run(suite())
+    test_main()

@@ -1,5 +1,5 @@
 # test_inttypes.py -- Test Metakit Python bindings for integral types
-# $Id: test_inttypes.py 1260 2007-03-09 16:49:54Z jcw $
+# $Id: test_inttypes.py 1248 2007-03-09 16:30:30Z jcw $
 # This is part of Metakit, see http://www.equi4.com/metakit/
 
 from mktestsupport import *
