@@ -183,9 +183,9 @@ class SiasStrategy: public c4_Strategy {
     int _validMask;
     int _watchMask;
     int _flags;
+    Tcl_Interp *_interp;
     SiasStrategy *_next;
     MkWorkspace *_workspace;
-    Tcl_Interp *_interp;
 
     SiasStrategy(c4_Storage &storage_, const c4_View &view_, const c4_BytesProp
       &memo_, int row_): _storage(storage_), _view(view_), _memo(memo_), _row
@@ -1170,7 +1170,7 @@ static void UpdateStringOfCursor(Tcl_Obj *cursorPtr) {
   long index = AsIndex(cursorPtr);
   if (index >= 0) {
     char buf[20];
-    sprintf(buf, "%s%d", s.IsEmpty() ? "" : "!", index);
+    sprintf(buf, "%s%d", s.IsEmpty() ? "" : "!", (int) index);
     s += buf;
   }
 
@@ -1272,8 +1272,8 @@ bool TclSelector::Match(const c4_RowRef &row_) {
           return false;
 
         // data is now a row with the criterium as single property
-        matched = cond._id < 0 && data == row_ || cond._id == 0 && data <= row_
-          || cond._id > 0 && data >= row_;
+        matched = (cond._id < 0 && data == row_) || (cond._id == 0 && data <= row_)
+          || (cond._id > 0 && data >= row_);
       } else
        { // use item value as a string
         GetAsObj(row_, prop, _temp);
@@ -1401,11 +1401,12 @@ int Tcl::tcl_ListObjLength(Tcl_Obj *obj_) {
 }
 
 void Tcl::tcl_ListObjAppendElement(Tcl_Obj *obj_, Tcl_Obj *value_) {
-  if (!_error)
+  if (!_error) {
     if (value_ == 0)
       Fail();
     else
       _error = Tcl_ListObjAppendElement(interp, obj_, value_);
+  }
 }
 
 bool Tcl::tcl_GetBooleanFromObj(Tcl_Obj *obj_) {
@@ -2103,11 +2104,12 @@ int MkTcl::ViewCmd() {
         }
 
         int pos;
-        if (view.Locate(key, &pos) == 0)
+        if (view.Locate(key, &pos) == 0) {
           if (force)
             view.InsertAt(pos, key);
           else
             return Fail("key not found");
+	}
 
         Tcl_SetIntObj(tcl_GetObjResult(), pos);
         return _error;
@@ -2207,7 +2209,7 @@ int MkTcl::LoopCmd() {
     if (Tcl_ObjSetVar2(interp, var, 0, value, TCL_LEAVE_ERR_MSG) == 0)
       return Fail();
 
-    if (!(i < limit && incr > 0 || i > limit && incr < 0))
+    if (!((i < limit && incr > 0) || (i > limit && incr < 0)))
       break;
 
     LeaveMutex();
@@ -2432,7 +2434,7 @@ int MkTcl::ChannelCmd() {
   d4_assert(mkChan != 0);
 
   static int mkChanSeq = 0;
-  char buffer[10];
+  char buffer[14];
   sprintf(buffer, "mk%d", ++mkChanSeq);
 
   mkChan->_watchMask = 0;
