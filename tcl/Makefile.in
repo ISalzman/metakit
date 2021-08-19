@@ -100,7 +100,7 @@ CONFIG_CLEAN_FILES = Makefile pkgIndex.tcl config.h
 CLEANFILES	= @CLEANFILES@
 
 CPPFLAGS	= @CPPFLAGS@
-LIBS		= @PKG_LIBS@ @LIBS@
+LIBS		= @PKG_LIBS@ @LIBS@ -lstdc++
 AR		= @AR@
 CFLAGS		= @CFLAGS@
 COMPILE		= $(CC) $(DEFS) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -117,7 +117,8 @@ doc:
 	@echo "        xml2nroff sample.xml > sample.n"
 	@echo "        xml2html sample.xml > sample.html"
 
-install: all install-binaries install-libraries install-doc
+#install: all install-binaries install-libraries install-doc
+install: all install-binaries install-libraries
 
 install-binaries: binaries install-lib-binaries install-bin-binaries
 
