@@ -35,7 +35,7 @@ TEA_ADD_STUB_SOURCES([])
 TEA_ADD_TCL_SOURCES([])
 
 if test "${TEA_PLATFORM}" = "windows" ; then
-    AC_DEFINE(BUILD_Mk4tcl)
+    AC_DEFINE(BUILD_Mk4tcl, 1, [Build windows export dll])
     CLEANFILES="*.lib *.dll *.exp *.ilk *.pdb vc*.pch"
     #TEA_ADD_SOURCES([win/winFile.c])
     #TEA_ADD_INCLUDES([-I\"$(${CYGPATH} ${srcdir}/win)\"])
